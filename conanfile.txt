@@ -1,0 +1,7 @@
+[requires]
+  poco/1.12.4
+  oatpp/1.3.0 
+
+[generators]
+  CMakeDeps
+  CMakeToolchain
