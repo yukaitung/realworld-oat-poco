@@ -1,16 +1,17 @@
 #include "Application.hpp"
+
+#include "controller/UserController.hpp"
+
 #include "oatpp/network/Server.hpp"
+
 #include <iostream>
 
 void run() {
   Application app;
-  auto router = app.httpRouter.getObject();
-  
-  //auto userController = UserController::createShared();
-  //userController->addEndpointsToRouter(router);
 
-  //auto rbacController = RbacController::createShared();
-  //rbacController->addEndpointsToRouter(router);
+  auto router = app.httpRouter.getObject();
+  oatpp::web::server::api::Endpoints docEndpoints;
+  docEndpoints.append(router->addController(UserController::createShared())->getEndpoints());
 
   /* Get connection handler component */
   OATPP_COMPONENT(std::shared_ptr<oatpp::network::ConnectionHandler>, connectionHandler);
