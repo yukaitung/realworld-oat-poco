@@ -13,7 +13,7 @@ private:
   UserModel userModel;
 
 public:
-  oatpp::Object<UserDto> createUser(const oatpp::Object<UserDto>& userDto);
+  oatpp::Object<UserJsonDto> createUser(const oatpp::Object<UserRegJsonDto>& dto);
 };
 
 #endif //USERSERVICE_HPP

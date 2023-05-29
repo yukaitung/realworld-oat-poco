@@ -25,9 +25,9 @@ public:
     return std::make_shared<UserController>(objectMapper);
   }
 
-  ENDPOINT("POST", "/api/users", createUser, BODY_DTO(Object<UserDto>, userDto))
+  ENDPOINT("POST", "/users", createUser, BODY_DTO(Object<UserRegJsonDto>, dto))
   {
-    return createDtoResponse(Status::CODE_200, userService.createUser(userDto));
+    return createDtoResponse(Status::CODE_200, userService.createUser(dto));
   }
 };
 

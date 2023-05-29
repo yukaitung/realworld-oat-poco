@@ -3,9 +3,6 @@
 
 #include "dto/UserDto.hpp"
 
-#include "Poco/Data/Session.h"
-#include "Poco/Data/MySQL/Connector.h"
-
 #include <string>
 
 class UserModel {
@@ -13,9 +10,11 @@ class UserModel {
     std::string connectionName;
     std::string connectionString;
 
+    std::string issueJWT(const std::string &username);
+
   public:
     UserModel();
-    bool createUser(std::string& email, std::string& username, std::string& password);
+    oatpp::Object<UserDto> createUser(std::string& email, std::string& username, std::string& password);
 };
 
 #endif // USERMODEL_HPP
