@@ -29,6 +29,11 @@ public:
   {
     return createDtoResponse(Status::CODE_200, userService.createUser(dto));
   }
+
+  ENDPOINT("POST", "/users/login", login, BODY_DTO(Object<UserAuthJsonDto>, dto))
+  {
+    return createDtoResponse(Status::CODE_200, userService.login(dto));
+  }
 };
 
 #include OATPP_CODEGEN_END(ApiController)

@@ -8,6 +8,7 @@
 #include "Poco/JWT/Signer.h"
 #include "Poco/Exception.h"
 #include "Poco/SHA2Engine.h"
+#include "oatpp/core/base/Environment.hpp"
 
 #include <random>
 
@@ -23,6 +24,12 @@ UserModel::UserModel() {
   connectionName = "MySQL";
   connectionString = "host=127.0.0.1;port=3306;db=Realworld;user=root;password=GueBPjHlPFUgXc7hm=;compress=true;auto-reconnect=true";
   Poco::Data::MySQL::Connector::registerConnector();
+}
+
+std::string UserModel::hashPassword(const std::string &passwordPlusSalt) {
+  SHA2Engine sha256;
+  sha256.update(passwordPlusSalt);
+  return sha256.digestToHex(sha256.digest());
 }
 
 std::string UserModel::issueJWT(const std::string &username) {
@@ -51,20 +58,16 @@ oatpp::Object<UserDto> UserModel::createUser(std::string& email, std::string& us
   
   // Hash password
   password += salt;
-  SHA2Engine sha256;
-  sha256.update(password);
-  password = sha256.digestToHex(sha256.digest());
+  password = hashPassword(password);
 
   std::string token = issueJWT(username);
 
-  auto user = UserDto::createShared();
   try 
   {
     Session session(connectionName, connectionString);
-    Statement insert(session);
-    insert << "INSERT INTO users (email, username, password, salt, token) VALUES (?, ?, ?, ?, ?)", use(email), use(username), use(password), use(salt), use(token);
-    insert.execute();
+    session << "INSERT INTO users (email, username, password, salt, token) VALUES (?, ?, ?, ?, ?)", use(email), use(username), use(password), use(salt), use(token), now;
 
+    auto user = UserDto::createShared();
     user->username = username;
     user->email = email;
     user->token = token;
@@ -72,7 +75,56 @@ oatpp::Object<UserDto> UserModel::createUser(std::string& email, std::string& us
   }
   catch(Exception& exp)
   {
-    std::cerr << exp.displayText() << std::endl;
-    return user;
+    OATPP_LOGE("UserModel", exp.displayText().c_str());
+    return nullptr;
+  }
+}
+
+oatpp::Object<UserDto> UserModel::login(std::string &email, std::string &password) {
+  Poco::Nullable<int> retrunId;
+  Poco::Nullable<std::string> retrunUsername;
+  Poco::Nullable<std::string> retrunEmail;
+  Poco::Nullable<std::string> retrunPassword;
+  Poco::Nullable<std::string> retrunSalt;
+  Poco::Nullable<std::string> retrunBio;
+  Poco::Nullable<std::string> retrunImage;
+
+  // Fetch result
+  try 
+  {
+    Session session(connectionName, connectionString);
+    session << "SELECT id, username, email, password, salt, bio, image FROM users WHERE email = ?", into(retrunId), into(retrunUsername), into(retrunEmail), into(retrunPassword), into(retrunSalt), into(retrunBio), into(retrunImage), use(email), now;
+    // Validate password
+    if(!retrunPassword.isNull() && !retrunSalt.isNull()) {
+      password += retrunSalt.value();
+      std::string inputPassword = hashPassword(password);
+      if(inputPassword.compare(retrunPassword.value()) != 0) {
+        // Password incorrect
+        OATPP_LOGE("UserModel", "User id %i unsuccessful login attempt.", retrunId.value());
+        return nullptr;
+      }
+
+      // Update token
+      std::string token = issueJWT(retrunUsername.value());
+      session << "UPDATE users SET token = ? WHERE (id = ?)", use(token), use(retrunId.value()), now;
+
+      auto user = UserDto::createShared();
+      user->username = retrunUsername.value();
+      user->email = retrunEmail.value();
+      user->token = token;
+      if(!retrunBio.isNull())
+        user->bio = retrunBio.value();
+      if(!retrunImage.isNull())
+      user->image = retrunImage.value();
+      return user;
+    }
+    
+    // Error in fetching data
+    return nullptr;
+  }
+  catch(Exception& exp)
+  {
+    OATPP_LOGE("UserModel", exp.displayText().c_str());
+    return nullptr;
   }
 }

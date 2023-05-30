@@ -46,7 +46,6 @@ class UserRegJsonDto : public oatpp::DTO {
 class UserAuthDto : public oatpp::DTO {
   DTO_INIT(UserAuthDto, DTO)
 
-  DTO_FIELD(String, username);
   DTO_FIELD(String, email);
   DTO_FIELD(String, password);
 };
