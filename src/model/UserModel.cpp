@@ -9,6 +9,7 @@
 #include "Poco/Exception.h"
 #include "Poco/SHA2Engine.h"
 #include "oatpp/core/base/Environment.hpp"
+#include "oatpp/web/protocol/http/Http.hpp"
 
 #include <random>
 
@@ -18,6 +19,7 @@ using Poco::Data::Statement;
 using Poco::Data::RecordSet;
 using Poco::Exception;
 using Poco::SHA2Engine;
+using oatpp::web::protocol::http::Status;
 
 UserModel::UserModel() {
   // TODO: use pool // dont insert secret
@@ -101,6 +103,7 @@ oatpp::Object<UserDto> UserModel::login(std::string &email, std::string &passwor
       if(inputPassword.compare(retrunPassword.value()) != 0) {
         // Password incorrect
         OATPP_LOGE("UserModel", "User id %i unsuccessful login attempt.", retrunId.value());
+        OATPP_ASSERT_HTTP(false, Status::CODE_403, "Unsuccessful login attempt.");
         return nullptr;
       }
 
