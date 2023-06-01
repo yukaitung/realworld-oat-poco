@@ -26,6 +26,9 @@ find_package(poco REQUIRED Foundation Data DataMySQL)
 add_executable(${PROJECT_NAME}
   src/main.cpp
 
+  src/helper/Jwt.cpp
+  src/helper/TokenAuthorization.cpp
+
   src/service/UserService.cpp
 
   src/model/UserModel.cpp

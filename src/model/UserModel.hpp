@@ -11,12 +11,12 @@ class UserModel {
     std::string connectionString;
 
     std::string hashPassword(const std::string &passwordPlusSalt);
-    std::string issueJWT(const std::string &username);
 
   public:
     UserModel();
     oatpp::Object<UserDto> createUser(std::string& email, std::string& username, std::string& password);
     oatpp::Object<UserDto> login(std::string &email, std::string &password);
+    oatpp::Object<UserDto> getUser(std::string &username);
 };
 
 #endif // USERMODEL_HPP
