@@ -24,9 +24,9 @@ std::shared_ptr<AuthorizationObject> TokenAuthorizationHandler::handleAuthorizat
 
 std::shared_ptr<AuthorizationObject> TokenAuthorizationHandler::authorize(const oatpp::String& token) {
   if(token != "") {
-    std::string username = Jwt::validateJWT(token);
-    OATPP_ASSERT_HTTP(!username.empty(), Status::CODE_401, "Token Error");
-    return std::make_shared<TokenAuthorizationObject>(username);
+    std::string id = Jwt::validateJWT(token);
+    OATPP_ASSERT_HTTP(!id.empty(), Status::CODE_401, "Token Error");
+    return std::make_shared<TokenAuthorizationObject>(id);
   }
   OATPP_ASSERT_HTTP(false, Status::CODE_401, "Authorization Failed");
   return nullptr;

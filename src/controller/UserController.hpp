@@ -39,12 +39,12 @@ public:
 
   ENDPOINT("GET", "/user", getUser, AUTHORIZATION(std::shared_ptr<TokenAuthorizationObject>, authObject))
   {
-    return createDtoResponse(Status::CODE_200, userService.getUser(authObject->username));
+    return createDtoResponse(Status::CODE_200, userService.getUser(authObject->id));
   }
 
   ENDPOINT("PUT", "/user", updateUser, BODY_DTO(Object<UserUpdateJsonDto>, dto), AUTHORIZATION(std::shared_ptr<TokenAuthorizationObject>, authObject))
   {
-    return createDtoResponse(Status::CODE_200, userService.updateUser(authObject->username, dto));
+    return createDtoResponse(Status::CODE_200, userService.updateUser(authObject->id, dto));
   }
 };
 

@@ -46,12 +46,19 @@ oatpp::Object<UserDto> UserModel::createUser(std::string &email, std::string &us
   password += salt;
   password = hashPassword(password);
 
-  std::string token = Jwt::issueJWT(username);
-
   try 
   {
+    // Insert user
     Session session(connectionName, connectionString);
-    session << "INSERT INTO users (email, username, password, salt, token) VALUES (?, ?, ?, ?, ?)", use(email), use(username), use(password), use(salt), use(token), now;
+    session << "INSERT INTO users (email, username, password, salt) VALUES (?, ?, ?, ?)", use(email), use(username), use(password), use(salt), now;
+
+    // Get id
+    Poco::Nullable<std::string> retrunId;
+    session << "SELECT CAST(id AS char) FROM users WHERE email = ?", into(retrunId), use(email), now;
+
+    // Update token
+    std::string token = Jwt::issueJWT(retrunId.value());
+    session << "UPDATE users SET token = ? WHERE (id = ?)", use(token), use(retrunId.value()), now;
 
     auto user = UserDto::createShared();
     user->username = username;
@@ -67,7 +74,7 @@ oatpp::Object<UserDto> UserModel::createUser(std::string &email, std::string &us
 }
 
 oatpp::Object<UserDto> UserModel::login(std::string &email, std::string &password) {
-  Poco::Nullable<int> retrunId;
+  Poco::Nullable<std::string> retrunId;
   Poco::Nullable<std::string> retrunUsername;
   Poco::Nullable<std::string> retrunEmail;
   Poco::Nullable<std::string> retrunPassword;
@@ -79,20 +86,20 @@ oatpp::Object<UserDto> UserModel::login(std::string &email, std::string &passwor
   try 
   {
     Session session(connectionName, connectionString);
-    session << "SELECT id, username, email, password, salt, bio, image FROM users WHERE email = ?", into(retrunId), into(retrunUsername), into(retrunEmail), into(retrunPassword), into(retrunSalt), into(retrunBio), into(retrunImage), use(email), now;
+    session << "SELECT CAST(id AS char), username, email, password, salt, bio, image FROM users WHERE email = ?", into(retrunId), into(retrunUsername), into(retrunEmail), into(retrunPassword), into(retrunSalt), into(retrunBio), into(retrunImage), use(email), now;
     // Validate password
     if(!retrunPassword.isNull() && !retrunSalt.isNull()) {
       password += retrunSalt.value();
       std::string inputPassword = hashPassword(password);
       if(inputPassword.compare(retrunPassword.value()) != 0) {
         // Password incorrect
-        OATPP_LOGE("UserModel", "User id %i unsuccessful login attempt.", retrunId.value());
+        OATPP_LOGE("UserModel", "User id %i unsuccessful login attempt.", retrunId.value().c_str());
         OATPP_ASSERT_HTTP(false, Status::CODE_403, "Unsuccessful login attempt.");
         return nullptr;
       }
 
       // Update token
-      std::string token = Jwt::issueJWT(retrunUsername.value());
+      std::string token = Jwt::issueJWT(retrunId.value());
       session << "UPDATE users SET token = ? WHERE (id = ?)", use(token), use(retrunId.value()), now;
 
       auto user = UserDto::createShared();
@@ -116,18 +123,18 @@ oatpp::Object<UserDto> UserModel::login(std::string &email, std::string &passwor
   }
 }
 
-oatpp::Object<UserDto> UserModel::getUser(std::string &username) {
+oatpp::Object<UserDto> UserModel::getUser(std::string &id) {
   Poco::Nullable<std::string> retrunUsername;
   Poco::Nullable<std::string> retrunEmail;
   Poco::Nullable<std::string> retrunToken;
   Poco::Nullable<std::string> retrunBio;
   Poco::Nullable<std::string> retrunImage;
 
-  // Fetch result
   try 
   {
+    // Fetch result
     Session session(connectionName, connectionString);
-    session << "SELECT username, email, token, bio, image FROM users WHERE username = ?", into(retrunUsername), into(retrunEmail), into(retrunToken), into(retrunBio), into(retrunImage), use(username), now;
+    session << "SELECT username, email, token, bio, image FROM users WHERE id = ?", into(retrunUsername), into(retrunEmail), into(retrunToken), into(retrunBio), into(retrunImage), use(id), now;
 
     auto user = UserDto::createShared();
     user->username = retrunUsername.value();
@@ -146,7 +153,7 @@ oatpp::Object<UserDto> UserModel::getUser(std::string &username) {
   }
 }
 
-oatpp::Object<UserDto> UserModel::updateUser(std::string &currentUsername, std::string &email, std::string &username, std::string &password, std::string &bio, std::string &image) {
+oatpp::Object<UserDto> UserModel::updateUser(std::string &id, std::string &email, std::string &username, std::string &password, std::string &bio, std::string &image) {
   try 
   {
     Session session(connectionName, connectionString);
@@ -165,19 +172,13 @@ oatpp::Object<UserDto> UserModel::updateUser(std::string &currentUsername, std::
     
     // Update token
     std::string token;
-    if(!username.empty())
-      token = Jwt::issueJWT(username);
-    else 
-      token = Jwt::issueJWT(currentUsername);
-    updateStatment << " token = ? WHERE username = ?", use(token), use(currentUsername), now;
+    token = Jwt::issueJWT(id);
+    updateStatment << " token = ? WHERE id = ?", use(token), use(id), now;
     updateStatment.execute();
 
     // Obtain latest user data
     auto user = UserDto::createShared();
-    if(!username.empty())
-      user = getUser(username);
-    else 
-      user = getUser(currentUsername);
+    user = getUser(id);
     return user;
   }
   catch(Exception& exp)

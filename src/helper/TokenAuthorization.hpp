@@ -6,8 +6,8 @@
 
 class TokenAuthorizationObject : public oatpp::web::server::handler::AuthorizationObject {
   public:
-    std::string username;
-    TokenAuthorizationObject(const std::string &pUsername) : username(pUsername) {}
+    std::string id;
+    TokenAuthorizationObject(const std::string &pId) : id(pId) {}
 };
 
 class TokenAuthorizationHandler : public oatpp::web::server::handler::BearerAuthorizationHandler {

@@ -15,8 +15,8 @@ private:
 public:
   oatpp::Object<UserJsonDto> createUser(const oatpp::Object<UserRegJsonDto> &dto);
   oatpp::Object<UserJsonDto> login(const oatpp::Object<UserAuthJsonDto> &dto);
-  oatpp::Object<UserJsonDto> getUser(std::string &username);
-  oatpp::Object<UserJsonDto> updateUser(std::string &username, const oatpp::Object<UserUpdateJsonDto> &dto);
+  oatpp::Object<UserJsonDto> getUser(std::string &id);
+  oatpp::Object<UserJsonDto> updateUser(std::string &id, const oatpp::Object<UserUpdateJsonDto> &dto);
 };
 
 #endif //USERSERVICE_HPP

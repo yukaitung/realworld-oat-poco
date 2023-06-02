@@ -33,9 +33,9 @@ oatpp::Object<UserJsonDto> UserService::login(const oatpp::Object<UserAuthJsonDt
   return response;
 }
 
-oatpp::Object<UserJsonDto> UserService::getUser(std::string &username) {
-  OATPP_ASSERT_HTTP(!username.empty(), Status::CODE_422, "Missing username.");
-  auto user = userModel.getUser(username);
+oatpp::Object<UserJsonDto> UserService::getUser(std::string &id) {
+  OATPP_ASSERT_HTTP(!id.empty(), Status::CODE_422, "Missing id.");
+  auto user = userModel.getUser(id);
   OATPP_ASSERT_HTTP(user != nullptr, Status::CODE_500, "Server error.");
 
   auto response = UserJsonDto::createShared();
@@ -43,14 +43,14 @@ oatpp::Object<UserJsonDto> UserService::getUser(std::string &username) {
   return response;
 }
 
-oatpp::Object<UserJsonDto> UserService::updateUser(std::string &username, const oatpp::Object<UserUpdateJsonDto> &dto) {  
+oatpp::Object<UserJsonDto> UserService::updateUser(std::string &id, const oatpp::Object<UserUpdateJsonDto> &dto) {  
   std::string email = dto->user->email != nullptr ? dto->user->email : "";
-  std::string newUsername = dto->user->username != nullptr ? dto->user->username : "";
+  std::string username = dto->user->username != nullptr ? dto->user->username : "";
   std::string password = dto->user->password != nullptr ? dto->user->password : "";
   std::string bio = dto->user->bio != nullptr ? dto->user->bio : "";
   std::string image = dto->user->image != nullptr ? dto->user->image : "";
 
-  auto user = userModel.updateUser(username, email, newUsername, password, bio, image);
+  auto user = userModel.updateUser(id, email, username, password, bio, image);
   OATPP_ASSERT_HTTP(user != nullptr, Status::CODE_500, "Server error.");
 
   auto response = UserJsonDto::createShared();
