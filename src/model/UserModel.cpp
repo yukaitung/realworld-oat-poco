@@ -33,7 +33,7 @@ std::string UserModel::hashPassword(const std::string &passwordPlusSalt) {
   return sha256.digestToHex(sha256.digest());
 }
 
-oatpp::Object<UserDto> UserModel::createUser(std::string& email, std::string& username, std::string& password) {
+oatpp::Object<UserDto> UserModel::createUser(std::string &email, std::string &username, std::string &password) {
   // Generate salt
   std::random_device rd;
   std::mt19937 gen(rd());
@@ -137,6 +137,47 @@ oatpp::Object<UserDto> UserModel::getUser(std::string &username) {
       user->bio = retrunBio.value();
     if(!retrunImage.isNull())
     user->image = retrunImage.value();
+    return user;
+  }
+  catch(Exception& exp)
+  {
+    OATPP_LOGE("UserModel", exp.displayText().c_str());
+    return nullptr;
+  }
+}
+
+oatpp::Object<UserDto> UserModel::updateUser(std::string &currentUsername, std::string &email, std::string &username, std::string &password, std::string &bio, std::string &image) {
+  try 
+  {
+    Session session(connectionName, connectionString);
+    Statement updateStatment(session);
+    updateStatment << "UPDATE users SET";
+    if(!email.empty())
+      updateStatment << " email = ?,", use(email);
+    if(!username.empty())
+      updateStatment << " username = ?,", use(username);
+    if(!password.empty())
+      updateStatment << " password = ?,", use(password);
+    if(!bio.empty())
+      updateStatment << " bio = ?,", use(bio);
+    if(!image.empty())
+      updateStatment << " image = ?,", use(image);
+    
+    // Update token
+    std::string token;
+    if(!username.empty())
+      token = Jwt::issueJWT(username);
+    else 
+      token = Jwt::issueJWT(currentUsername);
+    updateStatment << " token = ? WHERE username = ?", use(token), use(currentUsername), now;
+    updateStatment.execute();
+
+    // Obtain latest user data
+    auto user = UserDto::createShared();
+    if(!username.empty())
+      user = getUser(username);
+    else 
+      user = getUser(currentUsername);
     return user;
   }
   catch(Exception& exp)

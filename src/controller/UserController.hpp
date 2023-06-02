@@ -41,6 +41,11 @@ public:
   {
     return createDtoResponse(Status::CODE_200, userService.getUser(authObject->username));
   }
+
+  ENDPOINT("PUT", "/user", updateUser, BODY_DTO(Object<UserUpdateJsonDto>, dto), AUTHORIZATION(std::shared_ptr<TokenAuthorizationObject>, authObject))
+  {
+    return createDtoResponse(Status::CODE_200, userService.updateUser(authObject->username, dto));
+  }
 };
 
 #include OATPP_CODEGEN_END(ApiController)

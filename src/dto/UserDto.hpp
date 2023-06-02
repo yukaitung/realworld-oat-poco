@@ -56,6 +56,23 @@ class UserAuthJsonDto : public oatpp::DTO {
   DTO_FIELD(oatpp::Object<UserAuthDto>, user);
 };
 
+// User Update
+
+class UserUpdateDto : public oatpp::DTO {
+  DTO_INIT(UserUpdateDto, DTO)
+
+  DTO_FIELD(String, username);
+  DTO_FIELD(String, email);
+  DTO_FIELD(String, password);
+  DTO_FIELD(String, image);
+  DTO_FIELD(String, bio);
+};
+
+class UserUpdateJsonDto : public oatpp::DTO {
+  DTO_INIT(UserUpdateJsonDto, DTO)
+
+  DTO_FIELD(oatpp::Object<UserUpdateDto>, user);
+};
 
 #include OATPP_CODEGEN_END(DTO)
 

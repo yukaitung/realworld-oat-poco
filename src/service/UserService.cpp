@@ -1,8 +1,9 @@
 #include "service/UserService.hpp"
 
 #include <string>
+#include <iostream>
 
-oatpp::Object<UserJsonDto> UserService::createUser(const oatpp::Object<UserRegJsonDto>& dto) {
+oatpp::Object<UserJsonDto> UserService::createUser(const oatpp::Object<UserRegJsonDto> &dto) {
   std::string email = dto->user->email;
   std::string username = dto->user->username;
   std::string password = dto->user->password;
@@ -18,7 +19,7 @@ oatpp::Object<UserJsonDto> UserService::createUser(const oatpp::Object<UserRegJs
   return response;
 }
 
-oatpp::Object<UserJsonDto> UserService::login(const oatpp::Object<UserAuthJsonDto>& dto) {
+oatpp::Object<UserJsonDto> UserService::login(const oatpp::Object<UserAuthJsonDto> &dto) {
   std::string email = dto->user->email;
   std::string password = dto->user->password;
 
@@ -32,9 +33,24 @@ oatpp::Object<UserJsonDto> UserService::login(const oatpp::Object<UserAuthJsonDt
   return response;
 }
 
-oatpp::Object<UserJsonDto> UserService::getUser(std::string& username) {
+oatpp::Object<UserJsonDto> UserService::getUser(std::string &username) {
   OATPP_ASSERT_HTTP(!username.empty(), Status::CODE_422, "Missing username.");
   auto user = userModel.getUser(username);
+  OATPP_ASSERT_HTTP(user != nullptr, Status::CODE_500, "Server error.");
+
+  auto response = UserJsonDto::createShared();
+  response->user = user;
+  return response;
+}
+
+oatpp::Object<UserJsonDto> UserService::updateUser(std::string &username, const oatpp::Object<UserUpdateJsonDto> &dto) {  
+  std::string email = dto->user->email != nullptr ? dto->user->email : "";
+  std::string newUsername = dto->user->username != nullptr ? dto->user->username : "";
+  std::string password = dto->user->password != nullptr ? dto->user->password : "";
+  std::string bio = dto->user->bio != nullptr ? dto->user->bio : "";
+  std::string image = dto->user->image != nullptr ? dto->user->image : "";
+
+  auto user = userModel.updateUser(username, email, newUsername, password, bio, image);
   OATPP_ASSERT_HTTP(user != nullptr, Status::CODE_500, "Server error.");
 
   auto response = UserJsonDto::createShared();
