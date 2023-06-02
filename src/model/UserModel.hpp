@@ -7,9 +7,6 @@
 
 class UserModel {
   private:
-    std::string connectionName;
-    std::string connectionString;
-
     std::string hashPassword(const std::string &passwordPlusSalt);
 
   public:

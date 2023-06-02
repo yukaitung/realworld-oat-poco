@@ -1,4 +1,5 @@
 #include "Application.hpp"
+#include "helper/Database.hpp"
 
 #include "controller/UserController.hpp"
 
@@ -8,6 +9,12 @@
 
 void run() {
   Application app;
+
+  // Setup Database
+  // TODO: dont insert secret
+  std::string connectionName = "MySQL";
+  std::string connectionString = "host=127.0.0.1;port=3306;db=Realworld;user=root;password=GueBPjHlPFUgXc7hm=;compress=true;auto-reconnect=true";
+  Database::setUpDatabase(connectionName, connectionString);
 
   auto router = app.httpRouter.getObject();
   oatpp::web::server::api::Endpoints docEndpoints;

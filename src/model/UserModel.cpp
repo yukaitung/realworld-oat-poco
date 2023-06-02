@@ -1,10 +1,8 @@
 #include "model/UserModel.hpp"
 #include "helper/Jwt.hpp"
+#include "helper/Database.hpp"
 
-#include "Poco/Data/SessionFactory.h"
 #include "Poco/Data/Session.h"
-#include "Poco/Data/MySQL/Connector.h"
-#include "Poco/Data/RecordSet.h"
 #include "Poco/Exception.h"
 #include "Poco/SHA2Engine.h"
 #include "oatpp/core/base/Environment.hpp"
@@ -15,16 +13,11 @@
 using namespace Poco::Data::Keywords;
 using Poco::Data::Session;
 using Poco::Data::Statement;
-using Poco::Data::RecordSet;
 using Poco::Exception;
 using Poco::SHA2Engine;
 using oatpp::web::protocol::http::Status;
 
 UserModel::UserModel() {
-  // TODO: use pool // dont insert secret
-  connectionName = "MySQL";
-  connectionString = "host=127.0.0.1;port=3306;db=Realworld;user=root;password=GueBPjHlPFUgXc7hm=;compress=true;auto-reconnect=true";
-  Poco::Data::MySQL::Connector::registerConnector();
 }
 
 std::string UserModel::hashPassword(const std::string &passwordPlusSalt) {
@@ -49,7 +42,7 @@ oatpp::Object<UserDto> UserModel::createUser(std::string &email, std::string &us
   try 
   {
     // Insert user
-    Session session(connectionName, connectionString);
+    Session session(Database::getPool()->get());
     session << "INSERT INTO users (email, username, password, salt) VALUES (?, ?, ?, ?)", use(email), use(username), use(password), use(salt), now;
 
     // Get id
@@ -85,7 +78,7 @@ oatpp::Object<UserDto> UserModel::login(std::string &email, std::string &passwor
   // Fetch result
   try 
   {
-    Session session(connectionName, connectionString);
+    Session session(Database::getPool()->get());
     session << "SELECT CAST(id AS char), username, email, password, salt, bio, image FROM users WHERE email = ?", into(retrunId), into(retrunUsername), into(retrunEmail), into(retrunPassword), into(retrunSalt), into(retrunBio), into(retrunImage), use(email), now;
     // Validate password
     if(!retrunPassword.isNull() && !retrunSalt.isNull()) {
@@ -133,7 +126,7 @@ oatpp::Object<UserDto> UserModel::getUser(std::string &id) {
   try 
   {
     // Fetch result
-    Session session(connectionName, connectionString);
+    Session session(Database::getPool()->get());
     session << "SELECT username, email, token, bio, image FROM users WHERE id = ?", into(retrunUsername), into(retrunEmail), into(retrunToken), into(retrunBio), into(retrunImage), use(id), now;
 
     auto user = UserDto::createShared();
@@ -156,7 +149,7 @@ oatpp::Object<UserDto> UserModel::getUser(std::string &id) {
 oatpp::Object<UserDto> UserModel::updateUser(std::string &id, std::string &email, std::string &username, std::string &password, std::string &bio, std::string &image) {
   try 
   {
-    Session session(connectionName, connectionString);
+    Session session(Database::getPool()->get());
     Statement updateStatment(session);
     updateStatment << "UPDATE users SET";
     if(!email.empty())
