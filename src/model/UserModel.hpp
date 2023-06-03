@@ -10,7 +10,7 @@ class UserModel {
     std::string hashPassword(const std::string &passwordPlusSalt);
 
   public:
-    UserModel();
+    UserModel() {};
     oatpp::Object<UserDto> createUser(std::string &email, std::string &username, std::string &password);
     oatpp::Object<UserDto> login(std::string &email, std::string &password);
     oatpp::Object<UserDto> getUser(std::string &id);

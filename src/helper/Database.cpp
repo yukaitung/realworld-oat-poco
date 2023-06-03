@@ -6,6 +6,6 @@ void Database::setUpDatabase(std::string connectionName, std::string connectionS
   if(Database::pool != nullptr) {
     return;
   }
-  Database::pool = std::make_shared<Poco::Data::SessionPool>(connectionName, connectionString);
   Poco::Data::MySQL::Connector::registerConnector();
+  Database::pool = std::make_shared<Poco::Data::SessionPool>(connectionName, connectionString);
 };

@@ -5,7 +5,7 @@
 
 class Jwt {
   public:
-    Jwt() {};
+    Jwt() = delete;
     static std::string issueJWT(const std::string &id);
     static std::string validateJWT(const std::string &jwt);
 };

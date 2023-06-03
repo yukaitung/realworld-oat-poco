@@ -74,6 +74,17 @@ class UserUpdateJsonDto : public oatpp::DTO {
   DTO_FIELD(oatpp::Object<UserUpdateDto>, user);
 };
 
+// Author
+
+class AuthorDto : public oatpp::DTO {
+  DTO_INIT(AuthorDto, DTO)
+
+  DTO_FIELD(String, username);
+  DTO_FIELD(String, image);
+  DTO_FIELD(String, bio);
+  DTO_FIELD(Boolean, following);
+};
+
 #include OATPP_CODEGEN_END(DTO)
 
 #endif // USERDTO_HPP

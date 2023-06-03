@@ -1,6 +1,7 @@
 #include "Application.hpp"
 #include "helper/Database.hpp"
 
+#include "controller/ArticleController.hpp"
 #include "controller/UserController.hpp"
 
 #include "oatpp/network/Server.hpp"
@@ -18,6 +19,7 @@ void run() {
 
   auto router = app.httpRouter.getObject();
   oatpp::web::server::api::Endpoints docEndpoints;
+  docEndpoints.append(router->addController(ArticleController::createShared())->getEndpoints());
   docEndpoints.append(router->addController(UserController::createShared())->getEndpoints());
 
   /* Get connection handler component */

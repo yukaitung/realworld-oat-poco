@@ -17,9 +17,6 @@ using Poco::Exception;
 using Poco::SHA2Engine;
 using oatpp::web::protocol::http::Status;
 
-UserModel::UserModel() {
-}
-
 std::string UserModel::hashPassword(const std::string &passwordPlusSalt) {
   SHA2Engine sha256;
   sha256.update(passwordPlusSalt);
@@ -39,8 +36,7 @@ oatpp::Object<UserDto> UserModel::createUser(std::string &email, std::string &us
   password += salt;
   password = hashPassword(password);
 
-  try 
-  {
+  try {
     // Insert user
     Session session(Database::getPool()->get());
     session << "INSERT INTO users (email, username, password, salt) VALUES (?, ?, ?, ?)", use(email), use(username), use(password), use(salt), now;
@@ -59,8 +55,7 @@ oatpp::Object<UserDto> UserModel::createUser(std::string &email, std::string &us
     user->token = token;
     return user;
   }
-  catch(Exception& exp)
-  {
+  catch(Exception& exp) {
     OATPP_LOGE("UserModel", exp.displayText().c_str());
     return nullptr;
   }
@@ -76,8 +71,7 @@ oatpp::Object<UserDto> UserModel::login(std::string &email, std::string &passwor
   Poco::Nullable<std::string> retrunImage;
 
   // Fetch result
-  try 
-  {
+  try {
     Session session(Database::getPool()->get());
     session << "SELECT CAST(id AS char), username, email, password, salt, bio, image FROM users WHERE email = ?", into(retrunId), into(retrunUsername), into(retrunEmail), into(retrunPassword), into(retrunSalt), into(retrunBio), into(retrunImage), use(email), now;
     // Validate password
@@ -109,8 +103,7 @@ oatpp::Object<UserDto> UserModel::login(std::string &email, std::string &passwor
     // Error in fetching data
     return nullptr;
   }
-  catch(Exception& exp)
-  {
+  catch(Exception& exp) {
     OATPP_LOGE("UserModel", exp.displayText().c_str());
     return nullptr;
   }
@@ -123,8 +116,7 @@ oatpp::Object<UserDto> UserModel::getUser(std::string &id) {
   Poco::Nullable<std::string> retrunBio;
   Poco::Nullable<std::string> retrunImage;
 
-  try 
-  {
+  try {
     // Fetch result
     Session session(Database::getPool()->get());
     session << "SELECT username, email, token, bio, image FROM users WHERE id = ?", into(retrunUsername), into(retrunEmail), into(retrunToken), into(retrunBio), into(retrunImage), use(id), now;
@@ -139,16 +131,14 @@ oatpp::Object<UserDto> UserModel::getUser(std::string &id) {
     user->image = retrunImage.value();
     return user;
   }
-  catch(Exception& exp)
-  {
+  catch(Exception& exp) {
     OATPP_LOGE("UserModel", exp.displayText().c_str());
     return nullptr;
   }
 }
 
 oatpp::Object<UserDto> UserModel::updateUser(std::string &id, std::string &email, std::string &username, std::string &password, std::string &bio, std::string &image) {
-  try 
-  {
+  try {
     Session session(Database::getPool()->get());
     Statement updateStatment(session);
     updateStatment << "UPDATE users SET";
@@ -174,8 +164,7 @@ oatpp::Object<UserDto> UserModel::updateUser(std::string &id, std::string &email
     user = getUser(id);
     return user;
   }
-  catch(Exception& exp)
-  {
+  catch(Exception& exp) {
     OATPP_LOGE("UserModel", exp.displayText().c_str());
     return nullptr;
   }
