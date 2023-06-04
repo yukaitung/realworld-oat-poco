@@ -73,7 +73,6 @@ std::tuple<oatpp::Object<ArticleDto>, std::string, std::string> ArticleModel::ge
   }
   catch(Exception& exp) {
     OATPP_LOGE("ArticleModel", exp.displayText().c_str());
-    std::tuple<oatpp::Object<ArticleDto>, std::string, std::string> obj;
-    return obj;
+    return {nullptr , "", ""};
   }
 }
