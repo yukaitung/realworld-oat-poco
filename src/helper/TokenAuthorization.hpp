@@ -20,4 +20,14 @@ class TokenAuthorizationHandler : public oatpp::web::server::handler::BearerAuth
     std::shared_ptr<AuthorizationObject> authorize(const oatpp::String& token) override;
 };
 
+class OptionalTokenAuthorizationHandler : public oatpp::web::server::handler::BearerAuthorizationHandler {
+  private:
+    UserModel userModel;
+
+  public:
+    OptionalTokenAuthorizationHandler() : BearerAuthorizationHandler("realworld") {}
+    std::shared_ptr<AuthorizationObject> handleAuthorization(const oatpp::String &header) override;
+    std::shared_ptr<AuthorizationObject> authorize(const oatpp::String& token) override;
+};
+
 #endif // TOKENAUTHORIZATIONOBJECT_HPP

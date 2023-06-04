@@ -20,6 +20,7 @@ void run() {
   auto router = app.httpRouter.getObject();
   oatpp::web::server::api::Endpoints docEndpoints;
   docEndpoints.append(router->addController(ArticleController::createShared())->getEndpoints());
+  docEndpoints.append(router->addController(ArticleControllerOptionalAuth::createShared())->getEndpoints());
   docEndpoints.append(router->addController(UserController::createShared())->getEndpoints());
 
   /* Get connection handler component */
