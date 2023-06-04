@@ -32,8 +32,8 @@ oatpp::Object<ArticleDto> ArticleModel::createArticle(std::string &userId, std::
     std::string tz = timeTz(createTime);
     article->createdAt = tz;
     article->updatedAt = tz;
-    article->favorited = false;
-    article->favoritesCount = 0;
+    article->favourited = false;
+    article->favouritesCount = 0;
     return article;
   }
   catch(Exception& exp) {
@@ -42,7 +42,8 @@ oatpp::Object<ArticleDto> ArticleModel::createArticle(std::string &userId, std::
   }
 }
 
-std::pair<oatpp::Object<ArticleDto>, std::string> ArticleModel::getArticle(std::string &slug) {
+std::tuple<oatpp::Object<ArticleDto>, std::string, std::string> ArticleModel::getArticle(std::string &slug) {
+  Poco::Nullable<std::string> retrunArticleId;
   Poco::Nullable<std::string> retrunUserId;
   Poco::Nullable<std::string> retrunSlug;
   Poco::Nullable<std::string> retrunTitle;
@@ -55,7 +56,7 @@ std::pair<oatpp::Object<ArticleDto>, std::string> ArticleModel::getArticle(std::
   try {
     // Insert article
     Session session(Database::getPool()->get());
-    session << "SELECT CAST(user_id AS char), slug, title, description, body, tag_list, CAST(created_at AS char), CAST(updated_at AS char) FROM articles WHERE slug = ?", into(retrunUserId), into(retrunSlug), into(retrunTitle), into(retrunDescription), into(retrunBody), into(retrunTagList), into(retrunCreatedAt), into(retrunUpdateddAt), use(slug), now;
+    session << "SELECT CAST(id AS char), CAST(user_id AS char), slug, title, description, body, tag_list, CAST(created_at AS char), CAST(updated_at AS char) FROM articles WHERE slug = ?", into(retrunArticleId), into(retrunUserId), into(retrunSlug), into(retrunTitle), into(retrunDescription), into(retrunBody), into(retrunTagList), into(retrunCreatedAt), into(retrunUpdateddAt), use(slug), now;
     
     auto article = ArticleDto::createShared();
     article->slug = retrunSlug.value();
@@ -67,15 +68,12 @@ std::pair<oatpp::Object<ArticleDto>, std::string> ArticleModel::getArticle(std::
       article->body = retrunBody.value();
     article->createdAt = timeTz(retrunCreatedAt);
     article->updatedAt = timeTz(retrunUpdateddAt);
-    article->favorited = false;
-    article->favoritesCount = 0;
     
-    std::pair<oatpp::Object<ArticleDto>, std::string> obj{article, retrunUserId.value()};
-    return obj;
+    return {article , retrunArticleId.value(), retrunUserId.value()};
   }
   catch(Exception& exp) {
     OATPP_LOGE("ArticleModel", exp.displayText().c_str());
-    std::pair<oatpp::Object<ArticleDto>, std::string> obj;
+    std::tuple<oatpp::Object<ArticleDto>, std::string, std::string> obj;
     return obj;
   }
 }

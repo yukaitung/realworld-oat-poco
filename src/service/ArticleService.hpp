@@ -1,6 +1,7 @@
 #ifndef ARTICLESERVICE_HPP
 #define ARTICLESERVICE_HPP
 
+#include "model/ArticleHasFavouriteModel.hpp"
 #include "model/ArticleModel.hpp"
 #include "model/UserModel.hpp"
 
@@ -8,6 +9,7 @@
 
 class ArticleService {
 private:
+  ArticleHasFavouriteModel articleHasFavouriteModel;
   ArticleModel articleModel;
   UserModel userModel;
   typedef oatpp::web::protocol::http::Status Status;
@@ -19,6 +21,9 @@ private:
 public:
   oatpp::Object<ArticleJsonDto> createArticle(std::string &id, const oatpp::Object<ArticleExchangeJsonDto> &dto);
   oatpp::Object<ArticleJsonDto> getArticle(std::string &id, std::string &slug);
+
+  oatpp::Object<ArticleJsonDto> favouriteArticle(std::string &id, std::string &slug);
+  oatpp::Object<ArticleJsonDto> unfavouriteArticle(std::string &id, std::string &slug);
 };
 
 #endif // ARTICLESERVICE_HPP

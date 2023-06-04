@@ -31,6 +31,18 @@ public:
   {
     return createDtoResponse(Status::CODE_200, articleService.createArticle(authObject->id, dto));
   }
+
+  ENDPOINT("POST", "/articles/{slug}/favorite", favouriteArticle, PATH(String, slug), AUTHORIZATION(std::shared_ptr<TokenAuthorizationObject>, authObject))
+  {
+    std::string slugStr = slug.getValue("");
+    return createDtoResponse(Status::CODE_200, articleService.favouriteArticle(authObject->id, slugStr));
+  }
+
+  ENDPOINT("DELETE", "/articles/{slug}/favorite", unfavouriteArticle, PATH(String, slug), AUTHORIZATION(std::shared_ptr<TokenAuthorizationObject>, authObject))
+  {
+    std::string slugStr = slug.getValue("");
+    return createDtoResponse(Status::CODE_200, articleService.unfavouriteArticle(authObject->id, slugStr));
+  }
 };
 
 class ArticleControllerOptionalAuth : public oatpp::web::server::api::ApiController {

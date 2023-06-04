@@ -21,8 +21,8 @@ class ArticleDto : public oatpp::DTO {
   DTO_FIELD(String, tagList);
   DTO_FIELD(String, createdAt);
   DTO_FIELD(String, updatedAt);
-  DTO_FIELD(Boolean, favorited);
-  DTO_FIELD(Int32, favoritesCount);
+  DTO_FIELD(Boolean, favourited, "favorited");
+  DTO_FIELD(Int32, favouritesCount, "favoritesCount");
   DTO_FIELD(oatpp::Object<AuthorDto>, author);
 };
 
