@@ -40,5 +40,42 @@ oatpp::Object<ArticleDto> ArticleModel::createArticle(std::string &userId, std::
     OATPP_LOGE("ArticleModel", exp.displayText().c_str());
     return nullptr;
   }
-  
+}
+
+std::pair<oatpp::Object<ArticleDto>, std::string> ArticleModel::getArticle(std::string &slug) {
+  Poco::Nullable<std::string> retrunUserId;
+  Poco::Nullable<std::string> retrunSlug;
+  Poco::Nullable<std::string> retrunTitle;
+  Poco::Nullable<std::string> retrunDescription;
+  Poco::Nullable<std::string> retrunBody;
+  Poco::Nullable<std::string> retrunTagList;
+  Poco::Nullable<std::string> retrunCreatedAt;
+  Poco::Nullable<std::string> retrunUpdateddAt;
+
+  try {
+    // Insert article
+    Session session(Database::getPool()->get());
+    session << "SELECT CAST(user_id AS char), slug, title, description, body, tag_list, CAST(created_at AS char), CAST(updated_at AS char) FROM articles WHERE slug = ?", into(retrunUserId), into(retrunSlug), into(retrunTitle), into(retrunDescription), into(retrunBody), into(retrunTagList), into(retrunCreatedAt), into(retrunUpdateddAt), use(slug), now;
+    
+    auto article = ArticleDto::createShared();
+    article->slug = retrunSlug.value();
+    if(!retrunTitle.isNull())
+      article->title = retrunTitle.value();
+    if(!retrunDescription.isNull())
+      article->description = retrunDescription.value();
+    if(!retrunBody.isNull())
+      article->body = retrunBody.value();
+    article->createdAt = timeTz(retrunCreatedAt);
+    article->updatedAt = timeTz(retrunUpdateddAt);
+    article->favorited = false;
+    article->favoritesCount = 0;
+    
+    std::pair<oatpp::Object<ArticleDto>, std::string> obj{article, retrunUserId.value()};
+    return obj;
+  }
+  catch(Exception& exp) {
+    OATPP_LOGE("ArticleModel", exp.displayText().c_str());
+    std::pair<oatpp::Object<ArticleDto>, std::string> obj;
+    return obj;
+  }
 }

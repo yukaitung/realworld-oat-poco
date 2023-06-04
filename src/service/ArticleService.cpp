@@ -21,7 +21,7 @@ std::string &ArticleService::removeBothSpace(std::string &s, const char *t){
   return removeHeadSpace(removeTailSpace(s, t), t);
 }
 
-std::string &ArticleService::replaceSpace(std::string &s) {
+std::string ArticleService::replaceSpace(std::string &s) {
   std::regex r("\\s");
   s = std::regex_replace(s, r, "-");
   return s;
@@ -46,7 +46,28 @@ oatpp::Object<ArticleJsonDto> ArticleService::createArticle(std::string &id, con
   auto article = articleModel.createArticle(id, slug, title, description, body, createTime);
   OATPP_ASSERT_HTTP(article != nullptr, Status::CODE_500, "Server error.");
 
+  auto author = userModel.getAuthor(id);
+  author->following = false;
+  article->author = author;
+
   auto response = ArticleJsonDto::createShared();
   response->article = article;
+  return response;
+}
+
+oatpp::Object<ArticleJsonDto> ArticleService::getArticle(std::string &id, std::string &slug) {
+  OATPP_ASSERT_HTTP(!slug.empty(), Status::CODE_400, "Missing Slug");
+  
+  // TODO : taglist
+  // TODO : favourite
+  auto articleUserId = articleModel.getArticle(slug);
+  OATPP_ASSERT_HTTP(!articleUserId.second.empty(), Status::CODE_500, "Server error."); // Missing author id = error
+
+  auto author = userModel.getAuthor(articleUserId.second);
+  author->following = false;
+  articleUserId.first->author = author;
+  
+  auto response = ArticleJsonDto::createShared();
+  response->article = articleUserId.first;
   return response;
 }

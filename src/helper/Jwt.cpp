@@ -33,6 +33,7 @@ std::string Jwt::validateJWT(const std::string &jwt) {
   std::string id = "";
   try {
     Token token = signer.verify(jwt);
+    // TODO: expire
     Poco::Dynamic::Var returnId = token.payload().get("id");
     id = returnId.toString(); // incorrect type --> exception
     return id;

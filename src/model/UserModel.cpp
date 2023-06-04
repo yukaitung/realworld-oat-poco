@@ -169,3 +169,27 @@ oatpp::Object<UserDto> UserModel::updateUser(std::string &id, std::string &email
     return nullptr;
   }
 }
+
+oatpp::Object<AuthorDto> UserModel::getAuthor(std::string &id) {
+  Poco::Nullable<std::string> retrunUsername;
+  Poco::Nullable<std::string> retrunBio;
+  Poco::Nullable<std::string> retrunImage;
+
+  try {
+    // Fetch result
+    Session session(Database::getPool()->get());
+    session << "SELECT username, bio, image FROM users WHERE id = ?", into(retrunUsername), into(retrunBio), into(retrunImage), use(id), now;
+
+    auto author = AuthorDto::createShared();
+    author->username = retrunUsername.value();
+    if(!retrunBio.isNull())
+      author->bio = retrunBio.value();
+    if(!retrunImage.isNull())
+    author->image = retrunImage.value();
+    return author;
+  }
+  catch(Exception& exp) {
+    OATPP_LOGE("UserModel", exp.displayText().c_str());
+    return nullptr;
+  }
+}
