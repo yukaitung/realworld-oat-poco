@@ -16,7 +16,17 @@ class UserModel {
     oatpp::Object<UserDto> login(std::string &email, std::string &password);
     oatpp::Object<UserDto> getUser(std::string &id);
     oatpp::Object<UserDto> updateUser(std::string &id, std::string &email, std::string &username, std::string &password, std::string &bio, std::string &image);
+    /**
+    * This method is to fetch an profile from database using user id.
+    * @param id The user id.
+    * @return oatpp::Object<UserProfileDto> This returns user profile object.
+    */
     oatpp::Object<UserProfileDto> getProfileFromId(std::string &id);
+    /**
+    * This method is to fetch an profile from database using username.
+    * @param username The username.
+    * @return std::pair<oatpp::Object<UserProfileDto>, std::string> This returns article object and profile user id.
+    */
     std::pair<oatpp::Object<UserProfileDto>, std::string> getProfileFromUsername(std::string &username);
 };
 

@@ -3,6 +3,7 @@
 
 #include "model/ArticleHasFavouriteModel.hpp"
 #include "model/ArticleModel.hpp"
+#include "model/UserHasFollowerModel.hpp"
 #include "model/UserModel.hpp"
 
 #include "oatpp/web/protocol/http/Http.hpp"
@@ -11,6 +12,7 @@ class ArticleService {
 private:
   ArticleHasFavouriteModel articleHasFavouriteModel;
   ArticleModel articleModel;
+  UserHasFollowerModel userHasFollowerModel;
   UserModel userModel;
   typedef oatpp::web::protocol::http::Status Status;
   std::string &removeHeadSpace(std::string &s, const char *t = " \t\n\r\f\v");

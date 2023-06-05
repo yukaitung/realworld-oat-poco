@@ -74,7 +74,8 @@ oatpp::Object<ArticleJsonDto> ArticleService::getArticle(std::string &id, std::s
   article->favourited = favouriteData.second;
   article->favouritesCount = favouriteData.first;
   auto author = userModel.getProfileFromId(authorId);
-  author->following = false; // TODO: following
+  if(!id.empty())
+    author->following = userHasFollowerModel.userHasThisFollower(authorId, id);
   article->author = author;
   
   auto response = ArticleJsonDto::createShared();
@@ -101,8 +102,7 @@ oatpp::Object<ArticleJsonDto> ArticleService::favouriteArticle(std::string &id, 
   // Response data
   std::string authorId = std::get<ArticleModel::GetArticleEnum::AuthorId>(articleObj);
   auto author = userModel.getProfileFromId(authorId);
-  author->following = false;
-  // TODO: following
+  author->following = userHasFollowerModel.userHasThisFollower(authorId, id);
   
   auto article = std::get<ArticleModel::GetArticleEnum::Article>(articleObj);
   article->favourited = true;
@@ -133,8 +133,7 @@ oatpp::Object<ArticleJsonDto> ArticleService::unfavouriteArticle(std::string &id
   // Response data
   std::string authorId = std::get<ArticleModel::GetArticleEnum::AuthorId>(articleObj);
   auto author = userModel.getProfileFromId(authorId);
-  author->following = false;
-  // TODO: following
+  author->following = userHasFollowerModel.userHasThisFollower(authorId, id);
   
   auto article = std::get<ArticleModel::GetArticleEnum::Article>(articleObj);
   article->favourited = false;
