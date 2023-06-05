@@ -2,6 +2,7 @@
 #include "helper/Database.hpp"
 
 #include "controller/ArticleController.hpp"
+#include "controller/ProfileController.hpp"
 #include "controller/UserController.hpp"
 
 #include "oatpp/network/Server.hpp"
@@ -21,6 +22,8 @@ void run() {
   oatpp::web::server::api::Endpoints docEndpoints;
   docEndpoints.append(router->addController(ArticleController::createShared())->getEndpoints());
   docEndpoints.append(router->addController(ArticleControllerOptionalAuth::createShared())->getEndpoints());
+  docEndpoints.append(router->addController(ProfileController::createShared())->getEndpoints());
+  docEndpoints.append(router->addController(ProfileControllerOptionalAuth::createShared())->getEndpoints());
   docEndpoints.append(router->addController(UserController::createShared())->getEndpoints());
 
   /* Get connection handler component */

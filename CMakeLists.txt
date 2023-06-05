@@ -31,10 +31,12 @@ add_executable(${PROJECT_NAME}
   src/helper/TokenAuthorization.cpp
 
   src/service/ArticleService.cpp
+  src/service/ProfileService.cpp
   src/service/UserService.cpp
 
   src/model/ArticleHasFavouriteModel.cpp
   src/model/ArticleModel.cpp
+  src/model/UserHasFollowerModel.cpp
   src/model/UserModel.cpp
 )
 

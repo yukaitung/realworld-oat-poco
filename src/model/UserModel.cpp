@@ -170,7 +170,7 @@ oatpp::Object<UserDto> UserModel::updateUser(std::string &id, std::string &email
   }
 }
 
-oatpp::Object<AuthorDto> UserModel::getAuthor(std::string &id) {
+oatpp::Object<UserProfileDto> UserModel::getProfileFromId(std::string &id) {
   Poco::Nullable<std::string> retrunUsername;
   Poco::Nullable<std::string> retrunBio;
   Poco::Nullable<std::string> retrunImage;
@@ -180,16 +180,42 @@ oatpp::Object<AuthorDto> UserModel::getAuthor(std::string &id) {
     Session session(Database::getPool()->get());
     session << "SELECT username, bio, image FROM users WHERE id = ?", into(retrunUsername), into(retrunBio), into(retrunImage), use(id), now;
 
-    auto author = AuthorDto::createShared();
-    author->username = retrunUsername.value();
+    auto profile = UserProfileDto::createShared();
+    profile->username = retrunUsername.value();
     if(!retrunBio.isNull())
-      author->bio = retrunBio.value();
+      profile->bio = retrunBio.value();
     if(!retrunImage.isNull())
-    author->image = retrunImage.value();
-    return author;
+    profile->image = retrunImage.value();
+    profile->following = false;
+    return profile;
   }
   catch(Exception& exp) {
     OATPP_LOGE("UserModel", exp.displayText().c_str());
     return nullptr;
+  }
+}
+
+std::pair<oatpp::Object<UserProfileDto>, std::string> UserModel::getProfileFromUsername(std::string &username) {
+  Poco::Nullable<std::string> retrunId;
+  Poco::Nullable<std::string> retrunBio;
+  Poco::Nullable<std::string> retrunImage;
+
+  try {
+    // Fetch result
+    Session session(Database::getPool()->get());
+    session << "SELECT CAST(id AS char), bio, image FROM users WHERE username = ?", into(retrunId), into(retrunBio), into(retrunImage), use(username), now;
+
+    auto profile = UserProfileDto::createShared();
+    profile->username = username;
+    if(!retrunBio.isNull())
+      profile->bio = retrunBio.value();
+    if(!retrunImage.isNull())
+    profile->image = retrunImage.value();
+    profile->following = false;
+    return {profile, retrunId.value()};
+  }
+  catch(Exception& exp) {
+    OATPP_LOGE("UserModel", exp.displayText().c_str());
+    return {nullptr, ""};
   }
 }

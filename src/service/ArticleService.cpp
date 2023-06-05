@@ -48,7 +48,7 @@ oatpp::Object<ArticleJsonDto> ArticleService::createArticle(std::string &id, con
   OATPP_ASSERT_HTTP(article != nullptr, Status::CODE_500, "Server error.");
 
   // Response data
-  auto author = userModel.getAuthor(id);
+  auto author = userModel.getProfileFromId(id);
   author->following = false;
   article->author = author;
 
@@ -73,7 +73,7 @@ oatpp::Object<ArticleJsonDto> ArticleService::getArticle(std::string &id, std::s
   OATPP_ASSERT_HTTP(favouriteData.first >= 0, Status::CODE_500, "Server error.");
   article->favourited = favouriteData.second;
   article->favouritesCount = favouriteData.first;
-  auto author = userModel.getAuthor(authorId);
+  auto author = userModel.getProfileFromId(authorId);
   author->following = false; // TODO: following
   article->author = author;
   
@@ -100,7 +100,7 @@ oatpp::Object<ArticleJsonDto> ArticleService::favouriteArticle(std::string &id, 
 
   // Response data
   std::string authorId = std::get<ArticleModel::GetArticleEnum::AuthorId>(articleObj);
-  auto author = userModel.getAuthor(authorId);
+  auto author = userModel.getProfileFromId(authorId);
   author->following = false;
   // TODO: following
   
@@ -132,7 +132,7 @@ oatpp::Object<ArticleJsonDto> ArticleService::unfavouriteArticle(std::string &id
 
   // Response data
   std::string authorId = std::get<ArticleModel::GetArticleEnum::AuthorId>(articleObj);
-  auto author = userModel.getAuthor(authorId);
+  auto author = userModel.getProfileFromId(authorId);
   author->following = false;
   // TODO: following
   

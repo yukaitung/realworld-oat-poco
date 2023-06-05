@@ -4,6 +4,7 @@
 #include "dto/UserDto.hpp"
 
 #include <string>
+#include <utility>
 
 class UserModel {
   private:
@@ -15,7 +16,8 @@ class UserModel {
     oatpp::Object<UserDto> login(std::string &email, std::string &password);
     oatpp::Object<UserDto> getUser(std::string &id);
     oatpp::Object<UserDto> updateUser(std::string &id, std::string &email, std::string &username, std::string &password, std::string &bio, std::string &image);
-    oatpp::Object<AuthorDto> getAuthor(std::string &id);
+    oatpp::Object<UserProfileDto> getProfileFromId(std::string &id);
+    std::pair<oatpp::Object<UserProfileDto>, std::string> getProfileFromUsername(std::string &username);
 };
 
 #endif // USERMODEL_HPP

@@ -1,4 +1,3 @@
-
 #ifndef ARTICLECONTROLLER_HPP
 #define ARTICLECONTROLLER_HPP
 
@@ -12,7 +11,7 @@
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
 /**
- * User REST controller.
+ * Article REST controller.
  */
 class ArticleController : public oatpp::web::server::api::ApiController {
 private:
@@ -45,6 +44,9 @@ public:
   }
 };
 
+/**
+ * Article REST controller, the authentication is optional.
+ */
 class ArticleControllerOptionalAuth : public oatpp::web::server::api::ApiController {
 private:
   ArticleService articleService;

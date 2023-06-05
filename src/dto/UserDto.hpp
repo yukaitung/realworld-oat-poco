@@ -74,16 +74,23 @@ class UserUpdateJsonDto : public oatpp::DTO {
   DTO_FIELD(oatpp::Object<UserUpdateDto>, user);
 };
 
-// Author
+// User Profile
 
-class AuthorDto : public oatpp::DTO {
-  DTO_INIT(AuthorDto, DTO)
+class UserProfileDto : public oatpp::DTO {
+  DTO_INIT(UserProfileDto, DTO)
 
   DTO_FIELD(String, username);
   DTO_FIELD(String, image);
   DTO_FIELD(String, bio);
   DTO_FIELD(Boolean, following);
 };
+
+class UserProfileJsonDto : public oatpp::DTO {
+  DTO_INIT(UserProfileJsonDto, DTO)
+
+  DTO_FIELD(oatpp::Object<UserProfileDto>, profile);
+};
+
 
 #include OATPP_CODEGEN_END(DTO)
 
