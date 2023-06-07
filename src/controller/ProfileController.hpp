@@ -16,10 +16,23 @@
  */
 class ProfileController : public oatpp::web::server::api::ApiController {
 private:
+  ProfileService profileService;
 
 public:
   ProfileController(const std::shared_ptr<ObjectMapper>& objectMapper) : oatpp::web::server::api::ApiController(objectMapper) {
     setDefaultAuthorizationHandler(std::make_shared<TokenAuthorizationHandler>());
+  }
+
+  ENDPOINT("POST", "/profiles/{username}/follow", followProfile, PATH(String, username), AUTHORIZATION(std::shared_ptr<TokenAuthorizationObject>, authObject))
+  {
+    std::string usernameStr = username.getValue("");
+    return createDtoResponse(Status::CODE_200, profileService.followProfile(authObject->id, usernameStr));
+  }
+
+  ENDPOINT("DELETE", "/profiles/{username}/follow", unfollowProfile, PATH(String, username), AUTHORIZATION(std::shared_ptr<TokenAuthorizationObject>, authObject))
+  {
+    std::string usernameStr = username.getValue("");
+    return createDtoResponse(Status::CODE_200, profileService.unfollowProfile(authObject->id, usernameStr));
   }
 
   static std::shared_ptr<ProfileController> createShared(OATPP_COMPONENT(std::shared_ptr<ObjectMapper>, objectMapper)) {

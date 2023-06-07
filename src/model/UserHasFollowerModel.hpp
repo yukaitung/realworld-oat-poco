@@ -6,7 +6,9 @@
 class UserHasFollowerModel {
   public:
     UserHasFollowerModel() {};
-    bool userHasThisFollower(std::string userId, std::string followerId);
+    bool userHasThisFollower(std::string &userId, std::string &followerId);
+    bool userNewFollower(std::string &userId, std::string &followerId);
+    bool userRemoveFollower(std::string &userId, std::string &followerId);
 };
 
 #endif // USERHASFOLLOWERMODEL_HPP
