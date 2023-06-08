@@ -31,6 +31,7 @@ class ArticleJsonDto : public oatpp::DTO {
 
   DTO_FIELD(oatpp::Object<ArticleDto>, article);
 };
+
 // Article Create Update Object
 
 class ArticleExchangeDto : public oatpp::DTO {
@@ -48,6 +49,13 @@ class ArticleExchangeJsonDto : public oatpp::DTO {
   DTO_FIELD(oatpp::Object<ArticleExchangeDto>, article);
 };
 
+// Tags
+
+class TagJsonDto : public oatpp::DTO {
+  DTO_INIT(TagJsonDto, DTO)
+
+  DTO_FIELD(oatpp::Vector<String>, tags);
+};
 
 #include OATPP_CODEGEN_END(DTO)
 

@@ -144,3 +144,9 @@ oatpp::Object<ArticleJsonDto> ArticleService::unfavouriteArticle(std::string &id
   response->article = article;
   return response;
 }
+
+oatpp::Object<TagJsonDto> ArticleService::getTags() {
+  auto tags = tagModel.getTags();
+  OATPP_ASSERT_HTTP(tags, Status::CODE_500, "Server error.");
+  return tags;
+}

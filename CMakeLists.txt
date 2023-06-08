@@ -36,6 +36,7 @@ add_executable(${PROJECT_NAME}
 
   src/model/ArticleHasFavouriteModel.cpp
   src/model/ArticleModel.cpp
+  src/model/TagModel.cpp
   src/model/UserHasFollowerModel.cpp
   src/model/UserModel.cpp
 )

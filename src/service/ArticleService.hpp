@@ -3,6 +3,7 @@
 
 #include "model/ArticleHasFavouriteModel.hpp"
 #include "model/ArticleModel.hpp"
+#include "model/TagModel.hpp"
 #include "model/UserHasFollowerModel.hpp"
 #include "model/UserModel.hpp"
 
@@ -12,6 +13,7 @@ class ArticleService {
 private:
   ArticleHasFavouriteModel articleHasFavouriteModel;
   ArticleModel articleModel;
+  TagModel tagModel;
   UserHasFollowerModel userHasFollowerModel;
   UserModel userModel;
   typedef oatpp::web::protocol::http::Status Status;
@@ -26,6 +28,8 @@ public:
 
   oatpp::Object<ArticleJsonDto> favouriteArticle(std::string &id, std::string &slug);
   oatpp::Object<ArticleJsonDto> unfavouriteArticle(std::string &id, std::string &slug);
+
+  oatpp::Object<TagJsonDto> getTags();
 };
 
 #endif // ARTICLESERVICE_HPP

@@ -42,6 +42,11 @@ public:
     std::string slugStr = slug.getValue("");
     return createDtoResponse(Status::CODE_200, articleService.unfavouriteArticle(authObject->id, slugStr));
   }
+
+  ENDPOINT("GET", "/tags", getTags)
+  {
+    return createDtoResponse(Status::CODE_200, articleService.getTags());
+  }
 };
 
 /**
