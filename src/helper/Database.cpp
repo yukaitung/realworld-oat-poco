@@ -2,7 +2,7 @@
 
 std::shared_ptr<Poco::Data::SessionPool> Database::pool = nullptr;
 
-void Database::setUpDatabase(std::string connectionName, std::string connectionString) {
+void Database::InitDatabase(std::string connectionName, std::string connectionString) {
   if(Database::pool != nullptr) {
     return;
   }

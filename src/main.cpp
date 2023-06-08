@@ -5,6 +5,8 @@
 #include "controller/ProfileController.hpp"
 #include "controller/UserController.hpp"
 
+#include "model/TagModel.hpp"
+
 #include "oatpp/network/Server.hpp"
 
 #include <iostream>
@@ -16,7 +18,10 @@ void run() {
   // TODO: dont insert secret
   std::string connectionName = "MySQL";
   std::string connectionString = "host=127.0.0.1;port=3306;db=Realworld;user=root;password=GueBPjHlPFUgXc7hm=;compress=true;auto-reconnect=true";
-  Database::setUpDatabase(connectionName, connectionString);
+  Database::InitDatabase(connectionName, connectionString);
+
+  // Init cache
+  TagModel::initCache();
 
   auto router = app.httpRouter.getObject();
   oatpp::web::server::api::Endpoints docEndpoints;

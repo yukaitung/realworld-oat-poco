@@ -10,6 +10,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <iterator>
 
 using namespace Poco::Data::Keywords;
 using Poco::Data::Session;
@@ -18,26 +19,37 @@ using Poco::Data::Statement;
 using Poco::Exception;
 using oatpp::web::protocol::http::Status;
 
-oatpp::Object<TagJsonDto> TagModel::getTags() {
+std::map<std::string, std::string> TagModel::tagCache;
+
+void TagModel::initCache() {
   try {
     Session session(Database::getPool()->get());
     Statement select(session);
-    select << "SELECT name FROM tags ORDER BY name ASC", now;
+    select << "SELECT id, name FROM tags ORDER BY name ASC", now;
     RecordSet rs(select);
     size_t rowCount = rs.totalRowCount();
 
-    auto tags = TagJsonDto::createShared();
-    tags->tags = {};
-    tags->tags->resize(rowCount);
     for(int i = 0; i < rowCount; i++) {
-      oatpp::String s = rs.value(0, i).toString();
-      tags->tags->at(i) = s;
+      tagCache.insert({rs.value(0, i).toString(), rs.value(1, i).toString()});
     }
-     
-    return tags;
   }
   catch(Exception& exp) {
     OATPP_LOGE("TagModel", exp.displayText().c_str());
-    return nullptr;
   }
+}
+
+oatpp::Object<TagJsonDto> TagModel::getTags() {
+  auto tags = TagJsonDto::createShared();
+  tags->tags = {};
+  tags->tags->resize(tagCache.size());
+
+  auto it = tagCache.begin();
+  int i = 0;
+  while (it != tagCache.end())
+  {
+    std::string name = it->first;
+    tags->tags->at(i++) = name;
+    it++;
+  }
+  return tags;
 }

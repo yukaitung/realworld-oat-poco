@@ -12,7 +12,7 @@ class Database {
     static std::shared_ptr<Poco::Data::SessionPool> pool;
   public:
     Database() = delete;
-    static void setUpDatabase(std::string connectionName, std::string connectionString);
+    static void InitDatabase(std::string connectionName, std::string connectionString);
     static std::shared_ptr<Poco::Data::SessionPool> getPool() {return Database::pool;};
 };
 
