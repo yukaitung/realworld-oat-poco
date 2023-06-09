@@ -11,7 +11,7 @@ class ArticleModel {
     std::string timeTz(std::string &time);
 
   public:
-    enum GetArticleEnum {Article, ArticleId, AuthorId};
+    enum GetArticleEnum {Article, ArticleId, AuthorId, TagsJsonStr};
     
     ArticleModel() {};
     /**
@@ -25,13 +25,13 @@ class ArticleModel {
     * @param createTime The create time and update time of article.
     * @return oatpp::Object<ArticleDto> This returns article object. Remember to append data for author profile.
     */
-    oatpp::Object<ArticleDto> createArticle(std::string &userId, std::string &slug, std::string &title, std::string &description, std::string &body, std::vector<std::string> tags, std::string &createTime);
+    oatpp::Object<ArticleDto> createArticle(std::string &userId, std::string &slug, std::string &title, std::string &description, std::string &body, std::string &tagsStr, std::string &createTime);
     /**
     * This method is to fetch an article from database.
     * @param slug The slug of article.
-    * @return std::tuple<oatpp::Object<ArticleDto>, std::string, std::string> This returns article object, article id, author user id. Remember to append data for favourite and author profile.
+    * @return std::tuple<oatpp::Object<ArticleDto>, std::string, std::string, std::string> This returns article object, article id, author user id, tags json in string. Remember to append data for favourite and author profile.
     */
-    std::tuple<oatpp::Object<ArticleDto>, std::string, std::string> getArticle(std::string &slug);
+    std::tuple<oatpp::Object<ArticleDto>, std::string, std::string, std::string> getArticle(std::string &slug);
 };
 
 #endif // ARTICLEMODEL_HPP

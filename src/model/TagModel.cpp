@@ -19,7 +19,23 @@ using Poco::Data::Statement;
 using Poco::Exception;
 using oatpp::web::protocol::http::Status;
 
-std::map<std::string, std::string> TagModel::tagCache;
+TagCache TagModel::tagCache;
+
+void TagCache::createTag(const std::pair<std::string, std::string> &tagNamePairTagId) {
+  tagNamePairTagIdMap.insert({tagNamePairTagId.first, tagNamePairTagId.second});
+}
+
+bool TagCache::nameExist(const std::string name) {
+  return tagNamePairTagIdMap.find(name) != tagNamePairTagIdMap.end();
+}
+
+std::string TagCache::getIdFromName(const std::string &tagNamePairTagId) {
+  std::string name = "";
+  if(tagNamePairTagIdMap.find(tagNamePairTagId) != tagNamePairTagIdMap.end()) {
+    name = tagNamePairTagIdMap[tagNamePairTagId];
+  }
+  return name;
+}
 
 void TagModel::initCache() {
   try {
@@ -30,7 +46,7 @@ void TagModel::initCache() {
     size_t rowCount = rs.totalRowCount();
 
     for(int i = 0; i < rowCount; i++) {
-      tagCache.insert({rs.value(1, i).toString(), rs.value(0, i).toString()});
+      tagCache.createTag({rs.value(1, i).toString(), rs.value(0, i).toString()});
     }
   }
   catch(Exception& exp) {
@@ -42,7 +58,7 @@ bool TagModel::createTags(std::vector<std::string> tags) {
   // Create tags if not exist
   auto it = tags.begin();
   while (it != tags.end()) {
-    if(tagCache.find(*it) != tagCache.end()) {
+    if(tagCache.nameExist(*it)) {
       // Tag exist
       it = tags.erase(it);    
     }
@@ -81,7 +97,7 @@ bool TagModel::createTags(std::vector<std::string> tags) {
       RecordSet rs(select);
       size_t rowCount = rs.totalRowCount();
       for(int i = 0; i < rowCount; i++) {
-        tagCache.insert({rs.value(1, i).toString(), rs.value(0, i).toString()});
+        tagCache.createTag({rs.value(1, i).toString(), rs.value(0, i).toString()});
       }
     }
     catch(Exception& exp) {
@@ -95,7 +111,7 @@ bool TagModel::createTags(std::vector<std::string> tags) {
 std::vector<std::string> TagModel::getTagsId(std::vector<std::string> tags) {
   std::vector<std::string> id(tags.size());
   for(int i = 0; i < tags.size(); i++) {
-    id[i] = tagCache[tags[i]];
+    id[i] = tagCache.getIdFromName(tags[i]);
   }
   return id;
 }
@@ -103,11 +119,11 @@ std::vector<std::string> TagModel::getTagsId(std::vector<std::string> tags) {
 oatpp::Object<TagJsonDto> TagModel::getTags() {
   auto tags = TagJsonDto::createShared();
   tags->tags = {};
-  tags->tags->resize(tagCache.size());
+  tags->tags->resize(tagCache.getSize());
 
-  auto it = tagCache.begin();
+  auto it = tagCache.getTagNameBegin();
   int i = 0;
-  while (it != tagCache.end())
+  while (it != tagCache.getTagNameEnd())
   {
     std::string name = it->first;
     tags->tags->at(i++) = name;

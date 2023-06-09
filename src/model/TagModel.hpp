@@ -6,10 +6,25 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <utility>
+#include <iterator>
 
+class TagCache {
+  private:
+    std::map<std::string, std::string> tagNamePairTagIdMap;
+
+  public:
+    TagCache() {};
+    void createTag(const std::pair<std::string, std::string> &tagNamePairTagId);
+    std::string getIdFromName(const std::string &tagNamePairTagId);
+    bool nameExist(const std::string name); 
+    const std::map<std::string, std::string>::iterator getTagNameBegin() {return tagNamePairTagIdMap.begin();};
+    const std::map<std::string, std::string>::iterator getTagNameEnd() {return tagNamePairTagIdMap.end();};
+    const size_t getSize() {return tagNamePairTagIdMap.size();};
+};
 class TagModel {
   private:
-    static std::map<std::string, std::string> tagCache;
+    static TagCache tagCache;
 
   public:
     TagModel() {};

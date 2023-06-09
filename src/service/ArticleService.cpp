@@ -5,8 +5,6 @@
 #include "Poco/DateTimeFormatter.h"
 #include "Poco/Timezone.h"
 
-#include <regex>
-
 std::string &ArticleService::removeHeadSpace(std::string &s, const char *t) {
   s.erase(0, s.find_first_not_of(t));
   return s;
@@ -27,6 +25,12 @@ std::string ArticleService::replaceSpace(std::string &s) {
   return s;
 }
 
+std::vector<std::string> ArticleService::splitStr(const std::string &s, const std::regex &sep_regex) {
+  std::sregex_token_iterator iter(s.begin(), s.end(), sep_regex, -1);
+  std::sregex_token_iterator end;
+  return {iter, end};
+}
+
 oatpp::Object<ArticleJsonDto> ArticleService::createArticle(std::string &id, const oatpp::Object<ArticleExchangeJsonDto> &dto) {
   std::string title = dto->article->title;
   title = removeBothSpace(title);
@@ -38,16 +42,26 @@ oatpp::Object<ArticleJsonDto> ArticleService::createArticle(std::string &id, con
 
   // Create tags
   auto tags = dto->article->tagList;
-  std::vector<std::string> tagsId;
+  std::string tagsStr = "[";
   if(tags != nullptr) {
+    // Copy oatpp object to std object
     std::vector<std::string> tagsStd(tags->size());
     for(int i = 0; i < tags->size(); i++) {
       tagsStd[i] = tags->at(i);
     }
     bool result = tagModel.createTags(tagsStd);
     OATPP_ASSERT_HTTP(result, Status::CODE_500, "Server error.");
+
+    // Generate JSON string
+    std::vector<std::string> tagsId;
     tagsId = tagModel.getTagsId(tagsStd);
+    for(int i = 0; i < tagsId.size(); i++) {
+      tagsStr += tagsId[i];
+      if(i < tagsId.size() - 1)
+        tagsStr += ',';
+    }
   }
+  tagsStr += ']';
   
   // slug = title replacing space + user id + timestamp
   Poco::LocalDateTime dateTime;
@@ -56,7 +70,7 @@ oatpp::Object<ArticleJsonDto> ArticleService::createArticle(std::string &id, con
   std::string createTime = Poco::DateTimeFormatter::format(dateTime.timestamp(), "%Y-%m-%d %H:%M:%S", Poco::Timezone::tzd());
 
   // Create article
-  auto article = articleModel.createArticle(id, slug, title, description, body, tagsId, createTime);
+  auto article = articleModel.createArticle(id, slug, title, description, body, tagsStr, createTime);
   OATPP_ASSERT_HTTP(article != nullptr, Status::CODE_500, "Server error.");
   article->tagList = tags;
 
@@ -73,11 +87,14 @@ oatpp::Object<ArticleJsonDto> ArticleService::createArticle(std::string &id, con
 oatpp::Object<ArticleJsonDto> ArticleService::getArticle(std::string &id, std::string &slug) {
   OATPP_ASSERT_HTTP(!slug.empty(), Status::CODE_400, "Missing slug");
   
-  // TODO : taglist
   // Get article
   auto articleObj = articleModel.getArticle(slug);
   std::string authorId = std::get<ArticleModel::GetArticleEnum::AuthorId>(articleObj);
   OATPP_ASSERT_HTTP(!authorId.empty(), Status::CODE_500, "Server error."); // Missing author id = error
+
+  // Tag data
+  std::string tagsListJson = std::get<ArticleModel::GetArticleEnum::TagsJsonStr>(articleObj);
+  std::vector<std::string> tagsIdList = splitStr(tagsListJson, splitJsonArrRegex);
 
   // Response data
   auto article = std::get<ArticleModel::GetArticleEnum::Article>(articleObj);
