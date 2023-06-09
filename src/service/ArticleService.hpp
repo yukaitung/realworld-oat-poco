@@ -9,6 +9,9 @@
 
 #include "oatpp/web/protocol/http/Http.hpp"
 
+#include <vector>
+#include <string>
+
 class ArticleService {
 private:
   ArticleHasFavouriteModel articleHasFavouriteModel;

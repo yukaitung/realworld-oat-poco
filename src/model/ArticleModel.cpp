@@ -8,7 +8,6 @@
 
 using namespace Poco::Data::Keywords;
 using Poco::Data::Session;
-using Poco::Data::Statement;
 using Poco::Exception;
 using oatpp::web::protocol::http::Status;
 
@@ -18,11 +17,19 @@ std::string ArticleModel::timeTz(std::string &time) {
   return tz; 
 }
 
-oatpp::Object<ArticleDto> ArticleModel::createArticle(std::string &userId, std::string &slug, std::string &title, std::string &description, std::string &body, std::string &createTime) {
+oatpp::Object<ArticleDto> ArticleModel::createArticle(std::string &userId, std::string &slug, std::string &title, std::string &description, std::string &body, std::vector<std::string> tags, std::string &createTime) {
+  std::string tagsStr = "[";
+  for(int i = 0; i < tags.size(); i++) {
+    tagsStr += tags[i];
+    if(i < tags.size() - 1)
+      tagsStr += ',';
+  }
+  tagsStr += ']';
+
   try {
     // Insert article
     Session session(Database::getPool()->get());
-    session << "INSERT INTO articles (user_id, slug, title, description, body, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)", use(userId), use(slug), use(title), use(description), use(body), use(createTime), use(createTime), now;
+    session << "INSERT INTO articles (user_id, slug, title, description, body, tag_list, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", use(userId), use(slug), use(title), use(description), use(body), use(tagsStr), use(createTime), use(createTime), now;
 
     auto article = ArticleDto::createShared();
     article->slug = slug;

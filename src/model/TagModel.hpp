@@ -4,6 +4,7 @@
 #include "dto/ArticleDto.hpp"
 
 #include <map>
+#include <vector>
 #include <string>
 
 class TagModel {
@@ -13,6 +14,8 @@ class TagModel {
   public:
     TagModel() {};
     static void initCache();
+    bool createTags(std::vector<std::string> tags);
+    std::vector<std::string> getTagsId(std::vector<std::string> tags);
     oatpp::Object<TagJsonDto> getTags();
 };
 

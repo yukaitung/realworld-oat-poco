@@ -32,10 +32,22 @@ oatpp::Object<ArticleJsonDto> ArticleService::createArticle(std::string &id, con
   title = removeBothSpace(title);
   std::string description = dto->article->description;
   std::string body = dto->article->body;
-  // TODO : taglist
   OATPP_ASSERT_HTTP(!title.empty(), Status::CODE_422, "Missing title.");
   OATPP_ASSERT_HTTP(!description.empty(), Status::CODE_422, "Missing description.");
   OATPP_ASSERT_HTTP(!body.empty(), Status::CODE_422, "Missing body.");
+
+  // Create tags
+  auto tags = dto->article->tagList;
+  std::vector<std::string> tagsId;
+  if(tags != nullptr) {
+    std::vector<std::string> tagsStd(tags->size());
+    for(int i = 0; i < tags->size(); i++) {
+      tagsStd[i] = tags->at(i);
+    }
+    bool result = tagModel.createTags(tagsStd);
+    OATPP_ASSERT_HTTP(result, Status::CODE_500, "Server error.");
+    tagsId = tagModel.getTagsId(tagsStd);
+  }
   
   // slug = title replacing space + user id + timestamp
   Poco::LocalDateTime dateTime;
@@ -44,8 +56,9 @@ oatpp::Object<ArticleJsonDto> ArticleService::createArticle(std::string &id, con
   std::string createTime = Poco::DateTimeFormatter::format(dateTime.timestamp(), "%Y-%m-%d %H:%M:%S", Poco::Timezone::tzd());
 
   // Create article
-  auto article = articleModel.createArticle(id, slug, title, description, body, createTime);
+  auto article = articleModel.createArticle(id, slug, title, description, body, tagsId, createTime);
   OATPP_ASSERT_HTTP(article != nullptr, Status::CODE_500, "Server error.");
+  article->tagList = tags;
 
   // Response data
   auto author = userModel.getProfileFromId(id);

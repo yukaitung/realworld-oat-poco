@@ -18,7 +18,7 @@ class ArticleDto : public oatpp::DTO {
   DTO_FIELD(String, title);
   DTO_FIELD(String, description);
   DTO_FIELD(String, body);
-  DTO_FIELD(String, tagList);
+  DTO_FIELD(oatpp::Vector<String>, tagList);
   DTO_FIELD(String, createdAt);
   DTO_FIELD(String, updatedAt);
   DTO_FIELD(Boolean, favourited, "favorited");
@@ -40,7 +40,7 @@ class ArticleExchangeDto : public oatpp::DTO {
   DTO_FIELD(String, title);
   DTO_FIELD(String, description);
   DTO_FIELD(String, body);
-  DTO_FIELD(String, tagList);
+  DTO_FIELD(oatpp::Vector<String>, tagList);
 };
 
 class ArticleExchangeJsonDto : public oatpp::DTO {

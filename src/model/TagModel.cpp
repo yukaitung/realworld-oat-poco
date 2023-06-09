@@ -30,12 +30,74 @@ void TagModel::initCache() {
     size_t rowCount = rs.totalRowCount();
 
     for(int i = 0; i < rowCount; i++) {
-      tagCache.insert({rs.value(0, i).toString(), rs.value(1, i).toString()});
+      tagCache.insert({rs.value(1, i).toString(), rs.value(0, i).toString()});
     }
   }
   catch(Exception& exp) {
     OATPP_LOGE("TagModel", exp.displayText().c_str());
   }
+}
+
+bool TagModel::createTags(std::vector<std::string> tags) {
+  // Create tags if not exist
+  auto it = tags.begin();
+  while (it != tags.end()) {
+    if(tagCache.find(*it) != tagCache.end()) {
+      // Tag exist
+      it = tags.erase(it);    
+    }
+    else {
+      it++;
+    }
+  }
+
+  if(!tags.empty()) {
+    try {
+      // Generate insert SQL
+      Session session(Database::getPool()->get());
+      Statement insert(session);
+      insert << "INSERT INTO tags (name) VALUES ";
+      for(int i = 0; i < tags.size(); i++) {
+        insert << "(?)", use(tags[i]);
+        if(i < (tags.size() - 1)) {
+          insert << ",";
+        }
+      }
+      insert.execute();
+      
+      // Get id for new tags
+      Statement select(session);
+      select << "SELECT id, name FROM tags WHERE name IN(";
+      for(int i = 0; i < tags.size(); i++) {
+        select << "?", use(tags[i]);
+        if(i < (tags.size() - 1)) {
+          select << ",";
+        }
+      }
+      select << ")";
+      select.execute();
+      
+      // Insert into cache
+      RecordSet rs(select);
+      size_t rowCount = rs.totalRowCount();
+      for(int i = 0; i < rowCount; i++) {
+        tagCache.insert({rs.value(1, i).toString(), rs.value(0, i).toString()});
+      }
+    }
+    catch(Exception& exp) {
+      OATPP_LOGE("TagModel", exp.displayText().c_str());
+      return false;
+    }
+  }
+  return true;
+}
+
+std::vector<std::string> TagModel::getTagsId(std::vector<std::string> tags) {
+  std::vector<std::string> id(tags.size());
+  for(int i = 0; i < tags.size(); i++) {
+    id[i] = tagCache[tags[i]];
+  }
+  return id;
 }
 
 oatpp::Object<TagJsonDto> TagModel::getTags() {

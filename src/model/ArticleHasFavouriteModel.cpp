@@ -8,7 +8,6 @@
 
 using namespace Poco::Data::Keywords;
 using Poco::Data::Session;
-using Poco::Data::Statement;
 using Poco::Exception;
 using oatpp::web::protocol::http::Status;
 

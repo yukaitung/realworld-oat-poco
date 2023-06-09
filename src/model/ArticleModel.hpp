@@ -20,11 +20,12 @@ class ArticleModel {
     * @param slug The slug of article.
     * @param title The title of article.
     * @param description The description of article.
+    * @param tags The tags of article.
     * @param body The content of article.
     * @param createTime The create time and update time of article.
     * @return oatpp::Object<ArticleDto> This returns article object. Remember to append data for author profile.
     */
-    oatpp::Object<ArticleDto> createArticle(std::string &userId, std::string &slug, std::string &title, std::string &description, std::string &body, std::string &createTime);
+    oatpp::Object<ArticleDto> createArticle(std::string &userId, std::string &slug, std::string &title, std::string &description, std::string &body, std::vector<std::string> tags, std::string &createTime);
     /**
     * This method is to fetch an article from database.
     * @param slug The slug of article.
