@@ -33,6 +33,8 @@ private:
 public:
   oatpp::Object<ArticleJsonDto> createArticle(std::string &id, const oatpp::Object<ArticleExchangeJsonDto> &dto);
   oatpp::Object<ArticleJsonDto> getArticle(std::string &id, std::string &slug);
+  oatpp::Object<ArticleJsonDto> updateArticle(std::string &id, std::string &slug, const oatpp::Object<ArticleExchangeJsonDto> &dto);
+  void deleteArticle(std::string &id, std::string &slug);
 
   oatpp::Object<ArticleJsonDto> favouriteArticle(std::string &id, std::string &slug);
   oatpp::Object<ArticleJsonDto> unfavouriteArticle(std::string &id, std::string &slug);

@@ -7,13 +7,11 @@
 #include <utility>
 
 class ArticleModel {
-  private:
-    std::string timeTz(std::string &time);
-
   public:
     enum GetArticleEnum {Article, ArticleId, AuthorId, TagsJsonStr};
     
     ArticleModel() {};
+    std::string timeTz(std::string &time);
     /**
     * This method is to create an article into database.
     * @param userId The author user id of article.
@@ -29,9 +27,10 @@ class ArticleModel {
     /**
     * This method is to fetch an article from database.
     * @param slug The slug of article.
-    * @return std::tuple<oatpp::Object<ArticleDto>, std::string, std::string, std::string> This returns article object, article id, author user id, tags json in string. Remember to append data for favourite and author profile.
+    * @return std::tuple<oatpp::Object<ArticleDto>, std::string, std::string, std::string> This returns article object, article id, author user id, tags json in string. Remember to append data for favourite, taglist and author profile.
     */
     std::tuple<oatpp::Object<ArticleDto>, std::string, std::string, std::string> getArticle(std::string &slug);
+    bool updateArticle(std::string &slug, std::string &newSlug, std::string &title, std::string &description, std::string &body, std::string &updateTime);
 };
 
 #endif // ARTICLEMODEL_HPP

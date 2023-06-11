@@ -156,7 +156,7 @@ oatpp::Object<UserDto> UserModel::updateUser(std::string &id, std::string &email
     // Update token
     std::string token;
     token = Jwt::issueJWT(id);
-    updateStatment << " token = ? WHERE id = ?", use(token), use(id), now;
+    updateStatment << " token = ? WHERE id = ?", use(token), use(id);
     updateStatment.execute();
 
     // Obtain latest user data

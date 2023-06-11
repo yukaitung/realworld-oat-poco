@@ -53,8 +53,7 @@ oatpp::Object<ArticleJsonDto> ArticleService::createArticle(std::string &id, con
     OATPP_ASSERT_HTTP(result, Status::CODE_500, "Server error.");
 
     // Generate JSON string
-    std::vector<std::string> tagsId;
-    tagsId = tagModel.getTagsId(tagsStd);
+    std::vector<std::string> tagsId = tagModel.getTagsId(tagsStd);
     for(int i = 0; i < tagsId.size(); i++) {
       tagsStr += tagsId[i];
       if(i < tagsId.size() - 1)
@@ -118,6 +117,76 @@ oatpp::Object<ArticleJsonDto> ArticleService::getArticle(std::string &id, std::s
   auto response = ArticleJsonDto::createShared();
   response->article = article;
   return response;
+}
+
+oatpp::Object<ArticleJsonDto> ArticleService::updateArticle(std::string &id, std::string &slug, const oatpp::Object<ArticleExchangeJsonDto> &dto) {
+  OATPP_ASSERT_HTTP(!slug.empty(), Status::CODE_400, "Missing slug");
+  
+  // Get article, validate the author
+  auto articleObj = articleModel.getArticle(slug);
+  std::string authorId = std::get<ArticleModel::GetArticleEnum::AuthorId>(articleObj);
+  OATPP_ASSERT_HTTP(id.compare(authorId) == 0, Status::CODE_400, "Unauthorized access.");
+
+  std::string title = dto->article->title ? dto->article->title : "";
+  title = removeBothSpace(title);
+  std::string description = dto->article->description ? dto->article->description : "";
+  std::string body = dto->article->body ? dto->article->body : "";
+
+  // New slug if title is changed
+  Poco::LocalDateTime dateTime;
+  std::string newSlug = "";
+  if(!title.empty()) {
+    newSlug = title;
+    newSlug = replaceSpace(newSlug) + "-" + id + std::to_string(dateTime.timestamp().epochMicroseconds());
+  }
+  std::string updateTime = Poco::DateTimeFormatter::format(dateTime.timestamp(), "%Y-%m-%d %H:%M:%S", Poco::Timezone::tzd());
+
+  if(!title.empty() || !description.empty() || !body.empty()) {
+    bool result = articleModel.updateArticle(slug, newSlug, title, description, body, updateTime);
+    OATPP_ASSERT_HTTP(result, Status::CODE_500, "Server error.");
+  }
+
+  // Response data
+  auto article = std::get<ArticleModel::GetArticleEnum::Article>(articleObj);
+  auto articleId = std::get<ArticleModel::GetArticleEnum::ArticleId>(articleObj);
+
+  // Update response data if necessary
+  if(!title.empty()) {
+    article->slug = newSlug;
+    article->title = title;
+  }
+  if(!description.empty())
+    article->description = description;
+  if(!body.empty())
+    article->body = body;
+  article->updatedAt = articleModel.timeTz(updateTime);
+  
+  // Favourite, profile
+  auto favouriteData = articleHasFavouriteModel.getArticlefavouriteData(articleId, id);
+  OATPP_ASSERT_HTTP(favouriteData.first >= 0, Status::CODE_500, "Server error.");
+  article->favourited = favouriteData.second;
+  article->favouritesCount = favouriteData.first;
+  auto author = userModel.getProfileFromId(id);
+  article->author = author;
+
+  // Tag data
+  std::string tagsListJson = std::get<ArticleModel::GetArticleEnum::TagsJsonStr>(articleObj);
+  std::vector<std::string> tagsIdList = splitStr(tagsListJson, splitJsonArrRegex);
+  tagsIdList.erase(tagsIdList.begin()); // First element is empty
+  std::vector<std::string> tagNameList = tagModel.getTagsName(tagsIdList);
+  article->tagList = {};
+  article->tagList->resize(tagNameList.size());
+  for(int i = 0; i < tagNameList.size(); i++) {
+    article->tagList->at(i) = tagNameList[i];
+  }
+
+  auto response = ArticleJsonDto::createShared();
+  response->article = article;
+  return response;
+}
+
+void ArticleService::deleteArticle(std::string &id, std::string &slug) {
+
 }
 
 oatpp::Object<ArticleJsonDto> ArticleService::favouriteArticle(std::string &id, std::string &slug) {

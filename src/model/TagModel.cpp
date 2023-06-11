@@ -119,7 +119,7 @@ bool TagModel::createTags(std::vector<std::string> tags) {
   return true;
 }
 
-std::vector<std::string> TagModel::getTagsId(std::vector<std::string> tags) {
+std::vector<std::string> TagModel::getTagsId(const std::vector<std::string> &tags) {
   std::vector<std::string> id(tags.size());
   for(int i = 0; i < tags.size(); i++) {
     id[i] = std::string(tagCache.getIdFromName(tags[i]).c_str());

@@ -31,6 +31,18 @@ public:
     return createDtoResponse(Status::CODE_200, articleService.createArticle(authObject->id, dto));
   }
 
+  ENDPOINT("PUT", "/articles/{slug}", updateArticle, PATH(String, slug), BODY_DTO(Object<ArticleExchangeJsonDto>, dto), AUTHORIZATION(std::shared_ptr<TokenAuthorizationObject>, authObject))
+  {
+    std::string slugStr = slug.getValue("");
+    return createDtoResponse(Status::CODE_200, articleService.updateArticle(authObject->id, slugStr, dto));
+  }
+
+ // ENDPOINT("DELETE", "/articles/{slug}", deleteArticle, PATH(String, slug), BODY_DTO(Object<ArticleExchangeJsonDto>, dto), AUTHORIZATION(std::shared_ptr<TokenAuthorizationObject>, authObject))
+ // {
+ //   std::string slugStr = slug.getValue("");
+    //return createDtoResponse(Status::CODE_200, articleService.createArticle(authObject->id, dto));
+ // }
+
   ENDPOINT("POST", "/articles/{slug}/favorite", favouriteArticle, PATH(String, slug), AUTHORIZATION(std::shared_ptr<TokenAuthorizationObject>, authObject))
   {
     std::string slugStr = slug.getValue("");

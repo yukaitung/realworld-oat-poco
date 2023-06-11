@@ -8,6 +8,7 @@
 
 using namespace Poco::Data::Keywords;
 using Poco::Data::Session;
+using Poco::Data::Statement;
 using Poco::Exception;
 using oatpp::web::protocol::http::Status;
 
@@ -68,6 +69,8 @@ std::tuple<oatpp::Object<ArticleDto>, std::string, std::string, std::string> Art
     if(retrunTagList.isNull()) {
       retrunTagList = "[]";
     }
+    article->favourited = false;
+    article->favouritesCount = 0;
     article->createdAt = timeTz(retrunCreatedAt);
     article->updatedAt = timeTz(retrunUpdateddAt);
     
@@ -76,5 +79,29 @@ std::tuple<oatpp::Object<ArticleDto>, std::string, std::string, std::string> Art
   catch(Exception& exp) {
     OATPP_LOGE("ArticleModel", exp.displayText().c_str());
     return {nullptr , "", "", ""};
+  }
+}
+
+bool ArticleModel::updateArticle(std::string &slug, std::string &newSlug, std::string &title, std::string &description, std::string &body, std::string &updateTime) {
+  try {
+    Session session(Database::getPool()->get());
+    Statement updateStatment(session);
+    updateStatment << "UPDATE articles SET";
+    if(!newSlug.empty())
+      updateStatment << " slug = ?,", use(newSlug);
+    if(!title.empty())
+      updateStatment << " title = ?,",use(title);
+    if(!description.empty())
+      updateStatment << " description = ?,", use(description);
+    if(!body.empty())
+      updateStatment << " body = ?,", use(body);
+    updateStatment << " updated_at = ? WHERE slug = ?", use(updateTime), use(slug);
+    updateStatment.execute();
+    
+    return true;
+  }
+  catch(Exception& exp) {
+    OATPP_LOGE("ArticleModel", exp.displayText().c_str());
+    return false;
   }
 }
