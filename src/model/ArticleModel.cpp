@@ -105,3 +105,15 @@ bool ArticleModel::updateArticle(std::string &slug, std::string &newSlug, std::s
     return false;
   }
 }
+
+bool ArticleModel::deleteArticle(std::string &slug) {
+  try {
+    Session session(Database::getPool()->get());
+    session << "DELETE FROM articles WHERE slug = ?", use(slug), now;
+    return true;
+  }
+  catch(Exception& exp) {
+    OATPP_LOGE("ArticleModel", exp.displayText().c_str());
+    return false;
+  }
+}

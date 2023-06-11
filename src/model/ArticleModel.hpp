@@ -31,6 +31,7 @@ class ArticleModel {
     */
     std::tuple<oatpp::Object<ArticleDto>, std::string, std::string, std::string> getArticle(std::string &slug);
     bool updateArticle(std::string &slug, std::string &newSlug, std::string &title, std::string &description, std::string &body, std::string &updateTime);
+    bool deleteArticle(std::string &slug);
 };
 
 #endif // ARTICLEMODEL_HPP

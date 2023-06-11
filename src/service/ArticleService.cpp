@@ -185,8 +185,19 @@ oatpp::Object<ArticleJsonDto> ArticleService::updateArticle(std::string &id, std
   return response;
 }
 
-void ArticleService::deleteArticle(std::string &id, std::string &slug) {
+oatpp::Object<ArticleJsonDto> ArticleService::deleteArticle(std::string &id, std::string &slug) {
+  OATPP_ASSERT_HTTP(!slug.empty(), Status::CODE_400, "Missing slug");
+  
+  // Get article, validate the author
+  auto articleObj = articleModel.getArticle(slug);
+  std::string authorId = std::get<ArticleModel::GetArticleEnum::AuthorId>(articleObj);
+  OATPP_ASSERT_HTTP(id.compare(authorId) == 0, Status::CODE_400, "Unauthorized access.");
 
+  bool result = articleModel.deleteArticle(slug);
+  OATPP_ASSERT_HTTP(result, Status::CODE_500, "Server error.");
+
+  auto response = ArticleJsonDto::createShared();
+  return response;
 }
 
 oatpp::Object<ArticleJsonDto> ArticleService::favouriteArticle(std::string &id, std::string &slug) {
