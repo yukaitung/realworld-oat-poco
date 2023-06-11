@@ -22,17 +22,28 @@ using oatpp::web::protocol::http::Status;
 TagCache TagModel::tagCache;
 
 void TagCache::createTag(const std::pair<std::string, std::string> &tagNamePairTagId) {
-  tagNamePairTagIdMap.insert({tagNamePairTagId.first, tagNamePairTagId.second});
+  tagNamePairTagIdMap.insert({tagNamePairTagId.first, nullptr});
+  tagIdPairTagNameMap.insert({tagNamePairTagId.second, nullptr});
+  tagNamePairTagIdMap[tagNamePairTagId.first] = &tagIdPairTagNameMap.find(tagNamePairTagId.second)->first;
+  tagIdPairTagNameMap[tagNamePairTagId.second] = &tagNamePairTagIdMap.find(tagNamePairTagId.first)->first;
 }
 
 bool TagCache::nameExist(const std::string name) {
   return tagNamePairTagIdMap.find(name) != tagNamePairTagIdMap.end();
 }
 
-std::string TagCache::getIdFromName(const std::string &tagNamePairTagId) {
+std::string TagCache::getIdFromName(const std::string &tagName) {
+  std::string id = "";
+  if(tagNamePairTagIdMap.find(tagName) != tagNamePairTagIdMap.end()) {
+    id = *tagNamePairTagIdMap[tagName];
+  }
+  return id;
+}
+
+std::string TagCache::getNameFromId(const std::string &id) {
   std::string name = "";
-  if(tagNamePairTagIdMap.find(tagNamePairTagId) != tagNamePairTagIdMap.end()) {
-    name = tagNamePairTagIdMap[tagNamePairTagId];
+  if(tagIdPairTagNameMap.find(id) != tagIdPairTagNameMap.end()) {
+    name = *tagIdPairTagNameMap[id];
   }
   return name;
 }
@@ -111,9 +122,17 @@ bool TagModel::createTags(std::vector<std::string> tags) {
 std::vector<std::string> TagModel::getTagsId(std::vector<std::string> tags) {
   std::vector<std::string> id(tags.size());
   for(int i = 0; i < tags.size(); i++) {
-    id[i] = tagCache.getIdFromName(tags[i]);
+    id[i] = std::string(tagCache.getIdFromName(tags[i]).c_str());
   }
   return id;
+}
+
+std::vector<std::string> TagModel::getTagsName(const std::vector<std::string> &tagsId) {
+  std::vector<std::string> tagName(tagsId.size());
+  for(int i = 0; i < tagsId.size(); i++) {
+    tagName[i] = std::string(tagCache.getNameFromId(tagsId[i]).c_str());
+  }
+  return tagName;
 }
 
 oatpp::Object<TagJsonDto> TagModel::getTags() {

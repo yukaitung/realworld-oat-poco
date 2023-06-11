@@ -92,10 +92,6 @@ oatpp::Object<ArticleJsonDto> ArticleService::getArticle(std::string &id, std::s
   std::string authorId = std::get<ArticleModel::GetArticleEnum::AuthorId>(articleObj);
   OATPP_ASSERT_HTTP(!authorId.empty(), Status::CODE_500, "Server error."); // Missing author id = error
 
-  // Tag data
-  std::string tagsListJson = std::get<ArticleModel::GetArticleEnum::TagsJsonStr>(articleObj);
-  std::vector<std::string> tagsIdList = splitStr(tagsListJson, splitJsonArrRegex);
-
   // Response data
   auto article = std::get<ArticleModel::GetArticleEnum::Article>(articleObj);
   auto articleId = std::get<ArticleModel::GetArticleEnum::ArticleId>(articleObj);
@@ -107,6 +103,17 @@ oatpp::Object<ArticleJsonDto> ArticleService::getArticle(std::string &id, std::s
   if(!id.empty())
     author->following = userHasFollowerModel.userHasThisFollower(authorId, id);
   article->author = author;
+
+  // Tag data
+  std::string tagsListJson = std::get<ArticleModel::GetArticleEnum::TagsJsonStr>(articleObj);
+  std::vector<std::string> tagsIdList = splitStr(tagsListJson, splitJsonArrRegex);
+  tagsIdList.erase(tagsIdList.begin()); // First element is empty
+  std::vector<std::string> tagNameList = tagModel.getTagsName(tagsIdList);
+  article->tagList = {};
+  article->tagList->resize(tagNameList.size());
+  for(int i = 0; i < tagNameList.size(); i++) {
+    article->tagList->at(i) = tagNameList[i];
+  }
   
   auto response = ArticleJsonDto::createShared();
   response->article = article;
