@@ -53,10 +53,10 @@ oatpp::Object<ArticleJsonDto> ArticleService::createArticle(std::string &id, con
     OATPP_ASSERT_HTTP(result, Status::CODE_500, "Server error.");
 
     // Generate JSON string
-    std::vector<std::string> tagsId = tagModel.getTagsId(tagsStd);
-    for(int i = 0; i < tagsId.size(); i++) {
-      tagsStr += tagsId[i];
-      if(i < tagsId.size() - 1)
+    auto tagsId = tagModel.getTagsId(tagsStd);
+    for(int i = 0; i < tagsId->size(); i++) {
+      tagsStr += tagsId->at(i);
+      if(i < tagsId->size() - 1)
         tagsStr += ',';
     }
   }
@@ -107,12 +107,8 @@ oatpp::Object<ArticleJsonDto> ArticleService::getArticle(std::string &id, std::s
   std::string tagsListJson = std::get<ArticleModel::GetArticleEnum::TagsJsonStr>(articleObj);
   std::vector<std::string> tagsIdList = splitStr(tagsListJson, splitJsonArrRegex);
   tagsIdList.erase(tagsIdList.begin()); // First element is empty
-  std::vector<std::string> tagNameList = tagModel.getTagsName(tagsIdList);
-  article->tagList = {};
-  article->tagList->resize(tagNameList.size());
-  for(int i = 0; i < tagNameList.size(); i++) {
-    article->tagList->at(i) = tagNameList[i];
-  }
+  auto tagNameList = tagModel.getTagsName(tagsIdList);
+  article->tagList = tagNameList;
   
   auto response = ArticleJsonDto::createShared();
   response->article = article;
@@ -186,12 +182,8 @@ oatpp::Object<ArticleJsonDto> ArticleService::updateArticle(std::string &id, std
   std::string tagsListJson = std::get<ArticleModel::GetArticleEnum::TagsJsonStr>(articleObj);
   std::vector<std::string> tagsIdList = splitStr(tagsListJson, splitJsonArrRegex);
   tagsIdList.erase(tagsIdList.begin()); // First element is empty
-  std::vector<std::string> tagNameList = tagModel.getTagsName(tagsIdList);
-  article->tagList = {};
-  article->tagList->resize(tagNameList.size());
-  for(int i = 0; i < tagNameList.size(); i++) {
-    article->tagList->at(i) = tagNameList[i];
-  }
+  auto tagNameList = tagModel.getTagsName(tagsIdList);
+  article->tagList = tagNameList;
 
   auto response = ArticleJsonDto::createShared();
   response->article = article;

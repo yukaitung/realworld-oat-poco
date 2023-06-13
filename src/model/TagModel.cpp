@@ -119,18 +119,22 @@ bool TagModel::createTags(std::vector<std::string> tags) {
   return true;
 }
 
-std::vector<std::string> TagModel::getTagsId(const std::vector<std::string> &tags) {
-  std::vector<std::string> id(tags.size());
+oatpp::Vector<oatpp::String> TagModel::getTagsId(const std::vector<std::string> &tags) {
+  oatpp::Vector<oatpp::String> id = oatpp::Vector<oatpp::String>::createShared();
+  id->resize(tags.size());
   for(int i = 0; i < tags.size(); i++) {
-    id[i] = std::string(tagCache.getIdFromName(tags[i]).c_str());
+    std::string temp = tagCache.getIdFromName(tags[i]);
+    id[i] = temp;
   }
   return id;
 }
 
-std::vector<std::string> TagModel::getTagsName(const std::vector<std::string> &tagsId) {
-  std::vector<std::string> tagName(tagsId.size());
+oatpp::Vector<oatpp::String> TagModel::getTagsName(const std::vector<std::string> &tagsId) {
+  oatpp::Vector<oatpp::String> tagName = oatpp::Vector<oatpp::String>::createShared();
+  tagName->resize(tagsId.size());
   for(int i = 0; i < tagsId.size(); i++) {
-    tagName[i] = std::string(tagCache.getNameFromId(tagsId[i]).c_str());
+     std::string temp = tagCache.getNameFromId(tagsId[i]);
+    tagName[i] = temp;
   }
   return tagName;
 }
