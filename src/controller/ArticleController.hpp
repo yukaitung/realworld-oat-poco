@@ -82,6 +82,16 @@ public:
     std::string slugStr = slug.getValue("");
     return createDtoResponse(Status::CODE_200, articleService.getArticle(authObject->id, slugStr));
   }
+
+  ENDPOINT("GET", "/articles", getArticles, AUTHORIZATION(std::shared_ptr<TokenAuthorizationObject>, authObject))
+  {
+    std::string tagStr = "";
+    std::string authorStr = "";
+    std::string favouritedStr = "";
+    unsigned int limitInt = 20;
+    unsigned int offsetInt = 0;
+    return createDtoResponse(Status::CODE_200, articleService.getArticles(authObject->id, limitInt, offsetInt, tagStr, authorStr, favouritedStr));
+  }
 };
 
 #include OATPP_CODEGEN_END(ApiController)

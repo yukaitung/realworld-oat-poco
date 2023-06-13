@@ -119,6 +119,19 @@ oatpp::Object<ArticleJsonDto> ArticleService::getArticle(std::string &id, std::s
   return response;
 }
 
+oatpp::Object<ArticlesJsonDto> ArticleService::getArticles(std::string &id, unsigned int limit, unsigned int offset, std::string &tag, std::string &author, std::string &favourited) {
+  std::string test = "";
+  auto articlesObj = articleModel.getArticles(limit, offset, test, test, test);
+
+  auto articles = std::get<ArticleModel::GetArticleEnum::Article>(articlesObj);
+
+  auto response = ArticlesJsonDto::createShared();
+  response->articles = articles;
+  response->articlesCount = articles->size();
+  return response;
+}
+
+
 oatpp::Object<ArticleJsonDto> ArticleService::updateArticle(std::string &id, std::string &slug, const oatpp::Object<ArticleExchangeJsonDto> &dto) {
   OATPP_ASSERT_HTTP(!slug.empty(), Status::CODE_400, "Missing slug");
   

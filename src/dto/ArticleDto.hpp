@@ -32,6 +32,13 @@ class ArticleJsonDto : public oatpp::DTO {
   DTO_FIELD(oatpp::Object<ArticleDto>, article);
 };
 
+class ArticlesJsonDto : public oatpp::DTO {
+  DTO_INIT(ArticlesJsonDto, DTO)
+
+  DTO_FIELD(oatpp::Vector<oatpp::Object<ArticleDto>>, articles);
+  DTO_FIELD(UInt32, articlesCount);
+};
+
 // Article Create Update Object
 
 class ArticleExchangeDto : public oatpp::DTO {

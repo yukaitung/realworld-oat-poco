@@ -2,12 +2,14 @@
 #include "helper/Database.hpp"
 
 #include "Poco/Data/Session.h"
+#include "Poco/Data/RecordSet.h"
 #include "Poco/Exception.h"
 #include "oatpp/core/base/Environment.hpp"
 #include "oatpp/web/protocol/http/Http.hpp"
 
 using namespace Poco::Data::Keywords;
 using Poco::Data::Session;
+using Poco::Data::RecordSet;
 using Poco::Data::Statement;
 using Poco::Exception;
 using oatpp::web::protocol::http::Status;
@@ -79,6 +81,56 @@ std::tuple<oatpp::Object<ArticleDto>, std::string, std::string, std::string> Art
   catch(Exception& exp) {
     OATPP_LOGE("ArticleModel", exp.displayText().c_str());
     return {nullptr , "", "", ""};
+  }
+}
+
+std::tuple<oatpp::Vector<oatpp::Object<ArticleDto>>, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>> ArticleModel::getArticles(unsigned int limit, unsigned int offset, std::string &tagId, std::string &author, std::string &favouritedByUser) {
+  try {
+    Session session(Database::getPool()->get());
+    Statement select(session);
+    select << "SELECT CAST(id AS char), CAST(user_id AS char), slug, title, description, body, CAST(tag_list AS char), CAST(created_at AS char), CAST(updated_at AS char) FROM articles";
+    select << " LIMIT ?, ?", use(offset), use(limit);
+    select.execute();
+    RecordSet rs(select);
+    size_t rowCount = rs.totalRowCount();
+
+    oatpp::Vector<oatpp::Object<ArticleDto>> articles = oatpp::Vector<oatpp::Object<ArticleDto>>::createShared();
+    articles->resize(rowCount);
+    std::vector<std::string> articleIds(rowCount);
+    std::vector<std::string> authorUsers(rowCount);
+    std::vector<std::string> tagsJson(rowCount);
+    for(int i = 0; i < rowCount; i++) {
+      // Article
+      auto article = ArticleDto::createShared();
+      article->slug = rs.value(2, i).toString();
+      if(!rs.value(3, i).isEmpty())
+        article->title = rs.value(3, i).toString();
+      if(!rs.value(4, i).isEmpty())
+        article->description = rs.value(4, i).toString();
+      if(!rs.value(5, i).isEmpty())
+        article->body = rs.value(5, i).toString();
+      article->favourited = false;
+      article->favouritesCount = 0;
+      std::string createdAtStr = rs.value(7, i).toString();
+      std::string updatedAtStr = rs.value(8, i).toString();
+      article->createdAt = timeTz(createdAtStr);
+      article->updatedAt = timeTz(updatedAtStr);
+      articles->at(i) = article;
+
+      articleIds[i] = rs.value(0, i).toString();
+      authorUsers[i] = rs.value(1, i).toString();
+      if(rs.value(6, i).isEmpty()) {
+        tagsJson[i] = "[]";
+      }
+      else {
+        tagsJson[i] = rs.value(6, i).toString();
+      }
+    }
+    return {articles, articleIds, authorUsers, tagsJson};
+  }
+  catch(Exception& exp) {
+    OATPP_LOGE("ArticleModel", exp.displayText().c_str());
+    return {nullptr , {}, {}, {}};
   }
 }
 
