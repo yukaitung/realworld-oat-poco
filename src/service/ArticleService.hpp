@@ -20,7 +20,7 @@ private:
   TagModel tagModel;
   UserHasFollowerModel userHasFollowerModel;
   UserModel userModel;
-  const std::regex splitJsonArrRegex{R"__(\[\s*|\s*\]|\s*,\s*)__"};
+  const std::regex splitJsonArrRegex{R"__(\[\]|\[\s*|\s*\]|\s*,\s*)__"};
 
   typedef oatpp::web::protocol::http::Status Status;
 

@@ -119,7 +119,41 @@ oatpp::Object<ArticlesJsonDto> ArticleService::getArticles(std::string &id, unsi
   std::string test = "";
   auto articlesObj = articleModel.getArticles(limit, offset, test, test, test);
 
+  // Response data
   auto articles = std::get<ArticleModel::GetArticleEnum::Article>(articlesObj);
+  OATPP_ASSERT_HTTP(articles != nullptr, Status::CODE_500, "Server error.");
+
+  // Favourite
+  std::vector<std::string> articleIdList = std::get<ArticleModel::GetArticleEnum::ArticleId>(articlesObj);
+  std::unordered_map<std::string, std::pair<unsigned int, bool>> favouriteData = articleHasFavouriteModel.getArticlefavouriteDataFromList(articleIdList, id);
+
+  // Get authors profile and following
+  std::vector<std::string> tagsJsonStrList = std::get<ArticleModel::GetArticleEnum::TagsJsonStr>(articlesObj);
+  std::vector<std::string> authorIdList = std::get<ArticleModel::GetArticleEnum::AuthorId>(articlesObj);
+  std::unordered_map<std::string, oatpp::Object<UserProfileDto>> authorProfiles = userModel.getProfilesFromId(authorIdList);
+  std::unordered_set<std::string> userFollingList;
+  if(!id.empty()) {
+    userFollingList = userHasFollowerModel.validUserIsFollowingFromList(id, authorIdList);
+  }
+  // Append data for each article
+  for(int i = 0; i < articles->size(); i++) {
+    // Tag data
+    std::vector<std::string> tagsIdList = splitStr(tagsJsonStrList[i], splitJsonArrRegex);
+    tagsIdList.erase(tagsIdList.begin()); // First element is empty
+    articles->at(i)->tagList = tagModel.getTagsName(tagsIdList);
+
+    // Favourite Count
+    articles->at(i)->favouritesCount = favouriteData[articleIdList[i]].first;
+    // Author Profile
+    articles->at(i)->author = authorProfiles[authorIdList[i]];
+    if(!id.empty()) {
+      // User has favourtied the article
+      articles->at(i)->favourited = favouriteData[articleIdList[i]].second;
+      // Author following
+      if(userFollingList.find(authorIdList[i]) != userFollingList.end())
+        articles->at(i)->author->following = true;
+    }
+  }
 
   auto response = ArticlesJsonDto::createShared();
   response->articles = articles;

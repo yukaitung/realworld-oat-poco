@@ -3,6 +3,7 @@
 #include "helper/Database.hpp"
 
 #include "Poco/Data/Session.h"
+#include "Poco/Data/RecordSet.h"
 #include "Poco/Exception.h"
 #include "Poco/SHA2Engine.h"
 #include "oatpp/core/base/Environment.hpp"
@@ -12,6 +13,7 @@
 
 using namespace Poco::Data::Keywords;
 using Poco::Data::Session;
+using Poco::Data::RecordSet;
 using Poco::Data::Statement;
 using Poco::Exception;
 using Poco::SHA2Engine;
@@ -192,6 +194,45 @@ oatpp::Object<UserProfileDto> UserModel::getProfileFromId(std::string &id) {
   catch(Exception& exp) {
     OATPP_LOGE("UserModel", exp.displayText().c_str());
     return nullptr;
+  }
+}
+
+std::unordered_map<std::string, oatpp::Object<UserProfileDto>> UserModel::getProfilesFromId(std::vector<std::string> &ids) {
+  std::unordered_map<std::string, oatpp::Object<UserProfileDto>> profiles;
+  
+  try {
+    Session session(Database::getPool()->get());
+    Statement select(session);
+    select << "SELECT id, username, bio, image FROM users WHERE id IN (";
+    for(int i = 0; i < ids.size(); i++) {
+      select << "?", use(ids[i]);
+      if(i < ids.size() - 1)
+        select << ",";
+    }
+    select << ")";
+    select.execute();
+    RecordSet rs(select);
+    size_t rowCount = rs.totalRowCount();
+
+    for(int i = 0; i < rowCount; i++) {
+      std::string id = rs.value(0, i).toString();
+
+      auto profile = UserProfileDto::createShared();
+      profile->username = rs.value(1, i).toString();;
+      if(!rs.value(2, i).isEmpty())
+        profile->bio = rs.value(2, i).toString();
+      if(!rs.value(3, i).isEmpty())
+      profile->image = rs.value(3, i).toString();
+      profile->following = false;
+
+      profiles.insert({id, profile});
+    }
+
+    return profiles;
+  }
+  catch(Exception& exp) {
+    OATPP_LOGE("UserModel", exp.displayText().c_str());
+    return {};
   }
 }
 

@@ -23,9 +23,15 @@ class UserModel {
     */
     oatpp::Object<UserProfileDto> getProfileFromId(std::string &id);
     /**
+    * This method is to fetch an profile from database using user id.
+    * @param id The list of user id.
+    * @return std::unordered_map<std::string, oatpp::Object<UserProfileDto>> This returns user id : user profile object.
+    */
+    std::unordered_map<std::string, oatpp::Object<UserProfileDto>> getProfilesFromId(std::vector<std::string> &ids);
+    /**
     * This method is to fetch an profile from database using username.
     * @param username The username.
-    * @return std::pair<oatpp::Object<UserProfileDto>, std::string> This returns article object and profile user id.
+    * @return std::pair<oatpp::Object<UserProfileDto>, std::string> This returns profile object and profile user id.
     */
     std::pair<oatpp::Object<UserProfileDto>, std::string> getProfileFromUsername(std::string &username);
 };

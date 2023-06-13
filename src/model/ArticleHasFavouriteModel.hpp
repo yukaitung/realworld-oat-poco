@@ -3,6 +3,7 @@
 
 #include <string>
 #include <utility>
+#include <unordered_map>
 
 class ArticleHasFavouriteModel {
   public:
@@ -16,6 +17,7 @@ class ArticleHasFavouriteModel {
     * @return std::pair<unsigned int, bool> This returns the favorite count and the user's favourited status for the article. The favourite count becomes -1 if an error occured.
     */
     std::pair<unsigned int, bool> getArticlefavouriteData(std::string &articleId, std::string &userId);
+    std::unordered_map<std::string, std::pair<unsigned int, bool>> getArticlefavouriteDataFromList(std::vector<std::string> &articleId, std::string &userId);
 };
 
 #endif // ARTICLEHASFAVOURITEMODEL_HPP

@@ -2,12 +2,15 @@
 #include "helper/Database.hpp"
 
 #include "Poco/Data/Session.h"
+#include "Poco/Data/RecordSet.h"
 #include "Poco/Exception.h"
 #include "oatpp/core/base/Environment.hpp"
 #include "oatpp/web/protocol/http/Http.hpp"
 
 using namespace Poco::Data::Keywords;
 using Poco::Data::Session;
+using Poco::Data::RecordSet;
+using Poco::Data::Statement;
 using Poco::Exception;
 using oatpp::web::protocol::http::Status;
 
@@ -48,5 +51,35 @@ bool UserHasFollowerModel::userRemoveFollower(std::string &userId, std::string &
   catch(Exception& exp) {
     OATPP_LOGE("UserHasFollowerModel", exp.displayText().c_str());
     return false;
+  }
+}
+
+std::unordered_set<std::string> UserHasFollowerModel::validUserIsFollowingFromList(std::string &followerId, std::vector<std::string> &userIds) {
+  std::unordered_set<std::string> userFollowingIds;
+  
+  try {
+    Session session(Database::getPool()->get());
+    Statement select(session);
+    select << "SELECT user_id FROM users_has_followers WHERE user_id IN (";
+    for(int i = 0; i < userIds.size(); i++) {
+      select << "?", use(userIds[i]);
+      if(i < userIds.size() - 1)
+        select << ",";
+    }
+    select << ") AND follower_id = ?", use(followerId);
+    select.execute();
+    RecordSet rs(select);
+    size_t rowCount = rs.totalRowCount();
+
+    for(int i = 0; i < rowCount; i++) {
+      std::string id = rs.value(0, i).toString();
+      userFollowingIds.insert(id);
+    }
+
+    return userFollowingIds;
+  }
+  catch(Exception& exp) {
+    OATPP_LOGE("UserHasFollowerModel", exp.displayText().c_str());
+    return {};
   }
 }
