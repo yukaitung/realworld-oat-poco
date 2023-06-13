@@ -33,7 +33,7 @@ private:
 public:
   oatpp::Object<ArticleJsonDto> createArticle(std::string &id, const oatpp::Object<ArticleExchangeJsonDto> &dto);
   oatpp::Object<ArticleJsonDto> getArticle(std::string &id, std::string &slug);
-  oatpp::Object<ArticlesJsonDto> getArticles(std::string &id, unsigned int limit, unsigned int offset, std::string &tag, std::string &author, std::string &favourited);
+  oatpp::Object<ArticlesJsonDto> getArticles(std::string &id, unsigned int limit, unsigned int offset, std::string &tag, std::string &author, std::string &favouritedBy);
   oatpp::Object<ArticleJsonDto> updateArticle(std::string &id, std::string &slug, const oatpp::Object<ArticleExchangeJsonDto> &dto);
   oatpp::Object<ArticleJsonDto> deleteArticle(std::string &id, std::string &slug);
 

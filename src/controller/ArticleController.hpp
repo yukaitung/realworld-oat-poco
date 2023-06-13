@@ -8,6 +8,8 @@
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 
+#include <cstring>
+
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
 /**
@@ -83,14 +85,28 @@ public:
     return createDtoResponse(Status::CODE_200, articleService.getArticle(authObject->id, slugStr));
   }
 
-  ENDPOINT("GET", "/articles", getArticles, AUTHORIZATION(std::shared_ptr<TokenAuthorizationObject>, authObject))
+  ENDPOINT("GET", "/articles", getArticles, QUERIES(QueryParams, queryParams), AUTHORIZATION(std::shared_ptr<TokenAuthorizationObject>, authObject))
   {
-    std::string tagStr = "";
-    std::string authorStr = "";
-    std::string favouritedStr = "";
-    unsigned int limitInt = 20;
-    unsigned int offsetInt = 0;
-    return createDtoResponse(Status::CODE_200, articleService.getArticles(authObject->id, limitInt, offsetInt, tagStr, authorStr, favouritedStr));
+    std::string tag = "";
+    std::string author = "";
+    std::string favouritedBy = "";
+    unsigned int limit = 20;
+    unsigned int offset = 0;
+    for(auto &param : queryParams.getAll()) {
+      const char *key = static_cast<const char*>(param.first.getData());
+      const char *value = static_cast<const char*>(param.second.getData());
+      if(strcmp(key, "tag") == 0)
+        tag = value;
+      else if(strcmp(key, "author") == 0)
+        author = value;
+      else if(strcmp(key, "favorited") == 0)
+        favouritedBy = value;
+      else if(strcmp(key, "limit") == 0)
+        limit = std::stoul(value);
+      else if(strcmp(key, "offset") == 0)
+        offset = std::stoul(value);
+    }
+    return createDtoResponse(Status::CODE_200, articleService.getArticles(authObject->id, limit, offset, tag, author, favouritedBy));
   }
 };
 

@@ -65,7 +65,7 @@ void TagModel::initCache() {
   }
 }
 
-bool TagModel::createTags(std::vector<std::string> tags) {
+bool TagModel::createTags(std::vector<std::string> &tags) {
   // Create tags if not exist
   auto it = tags.begin();
   while (it != tags.end()) {
@@ -117,6 +117,10 @@ bool TagModel::createTags(std::vector<std::string> tags) {
     }
   }
   return true;
+}
+
+std::string TagModel::getTagId(const std::string &tags) {
+  return tagCache.getIdFromName(tags);
 }
 
 oatpp::Vector<oatpp::String> TagModel::getTagsId(const std::vector<std::string> &tags) {

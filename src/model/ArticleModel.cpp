@@ -84,7 +84,7 @@ std::tuple<oatpp::Object<ArticleDto>, std::string, std::string, std::string> Art
   }
 }
 
-std::tuple<oatpp::Vector<oatpp::Object<ArticleDto>>, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>> ArticleModel::getArticles(unsigned int limit, unsigned int offset, std::string &tagId, std::string &author, std::string &favouritedByUser) {
+std::tuple<oatpp::Vector<oatpp::Object<ArticleDto>>, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>> ArticleModel::getArticles(unsigned int limit, unsigned int offset, std::string &tagId, std::string &authorId, std::vector<std::string> &favouriteArticles) {
   try {
     Session session(Database::getPool()->get());
     Statement select(session);

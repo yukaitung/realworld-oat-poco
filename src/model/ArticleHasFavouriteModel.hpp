@@ -18,6 +18,7 @@ class ArticleHasFavouriteModel {
     */
     std::pair<unsigned int, bool> getArticlefavouriteData(std::string &articleId, std::string &userId);
     std::unordered_map<std::string, std::pair<unsigned int, bool>> getArticlefavouriteDataFromList(std::vector<std::string> &articleId, std::string &userId);
+    std::vector<std::string> getUserFavourite(std::string &userId);
 };
 
 #endif // ARTICLEHASFAVOURITEMODEL_HPP

@@ -65,7 +65,7 @@ std::unordered_map<std::string, std::pair<unsigned int, bool>> ArticleHasFavouri
       if(i < articleId.size() - 1)
         select << ",";
     }
-    select << ") GROUP BY article_id;";
+    select << ") GROUP BY article_id";
     select.execute();
     RecordSet rs(select);
     size_t rowCount = rs.totalRowCount();
@@ -83,4 +83,29 @@ std::unordered_map<std::string, std::pair<unsigned int, bool>> ArticleHasFavouri
     OATPP_LOGE("ArticleHasFavouriteModel", exp.displayText().c_str());
     return {};
   } 
+}
+
+std::vector<std::string> ArticleHasFavouriteModel::getUserFavourite(std::string &userId) {
+  std::vector<std::string> favouriteArticles;
+
+  try {
+    Session session(Database::getPool()->get());
+    Statement select(session);
+    select << "SELECT article_id FROM articles_has_favourites WHERE user_id = ?", use(userId);
+
+    select.execute();
+    RecordSet rs(select);
+    size_t rowCount = rs.totalRowCount();
+    favouriteArticles.resize(rowCount);
+
+    for(int i = 0; i < rowCount; i++) {
+      favouriteArticles[i] = rs.value(0, i).toString();
+    }
+
+    return favouriteArticles;
+  }
+  catch(Exception& exp) {
+    OATPP_LOGE("ArticleHasFavouriteModel", exp.displayText().c_str());
+    return {};
+  }
 }
