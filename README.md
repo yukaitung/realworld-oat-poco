@@ -2,7 +2,7 @@
 
 [廣東話 (盡量翻譯)](#廣東話) 
 
-> ### C++, POCO, Oat++ codebase containing real-world examples (CRUD, auth, advanced patterns, etc.) that adheres to the [RealWorld](https://github.com/gothinkster/realworld) specification and API.
+> ### C++, POCO, Oat++ codebase containing real-world examples (CRUD, auth, MVC patterns, etc.) that adheres to the [RealWorld](https://github.com/gothinkster/realworld) specification and API.
 
 This codebase was created to demonstrate a fully-fledged full-stack application built with **C++, POCO, Oat++**, including CRUD operations, authentication, routing, pagination, and more.
 
@@ -45,7 +45,7 @@ To build the project on macOS:
 
 如需更多關於如何與其他 Frontend / Backend 配合使用的資訊，請參考 [RealWorld](https://github.com/gothinkster/realworld) GitHub repository。
 
-# 使用英式英語
+# 使用英式英文
 
 所有變數名稱、註解、函數名稱等都應該使用英式英文。美式英文只是為了符合 API 規格。
 
