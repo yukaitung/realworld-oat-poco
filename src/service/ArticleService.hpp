@@ -43,6 +43,7 @@ public:
   oatpp::Object<ArticleJsonDto> unfavouriteArticle(std::string &id, std::string &slug);
 
   oatpp::Object<CommentJsonDto> createComment(std::string &id, std::string &slug, const oatpp::Object<CommentJsonDto> &dto);
+  oatpp::Object<CommentsJsonDto> getComments(std::string &id, std::string &slug);
 
   oatpp::Object<TagJsonDto> getTags();
 };

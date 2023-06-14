@@ -130,6 +130,12 @@ public:
     }
     return createDtoResponse(Status::CODE_200, articleService.getArticles(authObject->id, limit, offset, tag, author, favouritedBy));
   }
+
+  ENDPOINT("GET", "/articles/{slug}/comments", getComments, PATH(String, slug), AUTHORIZATION(std::shared_ptr<TokenAuthorizationObject>, authObject))
+  {
+    std::string slugStr = slug.getValue("");
+    return createDtoResponse(Status::CODE_200, articleService.getComments(authObject->id, slugStr));
+  }
 };
 
 #include OATPP_CODEGEN_END(ApiController)

@@ -329,6 +329,35 @@ oatpp::Object<CommentJsonDto> ArticleService::createComment(std::string &id, std
   return response;
 }
 
+oatpp::Object<CommentsJsonDto> ArticleService::getComments(std::string &id, std::string &slug) {
+  OATPP_ASSERT_HTTP(!slug.empty(), Status::CODE_422, "Missing slug.");
+
+  std::string articleId = articleModel.getArticleIdFromSlug(slug);
+  OATPP_ASSERT_HTTP(!articleId.empty(), Status::CODE_404, "Article not found.");
+
+  auto commentsData = commentModel.getComments(articleId);
+  auto comments = commentsData.first;
+  OATPP_ASSERT_HTTP(comments != nullptr, Status::CODE_500, "Server Error.");
+  std::vector<std::string> authorIds = commentsData.second;
+  std::unordered_map<std::string, oatpp::Object<UserProfileDto>> authorProfiles = userModel.getProfilesFromId(authorIds);
+  std::unordered_set<std::string> userFollingList;
+  if(!id.empty()) {
+    userFollingList = userHasFollowerModel.validUserIsFollowingFromList(id, authorIds);
+  }
+  // Append data for each article
+  for(int i = 0; i < comments->size(); i++) {
+    comments->at(i)->author = authorProfiles[authorIds[i]];
+    if(!id.empty()) {
+      if(userFollingList.find(authorIds[i]) != userFollingList.end())
+        comments->at(i)->author->following = true;
+    }
+  }
+
+  auto response = CommentsJsonDto::createShared();
+  response->comments = comments;
+  return response;
+}
+
 oatpp::Object<TagJsonDto> ArticleService::getTags() {
   auto tags = tagModel.getTags();
   OATPP_ASSERT_HTTP(tags, Status::CODE_500, "Server error.");

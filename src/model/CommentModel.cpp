@@ -43,3 +43,36 @@ oatpp::Object<CommentDto> CommentModel::createComment(std::string &userId, std::
     return nullptr;
   }
 }
+
+std::pair<oatpp::Vector<oatpp::Object<CommentDto>>, std::vector<std::string>> CommentModel::getComments(std::string &articleId) {
+  try {
+    // Insert comment
+    Session session(Database::getPool()->get());
+    Statement select(session);
+    select << "SELECT id, CAST(user_id AS char), body, created_at, updated_at FROM comments WHERE article_id = ? ORDER BY updated_at DESC, id DESC", use(articleId), now;
+    RecordSet rs(select);
+    size_t rowCount = rs.totalRowCount();
+
+    oatpp::Vector<oatpp::Object<CommentDto>> comments = oatpp::Vector<oatpp::Object<CommentDto>>::createShared();
+    comments->resize(rowCount);
+    std::vector<std::string> authorIds(rowCount);
+
+    for(int i = 0; i < rowCount; i++) {
+      auto comment = CommentDto::createShared();
+      comment->id = rs.value(0, i).convert<unsigned int>();
+      comment->body = rs.value(2, i).toString();
+      std::string createdAt = rs.value(3, i).toString();
+      std::string updatedAt = rs.value(4, i).toString();
+      comment->createdAt = timeTz(createdAt);
+      comment->updatedAt = timeTz(updatedAt);
+      comments->at(i) = comment;
+      authorIds[i] = rs.value(1, i).toString();
+    }
+
+    return {comments, authorIds};
+  }
+  catch(Exception& exp) {
+    OATPP_LOGE("CommentModel", exp.displayText().c_str());
+    return {nullptr, {}};
+  }
+}
