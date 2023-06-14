@@ -11,6 +11,7 @@
 #include <string>
 #include <iostream>
 #include <iterator>
+#include <algorithm>
 
 using namespace Poco::Data::Keywords;
 using Poco::Data::Session;
@@ -65,28 +66,25 @@ void TagModel::initCache() {
   }
 }
 
-bool TagModel::createTags(std::vector<std::string> &tags) {
+bool TagModel::createTags(const oatpp::Vector<oatpp::String> &tags) {
   // Create tags if not exist
-  auto it = tags.begin();
-  while (it != tags.end()) {
-    if(tagCache.nameExist(*it)) {
-      // Tag exist
-      it = tags.erase(it);    
-    }
-    else {
-      it++;
+  std::vector<std::string> create;
+  for(int i = 0; i < tags->size(); i++) {
+    if(!tagCache.nameExist(tags->at(i))) {
+      std::string temp = tags->at(i);
+      create.push_back(temp);
     }
   }
 
-  if(!tags.empty()) {
+  if(!create.empty()) {
     try {
       // Generate insert SQL
       Session session(Database::getPool()->get());
       Statement insert(session);
       insert << "INSERT INTO tags (name) VALUES ";
-      for(int i = 0; i < tags.size(); i++) {
-        insert << "(?)", use(tags[i]);
-        if(i < (tags.size() - 1)) {
+      for(int i = 0; i < create.size(); i++) {
+        insert << "(?)", use(create[i]);
+        if(i < (create.size() - 1)) {
           insert << ",";
         }
       }
@@ -95,9 +93,9 @@ bool TagModel::createTags(std::vector<std::string> &tags) {
       // Get id for new tags
       Statement select(session);
       select << "SELECT id, name FROM tags WHERE name IN(";
-      for(int i = 0; i < tags.size(); i++) {
-        select << "?", use(tags[i]);
-        if(i < (tags.size() - 1)) {
+      for(int i = 0; i < create.size(); i++) {
+        select << "?", use(create[i]);
+        if(i < (create.size() - 1)) {
           select << ",";
         }
       }
@@ -123,10 +121,10 @@ std::string TagModel::getTagId(const std::string &tags) {
   return tagCache.getIdFromName(tags);
 }
 
-oatpp::Vector<oatpp::String> TagModel::getTagsId(const std::vector<std::string> &tags) {
+oatpp::Vector<oatpp::String> TagModel::getTagsId(const oatpp::Vector<oatpp::String> &tags) {
   oatpp::Vector<oatpp::String> id = oatpp::Vector<oatpp::String>::createShared();
-  id->resize(tags.size());
-  for(int i = 0; i < tags.size(); i++) {
+  id->resize(tags->size());
+  for(int i = 0; i < tags->size(); i++) {
     std::string temp = tagCache.getIdFromName(tags[i]);
     id[i] = temp;
   }
@@ -137,9 +135,15 @@ oatpp::Vector<oatpp::String> TagModel::getTagsName(const std::vector<std::string
   oatpp::Vector<oatpp::String> tagName = oatpp::Vector<oatpp::String>::createShared();
   tagName->resize(tagsId.size());
   for(int i = 0; i < tagsId.size(); i++) {
-     std::string temp = tagCache.getNameFromId(tagsId[i]);
+    std::string temp = tagCache.getNameFromId(tagsId[i]);
     tagName[i] = temp;
   }
+
+  // Sort name
+  std::sort(tagName->begin(), tagName->end(), [] (const auto &lhs, const auto &rhs) {
+    return lhs->compare(*rhs) < 0;
+  });
+
   return tagName;
 }
 

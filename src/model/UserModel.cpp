@@ -45,7 +45,7 @@ oatpp::Object<UserDto> UserModel::createUser(std::string &email, std::string &us
 
     // Get id
     Poco::Nullable<std::string> retrunId;
-    session << "SELECT last_insert_id()", into(retrunId), now;
+    session << "SELECT CAST(last_insert_id() AS char)", into(retrunId), now;
 
     // Update token
     std::string token = Jwt::issueJWT(retrunId.value());

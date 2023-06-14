@@ -44,16 +44,11 @@ oatpp::Object<ArticleJsonDto> ArticleService::createArticle(std::string &id, con
   auto tags = dto->article->tagList;
   std::string tagsStr = "[";
   if(tags != nullptr) {
-    // Copy oatpp object to std object
-    std::vector<std::string> tagsStd(tags->size());
-    for(int i = 0; i < tags->size(); i++) {
-      tagsStd[i] = tags->at(i);
-    }
-    bool result = tagModel.createTags(tagsStd);
+    bool result = tagModel.createTags(tags);
     OATPP_ASSERT_HTTP(result, Status::CODE_500, "Server error.");
 
     // Generate JSON string
-    auto tagsId = tagModel.getTagsId(tagsStd);
+    auto tagsId = tagModel.getTagsId(tags);
     for(int i = 0; i < tagsId->size(); i++) {
       tagsStr += tagsId->at(i);
       if(i < tagsId->size() - 1)
@@ -71,6 +66,11 @@ oatpp::Object<ArticleJsonDto> ArticleService::createArticle(std::string &id, con
   // Create article
   auto article = articleModel.createArticle(id, slug, title, description, body, tagsStr, createTime);
   OATPP_ASSERT_HTTP(article != nullptr, Status::CODE_500, "Server error.");
+
+  // Sort tag name
+  std::sort(tags->begin(), tags->end(), [] (const auto &lhs, const auto &rhs) {
+    return lhs->compare(*rhs) < 0;
+  });
   article->tagList = tags;
 
   // Response data
@@ -242,6 +242,8 @@ oatpp::Object<ArticleJsonDto> ArticleService::deleteArticle(std::string &id, std
   OATPP_ASSERT_HTTP(result, Status::CODE_500, "Server error.");
 
   auto response = ArticleJsonDto::createShared();
+  response->article = ArticleDto::createShared();
+  response->article->slug = slug;
   return response;
 }
 
@@ -270,6 +272,13 @@ oatpp::Object<ArticleJsonDto> ArticleService::favouriteArticle(std::string &id, 
   article->favourited = true;
   article->favouritesCount = favouriteData.first;
   article->author = author;
+
+  // Tag data
+  std::string tagsListJson = std::get<ArticleModel::GetArticleEnum::TagsJsonStr>(articleObj);
+  std::vector<std::string> tagsIdList = splitStr(tagsListJson, splitJsonArrRegex);
+  tagsIdList.erase(tagsIdList.begin()); // First element is empty
+  auto tagNameList = tagModel.getTagsName(tagsIdList);
+  article->tagList = tagNameList;
 
   auto response = ArticleJsonDto::createShared();
   response->article = article;
@@ -301,6 +310,13 @@ oatpp::Object<ArticleJsonDto> ArticleService::unfavouriteArticle(std::string &id
   article->favourited = false;
   article->favouritesCount = favouriteData.first;
   article->author = author;
+
+  // Tag data
+  std::string tagsListJson = std::get<ArticleModel::GetArticleEnum::TagsJsonStr>(articleObj);
+  std::vector<std::string> tagsIdList = splitStr(tagsListJson, splitJsonArrRegex);
+  tagsIdList.erase(tagsIdList.begin()); // First element is empty
+  auto tagNameList = tagModel.getTagsName(tagsIdList);
+  article->tagList = tagNameList;
 
   auto response = ArticleJsonDto::createShared();
   response->article = article;
