@@ -115,7 +115,7 @@ oatpp::Object<ArticleJsonDto> ArticleService::getArticle(std::string &id, std::s
   return response;
 }
 
-oatpp::Object<ArticlesJsonDto> ArticleService::getArticles(std::string &id, unsigned int limit, unsigned int offset, std::string &tag, std::string &author, std::string &favouritedBy) {
+oatpp::Object<ArticlesJsonDto> ArticleService::getArticles(std::string &id, unsigned int limit, unsigned int offset, std::string &tag, std::string &author, std::string &favouritedBy, bool feed) {
   // Convert User input to system parameter
   if(!tag.empty()) // tag name -> tag id
     tag = tagModel.getTagId(tag);
@@ -124,7 +124,7 @@ oatpp::Object<ArticlesJsonDto> ArticleService::getArticles(std::string &id, unsi
   if(!favouritedBy.empty())
     favouritedBy = userModel.getProfileFromUsername(favouritedBy).second;
   
-  auto articlesObj = articleModel.getArticles(limit, offset, tag, author, favouritedBy);
+  auto articlesObj = articleModel.getArticles(limit, offset, tag, author, favouritedBy, feed, id);
 
   // Response data
   auto articles = std::get<ArticleModel::GetArticleEnum::Article>(articlesObj);

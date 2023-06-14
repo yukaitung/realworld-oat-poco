@@ -33,6 +33,22 @@ public:
     return createDtoResponse(Status::CODE_200, articleService.createArticle(authObject->id, dto));
   }
 
+  ENDPOINT("GET", "/articles/feed", feedArticles, QUERIES(QueryParams, queryParams), AUTHORIZATION(std::shared_ptr<TokenAuthorizationObject>, authObject))
+  {
+    unsigned int limit = 20;
+    unsigned int offset = 0;
+    std::string dummy = "";
+    for(auto &param : queryParams.getAll()) {
+      const char *key = static_cast<const char*>(param.first.getData());
+      const char *value = static_cast<const char*>(param.second.getData());
+      if(strcmp(key, "limit") == 0)
+        limit = std::stoul(value);
+      else if(strcmp(key, "offset") == 0)
+        offset = std::stoul(value);
+    }
+    return createDtoResponse(Status::CODE_200, articleService.getArticles(authObject->id, limit, offset, dummy, dummy, dummy, true));
+  }
+
   ENDPOINT("PUT", "/articles/{slug}", updateArticle, PATH(String, slug), BODY_DTO(Object<ArticleExchangeJsonDto>, dto), AUTHORIZATION(std::shared_ptr<TokenAuthorizationObject>, authObject))
   {
     std::string slugStr = slug.getValue("");

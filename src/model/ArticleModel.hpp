@@ -34,7 +34,7 @@ class ArticleModel {
     * This method is to fetch a list of articles from database.
     * @return std::tuple<oatpp::Object<ArticleDto>, std::string, std::string, std::string> This returns article object, article id, author user id, tags json in string. Remember to append data for favourite, taglist and author profile.
     */
-    std::tuple<oatpp::Vector<oatpp::Object<ArticleDto>>, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>> getArticles(unsigned int limit, unsigned int offset, std::string &tagId, std::string &authorId, std::string &favouritedBy);
+    std::tuple<oatpp::Vector<oatpp::Object<ArticleDto>>, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>> getArticles(unsigned int limit, unsigned int offset, std::string &tagId, std::string &authorId, std::string &favouritedBy, bool feed, std::string &userId);
     bool updateArticle(std::string &slug, std::string &newSlug, std::string &title, std::string &description, std::string &body, std::string &updateTime);
     bool deleteArticle(std::string &slug);
 };

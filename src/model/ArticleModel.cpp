@@ -84,13 +84,15 @@ std::tuple<oatpp::Object<ArticleDto>, std::string, std::string, std::string> Art
   }
 }
 
-std::tuple<oatpp::Vector<oatpp::Object<ArticleDto>>, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>> ArticleModel::getArticles(unsigned int limit, unsigned int offset, std::string &tagId, std::string &authorId, std::string &favouritedBy) {
+std::tuple<oatpp::Vector<oatpp::Object<ArticleDto>>, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>> ArticleModel::getArticles(unsigned int limit, unsigned int offset, std::string &tagId, std::string &authorId, std::string &favouritedBy, bool feed, std::string &userId) {
   int conditionCount = 0;
   if(!tagId.empty())
     conditionCount++;
   if(!authorId.empty()) 
     conditionCount++;
   if(!favouritedBy.empty())
+    conditionCount++;
+  if(feed && !userId.empty())
     conditionCount++;
   
   try {
@@ -99,6 +101,8 @@ std::tuple<oatpp::Vector<oatpp::Object<ArticleDto>>, std::vector<std::string>, s
     select << "SELECT CAST(id AS char), CAST(articles.user_id AS char), slug, title, description, body, CAST(tag_list AS char), CAST(created_at AS char), CAST(updated_at AS char) FROM articles";
     if(!favouritedBy.empty()) // favouritedBy requires join
       select << " INNER JOIN articles_has_favourites ON articles.id = articles_has_favourites.article_id";
+    if(feed && !userId.empty()) // feed requires join
+      select << " INNER JOIN users_has_followers ON articles.user_id = users_has_followers.user_id";
     if(conditionCount > 0)
       select << " WHERE";
     if(!tagId.empty()) {
@@ -113,6 +117,11 @@ std::tuple<oatpp::Vector<oatpp::Object<ArticleDto>>, std::vector<std::string>, s
       if(conditionCount > 1)
         select << " AND";
       select << " articles_has_favourites.user_id = ?", use(favouritedBy);
+    }
+    if(feed && !userId.empty()) {
+      if(conditionCount > 1)
+        select << " AND";
+      select << " users_has_followers.follower_id = ?", use(userId);
     }
     select << " ORDER BY created_at DESC LIMIT ?, ?", use(offset), use(limit);
     select.execute();

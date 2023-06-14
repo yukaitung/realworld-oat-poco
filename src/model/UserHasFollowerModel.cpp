@@ -55,6 +55,9 @@ bool UserHasFollowerModel::userRemoveFollower(std::string &userId, std::string &
 }
 
 std::unordered_set<std::string> UserHasFollowerModel::validUserIsFollowingFromList(std::string &followerId, std::vector<std::string> &userIds) {
+  if(userIds.empty())
+    return {};
+
   std::unordered_set<std::string> userFollowingIds;
   
   try {

@@ -54,6 +54,9 @@ std::pair<unsigned int, bool> ArticleHasFavouriteModel::getArticlefavouriteData(
 }
 
 std::unordered_map<std::string, std::pair<unsigned int, bool>> ArticleHasFavouriteModel::getArticlefavouriteDataFromList(std::vector<std::string> &articleId, std::string &userId) {
+  if(articleId.empty())
+    return {};
+
   std::unordered_map<std::string, std::pair<unsigned int, bool>> favourtieData;
 
   try {

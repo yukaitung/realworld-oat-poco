@@ -198,6 +198,9 @@ oatpp::Object<UserProfileDto> UserModel::getProfileFromId(std::string &id) {
 }
 
 std::unordered_map<std::string, oatpp::Object<UserProfileDto>> UserModel::getProfilesFromId(std::vector<std::string> &ids) {
+  if(ids.empty()) 
+    return {};
+    
   std::unordered_map<std::string, oatpp::Object<UserProfileDto>> profiles;
   
   try {
