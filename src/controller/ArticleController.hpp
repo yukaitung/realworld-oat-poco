@@ -8,6 +8,8 @@
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 
+#include "Poco/URI.h"
+
 #include <cstring>
 
 #include OATPP_CODEGEN_BEGIN(ApiController)
@@ -124,12 +126,12 @@ public:
     for(auto &param : queryParams.getAll()) {
       const char *key = static_cast<const char*>(param.first.getData());
       const char *value = static_cast<const char*>(param.second.getData());
-      if(strcmp(key, "tag") == 0)
-        tag = value;
+      if(strcmp(key, "tag") == 0) 
+        Poco::URI::decode(value, tag);
       else if(strcmp(key, "author") == 0)
-        author = value;
+        Poco::URI::decode(value, author);
       else if(strcmp(key, "favorited") == 0)
-        favouritedBy = value;
+        Poco::URI::decode(value, favouritedBy);
       else if(strcmp(key, "limit") == 0)
         limit = std::stoul(value);
       else if(strcmp(key, "offset") == 0)

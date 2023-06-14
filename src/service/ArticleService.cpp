@@ -4,6 +4,7 @@
 #include "Poco/LocalDateTime.h"
 #include "Poco/DateTimeFormatter.h"
 #include "Poco/Timezone.h"
+#include "Poco/URI.h"
 
 std::string &ArticleService::removeHeadSpace(std::string &s, const char *t) {
   s.erase(0, s.find_first_not_of(t));
@@ -59,8 +60,9 @@ oatpp::Object<ArticleJsonDto> ArticleService::createArticle(std::string &id, con
   
   // slug = title replacing space + user id + timestamp
   Poco::LocalDateTime dateTime;
-  std::string slug = title;
-  slug = replaceSpace(slug) + "-" + id + std::to_string(dateTime.timestamp().epochMicroseconds());
+  std::string slug = "";
+  Poco::URI::encode(title, "", slug);
+  slug = slug + "-" + id + std::to_string(dateTime.timestamp().epochMicroseconds());
   std::string createTime = Poco::DateTimeFormatter::format(dateTime.timestamp(), "%Y-%m-%d %H:%M:%S", Poco::Timezone::tzd());
 
   // Create article
@@ -185,8 +187,9 @@ oatpp::Object<ArticleJsonDto> ArticleService::updateArticle(std::string &id, std
   Poco::LocalDateTime dateTime;
   std::string newSlug = "";
   if(!title.empty()) {
-    newSlug = title;
-    newSlug = replaceSpace(newSlug) + "-" + id + std::to_string(dateTime.timestamp().epochMicroseconds());
+    newSlug = "";
+    Poco::URI::encode(title, "", newSlug);
+    newSlug = newSlug + "-" + id + std::to_string(dateTime.timestamp().epochMicroseconds());
   }
   std::string updateTime = Poco::DateTimeFormatter::format(dateTime.timestamp(), "%Y-%m-%d %H:%M:%S", Poco::Timezone::tzd());
 
