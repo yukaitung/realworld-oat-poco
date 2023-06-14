@@ -1,6 +1,6 @@
 # ![RealWorld Example App](logo.png)
 
-[廣東話 (盡量翻譯)](#廣東話(Cantonese)) 
+[廣東話 (Cantonese) (盡量翻譯)](#廣東話) 
 
 > ### C++, POCO, Oat++ codebase containing real-world examples (CRUD, auth, MVC patterns, etc.) that adheres to the [RealWorld](https://github.com/gothinkster/realworld) specification and API.
 
@@ -36,7 +36,7 @@ To build the project on macOS:
   cmake --build . -j $(sysctl -n hw.ncpu)
 ```
 
-# 廣東話(Cantonese)
+# 廣東話
 # ![RealWorld 示範應用程式](logo.png)
 
 > ### C++, POCO, Oat++ 現實應用程式碼(CRUD、登入、MVC pattern、其他) 符合 [RealWorld](https://github.com/gothinkster/realworld) 規格及 API.
