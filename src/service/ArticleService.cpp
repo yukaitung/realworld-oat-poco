@@ -168,7 +168,6 @@ oatpp::Object<ArticlesJsonDto> ArticleService::getArticles(std::string &id, unsi
   return response;
 }
 
-
 oatpp::Object<ArticleJsonDto> ArticleService::updateArticle(std::string &id, std::string &slug, const oatpp::Object<ArticleExchangeJsonDto> &dto) {
   OATPP_ASSERT_HTTP(!slug.empty(), Status::CODE_400, "Missing slug");
   
@@ -356,6 +355,24 @@ oatpp::Object<CommentsJsonDto> ArticleService::getComments(std::string &id, std:
   auto response = CommentsJsonDto::createShared();
   response->comments = comments;
   return response;
+}
+
+oatpp::Object<CommentJsonDto> ArticleService::deleteComment(std::string &id, std::string &slug, std::string &commentId) {
+  OATPP_ASSERT_HTTP(!slug.empty(), Status::CODE_400, "Missing slug");
+  OATPP_ASSERT_HTTP(!commentId.empty(), Status::CODE_400, "Missing comment id");
+  
+  std::string authorId = commentModel.getCommentAuthorId(commentId);
+  OATPP_ASSERT_HTTP(!authorId.empty(), Status::CODE_404, "Comment Not Found.");
+  OATPP_ASSERT_HTTP(authorId.compare(id) == 0, Status::CODE_400, "Unauthorized access.");
+
+  bool result = commentModel.deleteComment(commentId);
+  OATPP_ASSERT_HTTP(result, Status::CODE_500, "Server error.");
+
+  auto response = CommentJsonDto::createShared();
+  response->comment = CommentDto::createShared();
+  response->comment->id = std::stoul(commentId);
+  return response;
+
 }
 
 oatpp::Object<TagJsonDto> ArticleService::getTags() {

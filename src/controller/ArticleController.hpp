@@ -79,6 +79,13 @@ public:
     return createDtoResponse(Status::CODE_200, articleService.createComment(authObject->id, slugStr, dto));
   }
 
+  ENDPOINT("DELETE", "/articles/{slug}/comments/{id}", deleteComment, PATH(String, slug), PATH(String, id), AUTHORIZATION(std::shared_ptr<TokenAuthorizationObject>, authObject))
+  {
+    std::string slugStr = slug.getValue("");
+    std::string commentIdStr = id.getValue("");
+    return createDtoResponse(Status::CODE_200, articleService.deleteComment(authObject->id, slugStr, commentIdStr));
+  }
+
   ENDPOINT("GET", "/tags", getTags)
   {
     return createDtoResponse(Status::CODE_200, articleService.getTags());
