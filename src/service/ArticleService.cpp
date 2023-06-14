@@ -308,6 +308,27 @@ oatpp::Object<ArticleJsonDto> ArticleService::unfavouriteArticle(std::string &id
   return response;
 }
 
+oatpp::Object<CommentJsonDto> ArticleService::createComment(std::string &id, std::string &slug, const oatpp::Object<CommentJsonDto> &dto) {
+  std::string body = dto->comment->body;
+  OATPP_ASSERT_HTTP(!body.empty(), Status::CODE_422, "Missing body.");
+  OATPP_ASSERT_HTTP(!slug.empty(), Status::CODE_422, "Missing slug.");
+
+  std::string articleId = articleModel.getArticleIdFromSlug(slug);
+  OATPP_ASSERT_HTTP(!articleId.empty(), Status::CODE_404, "Article not found.");
+
+  Poco::LocalDateTime dateTime;
+  std::string createTime = Poco::DateTimeFormatter::format(dateTime.timestamp(), "%Y-%m-%d %H:%M:%S", Poco::Timezone::tzd());
+  auto comment = commentModel.createComment(id, articleId, body, createTime);
+  OATPP_ASSERT_HTTP(comment, Status::CODE_500, "Server error.");
+
+  auto response = CommentJsonDto::createShared();
+  response->comment = comment;
+  auto author = userModel.getProfileFromId(id);
+  response->comment->author = author;
+
+  return response;
+}
+
 oatpp::Object<TagJsonDto> ArticleService::getTags() {
   auto tags = tagModel.getTags();
   OATPP_ASSERT_HTTP(tags, Status::CODE_500, "Server error.");

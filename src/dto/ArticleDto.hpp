@@ -56,6 +56,30 @@ class ArticleExchangeJsonDto : public oatpp::DTO {
   DTO_FIELD(oatpp::Object<ArticleExchangeDto>, article);
 };
 
+// Comment
+
+class CommentDto : public oatpp::DTO {
+  DTO_INIT(CommentDto, DTO)
+
+  DTO_FIELD(UInt32, id);
+  DTO_FIELD(String, createdAt);
+  DTO_FIELD(String, updatedAt);
+  DTO_FIELD(String, body);
+  DTO_FIELD(oatpp::Object<UserProfileDto>, author);
+};
+
+class CommentJsonDto : public oatpp::DTO {
+  DTO_INIT(CommentJsonDto, DTO)
+
+  DTO_FIELD(oatpp::Object<CommentDto>, comment);
+};
+
+class CommentsJsonDto : public oatpp::DTO {
+  DTO_INIT(CommentsJsonDto, DTO)
+
+  DTO_FIELD(oatpp::Vector<oatpp::Object<CommentDto>>, comments);
+};
+
 // Tags
 
 class TagJsonDto : public oatpp::DTO {

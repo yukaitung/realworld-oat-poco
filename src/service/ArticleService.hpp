@@ -3,6 +3,7 @@
 
 #include "model/ArticleHasFavouriteModel.hpp"
 #include "model/ArticleModel.hpp"
+#include "model/CommentModel.hpp"
 #include "model/TagModel.hpp"
 #include "model/UserHasFollowerModel.hpp"
 #include "model/UserModel.hpp"
@@ -17,6 +18,7 @@ class ArticleService {
 private:
   ArticleHasFavouriteModel articleHasFavouriteModel;
   ArticleModel articleModel;
+  CommentModel commentModel;
   TagModel tagModel;
   UserHasFollowerModel userHasFollowerModel;
   UserModel userModel;
@@ -39,6 +41,8 @@ public:
 
   oatpp::Object<ArticleJsonDto> favouriteArticle(std::string &id, std::string &slug);
   oatpp::Object<ArticleJsonDto> unfavouriteArticle(std::string &id, std::string &slug);
+
+  oatpp::Object<CommentJsonDto> createComment(std::string &id, std::string &slug, const oatpp::Object<CommentJsonDto> &dto);
 
   oatpp::Object<TagJsonDto> getTags();
 };

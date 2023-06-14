@@ -73,6 +73,12 @@ public:
     return createDtoResponse(Status::CODE_200, articleService.unfavouriteArticle(authObject->id, slugStr));
   }
 
+  ENDPOINT("POST", "/articles/{slug}/comments", createComment, PATH(String, slug), BODY_DTO(Object<CommentJsonDto>, dto), AUTHORIZATION(std::shared_ptr<TokenAuthorizationObject>, authObject))
+  {
+    std::string slugStr = slug.getValue("");
+    return createDtoResponse(Status::CODE_200, articleService.createComment(authObject->id, slugStr, dto));
+  }
+
   ENDPOINT("GET", "/tags", getTags)
   {
     return createDtoResponse(Status::CODE_200, articleService.getTags());

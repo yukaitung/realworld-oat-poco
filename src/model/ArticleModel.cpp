@@ -203,3 +203,18 @@ bool ArticleModel::deleteArticle(std::string &slug) {
     return false;
   }
 }
+
+std::string ArticleModel::getArticleIdFromSlug(std::string &slug) {
+  Poco::Nullable<std::string> retrunArticleId;
+  
+  try {
+    Session session(Database::getPool()->get());
+    session << "SELECT CAST(id AS char) FROM articles WHERE slug = ?", into(retrunArticleId), use(slug), now;
+
+    return !retrunArticleId.isNull() ? retrunArticleId.value() : "";
+  }
+  catch(Exception& exp) {
+    OATPP_LOGE("ArticleModel", exp.displayText().c_str());
+    return "";
+  }
+}
