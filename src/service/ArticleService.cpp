@@ -121,13 +121,10 @@ oatpp::Object<ArticlesJsonDto> ArticleService::getArticles(std::string &id, unsi
     tag = tagModel.getTagId(tag);
   if(!author.empty()) // author user name -> user Id
     author = userModel.getProfileFromUsername(author).second;
-  std::vector<std::string> getUserFavourite;
-  if(!favouritedBy.empty()) { // favourite by user name -> id -> list of favourited articles
+  if(!favouritedBy.empty())
     favouritedBy = userModel.getProfileFromUsername(favouritedBy).second;
-    getUserFavourite = articleHasFavouriteModel.getUserFavourite(favouritedBy);
-  }
   
-  auto articlesObj = articleModel.getArticles(limit, offset, tag, author, getUserFavourite);
+  auto articlesObj = articleModel.getArticles(limit, offset, tag, author, favouritedBy);
 
   // Response data
   auto articles = std::get<ArticleModel::GetArticleEnum::Article>(articlesObj);

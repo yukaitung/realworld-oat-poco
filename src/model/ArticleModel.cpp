@@ -84,12 +84,37 @@ std::tuple<oatpp::Object<ArticleDto>, std::string, std::string, std::string> Art
   }
 }
 
-std::tuple<oatpp::Vector<oatpp::Object<ArticleDto>>, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>> ArticleModel::getArticles(unsigned int limit, unsigned int offset, std::string &tagId, std::string &authorId, std::vector<std::string> &favouriteArticles) {
+std::tuple<oatpp::Vector<oatpp::Object<ArticleDto>>, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>> ArticleModel::getArticles(unsigned int limit, unsigned int offset, std::string &tagId, std::string &authorId, std::string &favouritedBy) {
+  int conditionCount = 0;
+  if(!tagId.empty())
+    conditionCount++;
+  if(!authorId.empty()) 
+    conditionCount++;
+  if(!favouritedBy.empty())
+    conditionCount++;
+  
   try {
     Session session(Database::getPool()->get());
     Statement select(session);
-    select << "SELECT CAST(id AS char), CAST(user_id AS char), slug, title, description, body, CAST(tag_list AS char), CAST(created_at AS char), CAST(updated_at AS char) FROM articles";
-    select << " LIMIT ?, ?", use(offset), use(limit);
+    select << "SELECT CAST(id AS char), CAST(articles.user_id AS char), slug, title, description, body, CAST(tag_list AS char), CAST(created_at AS char), CAST(updated_at AS char) FROM articles";
+    if(!favouritedBy.empty()) // favouritedBy requires join
+      select << " INNER JOIN articles_has_favourites ON articles.id = articles_has_favourites.article_id";
+    if(conditionCount > 0)
+      select << " WHERE";
+    if(!tagId.empty()) {
+      select << " JSON_CONTAINS(tag_list, ?)", use(tagId);
+    }
+    if(!authorId.empty()) {
+      if(conditionCount > 1)
+        select << " AND";
+      select << " user_id = ?", use(authorId);
+    } 
+    if(!favouritedBy.empty()) {
+      if(conditionCount > 1)
+        select << " AND";
+      select << " articles_has_favourites.user_id = ?", use(favouritedBy);
+    }
+    select << " ORDER BY created_at DESC LIMIT ?, ?", use(offset), use(limit);
     select.execute();
     RecordSet rs(select);
     size_t rowCount = rs.totalRowCount();
