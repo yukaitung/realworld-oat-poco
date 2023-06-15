@@ -60,10 +60,13 @@ oatpp::Object<UserJsonDto> UserService::updateUser(std::string &id, const oatpp:
   std::string bio = dto->user->bio != nullptr ? dto->user->bio : "";
   std::string image = dto->user->image != nullptr ? dto->user->image : "";
 
-  // Validate the email if the user wants to upadte it
-  if(!email.empty()) {
-    auto validate = userModel.validateUser(email, email); // Just a dummy
-    OATPP_ASSERT_HTTP(validate.first == false, Status::CODE_422, "The email is taken by other user.");
+  // Validate the email / username if the user wants to upadte it
+  if(!email.empty() || !username.empty()) {
+    auto validate = userModel.validateUser(email, username);
+    if(!email.empty())
+      OATPP_ASSERT_HTTP(validate.first == false, Status::CODE_422, "The email is taken by other user.");
+    if(!username.empty())
+      OATPP_ASSERT_HTTP(validate.second == false, Status::CODE_422, "The username is taken by other user.");
   }
   auto user = userModel.updateUser(id, email, username, password, bio, image);
   OATPP_ASSERT_HTTP(user != nullptr, Status::CODE_500, "Internal Server Error.");
