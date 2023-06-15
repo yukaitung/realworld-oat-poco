@@ -35,6 +35,7 @@ public:
     info->addResponse<Object<UserJsonDto>>(Status::CODE_200, "application/json");
     info->addResponse<Object<ErrorJsonDto>>(Status::CODE_422, "application/json");
     info->addResponse<Object<ErrorJsonDto>>(Status::CODE_500, "application/json");
+    info->addTag("UserController");
   }
   ENDPOINT("POST", "/users", createUser, BODY_DTO(Object<UserRegJsonDto>, dto))
   {
@@ -47,6 +48,7 @@ public:
     info->addResponse<Object<ErrorJsonDto>>(Status::CODE_404, "application/json");
     info->addResponse<Object<ErrorJsonDto>>(Status::CODE_422, "application/json");
     info->addResponse<Object<ErrorJsonDto>>(Status::CODE_500, "application/json");
+    info->addTag("UserController");
   }
   ENDPOINT("POST", "/users/login", login, BODY_DTO(Object<UserAuthJsonDto>, dto))
   {
@@ -60,6 +62,7 @@ public:
     info->addResponse<Object<ErrorJsonDto>>(Status::CODE_422, "application/json");
     info->addResponse<Object<ErrorJsonDto>>(Status::CODE_500, "application/json");
     info->addSecurityRequirement("Token");
+    info->addTag("UserController");
   }
   ENDPOINT("GET", "/user", getUser, AUTHORIZATION(std::shared_ptr<TokenAuthorizationObject>, authObject))
   {
@@ -73,6 +76,7 @@ public:
     info->addResponse<Object<ErrorJsonDto>>(Status::CODE_422, "application/json");
     info->addResponse<Object<ErrorJsonDto>>(Status::CODE_500, "application/json");
     info->addSecurityRequirement("Token");
+    info->addTag("UserController");
   }
   ENDPOINT("PUT", "/user", updateUser, BODY_DTO(Object<UserUpdateJsonDto>, dto), AUTHORIZATION(std::shared_ptr<TokenAuthorizationObject>, authObject))
   {
