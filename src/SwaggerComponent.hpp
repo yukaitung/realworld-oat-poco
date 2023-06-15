@@ -5,6 +5,8 @@
 #include "oatpp-swagger/Resources.hpp"
 #include "oatpp/core/macro/component.hpp"
 
+#include "Config.h"
+
 /**
  *  Swagger ui is served at
  *  http://host:port/swagger/ui
@@ -24,11 +26,11 @@ public:
 
     oatpp::swagger::DocumentInfo::Builder builder;
     builder
-    .setTitle("RealWorld Example App")
-    .setDescription("C++, POCO, Oat++ codebase containing real-world examples (CRUD, auth, MVC patterns, etc.)")
-    .setVersion("1.0")
-    .setContactName("Yu Kai Tung")
-    .setContactUrl("https://gitlab.com/yukaitung")
+    .setTitle(REALWORLD_PROJECT_FULL_TITLE)
+    .setDescription(REALWORLD_DESCRIPTION)
+    .setVersion(REALWORLD_VERSION)
+    .setContactName(REALWORLD_CONTACT_NAME)
+    .setContactUrl(REALWORLD_HOMEPAGE_URL)
     .addSecurityScheme("Token", securitySchemeBuilder.build())
     //.setLicenseName("Apache License, Version 2.0")
     //.setLicenseUrl("http://www.apache.org/licenses/LICENSE-2.0")

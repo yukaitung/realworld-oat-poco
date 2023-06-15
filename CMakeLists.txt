@@ -2,7 +2,9 @@
 
 cmake_minimum_required(VERSION 3.23)
 
-project(Realworld VERSION 1.0 DESCRIPTION "Description" HOMEPAGE_URL "https://gitlab.com" LANGUAGES CXX)
+project(Realworld VERSION 1.0 DESCRIPTION "C++, POCO, Oat++ codebase containing real-world examples (CRUD, auth, MVC patterns, etc.)" HOMEPAGE_URL "https://gitlab.com/yukaitung" LANGUAGES CXX)
+set(CONTACT_NAME "Yu Kai Tung")
+set(PROJECT_FULL_TITLE "RealWorld Example App")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -15,6 +17,8 @@ if(PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
 endif()
 
 # Source Code 
+
+configure_file(src/Config.h.in ${PROJECT_SOURCE_DIR}/src/Config.h)
 
 add_executable(${PROJECT_NAME}
   src/main.cpp
@@ -37,7 +41,7 @@ add_executable(${PROJECT_NAME}
 )
 
 target_include_directories(${PROJECT_NAME}
-  PRIVATE ${PROJECT_SOURCE_DIR}/src
+  PUBLIC ${PROJECT_SOURCE_DIR}/src
   PUBLIC $ENV{HOME}/Develop/mysql/include # Custom MySQL installation
 )
 

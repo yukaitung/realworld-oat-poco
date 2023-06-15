@@ -1,8 +1,5 @@
 #include "service/UserService.hpp"
 
-#include <string>
-#include <iostream>
-
 oatpp::Object<UserJsonDto> UserService::createUser(const oatpp::Object<UserRegJsonDto> &dto) {
   std::string email = dto->user->email;
   std::string username = dto->user->username;

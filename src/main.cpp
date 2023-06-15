@@ -1,5 +1,6 @@
 #include "Application.hpp"
 #include "helper/Database.hpp"
+#include "Config.h"
 
 #include "controller/ArticleController.hpp"
 #include "controller/ProfileController.hpp"
@@ -43,7 +44,7 @@ void run() {
   /* create server */
   oatpp::network::Server server(connectionProvider, connectionHandler);
   
-  OATPP_LOGD("Server", "Running on port %s...", connectionProvider->getProperty("port").toString()->c_str());
+  OATPP_LOGD(REALWORLD_PROJECT_NAME, "%s Running on port %s...", REALWORLD_PROJECT_NAME, connectionProvider->getProperty("port").toString()->c_str());
   
   server.run();
 }
