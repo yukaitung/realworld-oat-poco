@@ -31,7 +31,7 @@ class TagModel {
 
   public:
     TagModel() {};
-    static void initCache();
+    static void InitCache();
     bool createTags(const oatpp::Vector<oatpp::String> &tags);
     std::string getTagId(const std::string &tags);
     oatpp::Vector<oatpp::String> getTagsId(const oatpp::Vector<oatpp::String> &tags);

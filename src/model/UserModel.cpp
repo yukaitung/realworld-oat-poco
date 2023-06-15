@@ -25,6 +25,21 @@ std::string UserModel::hashPassword(const std::string &passwordPlusSalt) {
   return sha256.digestToHex(sha256.digest());
 }
 
+std::pair<bool, bool> UserModel::validateUser(std::string &email, std::string &username) {
+  Poco::Nullable<int> returnEmailExist;
+  Poco::Nullable<int> returnUsernameExist;
+
+  try {
+    Session session(Database::getPool()->get());
+    session << "SELECT COUNT(CASE WHEN email = ? THEN 1 END), COUNT(CASE WHEN username = ? THEN 1 END) FROM users", use(email), use(username), into(returnEmailExist), into(returnUsernameExist), now;
+    return {returnEmailExist.value() == 1, returnUsernameExist.value() == 1};
+  }
+  catch(Exception& exp) {
+    OATPP_LOGE("UserModel", ":%s(): %s", __func__, exp.displayText().c_str());
+    return {false, false};
+  }
+}
+
 oatpp::Object<UserDto> UserModel::createUser(std::string &email, std::string &username, std::string &password) {
   // Generate salt
   std::random_device rd;
@@ -58,7 +73,7 @@ oatpp::Object<UserDto> UserModel::createUser(std::string &email, std::string &us
     return user;
   }
   catch(Exception& exp) {
-    OATPP_LOGE("UserModel", exp.displayText().c_str());
+    OATPP_LOGE("UserModel", ":%s(): %s", __func__, exp.displayText().c_str());
     return nullptr;
   }
 }
@@ -83,7 +98,7 @@ oatpp::Object<UserDto> UserModel::login(std::string &email, std::string &passwor
       if(inputPassword.compare(retrunPassword.value()) != 0) {
         // Password incorrect
         OATPP_LOGE("UserModel", "User id %i unsuccessful login attempt.", retrunId.value().c_str());
-        OATPP_ASSERT_HTTP(false, Status::CODE_403, "Unsuccessful login attempt.");
+        OATPP_ASSERT_HTTP(false, Status::CODE_422, "Unsuccessful login attempt.");
         return nullptr;
       }
 
@@ -106,7 +121,7 @@ oatpp::Object<UserDto> UserModel::login(std::string &email, std::string &passwor
     return nullptr;
   }
   catch(Exception& exp) {
-    OATPP_LOGE("UserModel", exp.displayText().c_str());
+    OATPP_LOGE("UserModel", ":%s(): %s", __func__, exp.displayText().c_str());
     return nullptr;
   }
 }
@@ -119,7 +134,6 @@ oatpp::Object<UserDto> UserModel::getUser(std::string &id) {
   Poco::Nullable<std::string> retrunImage;
 
   try {
-    // Fetch result
     Session session(Database::getPool()->get());
     session << "SELECT username, email, token, bio, image FROM users WHERE id = ?", into(retrunUsername), into(retrunEmail), into(retrunToken), into(retrunBio), into(retrunImage), use(id), now;
 
@@ -134,7 +148,7 @@ oatpp::Object<UserDto> UserModel::getUser(std::string &id) {
     return user;
   }
   catch(Exception& exp) {
-    OATPP_LOGE("UserModel", exp.displayText().c_str());
+    OATPP_LOGE("UserModel", ":%s(): %s", __func__, exp.displayText().c_str());
     return nullptr;
   }
 }
@@ -167,7 +181,7 @@ oatpp::Object<UserDto> UserModel::updateUser(std::string &id, std::string &email
     return user;
   }
   catch(Exception& exp) {
-    OATPP_LOGE("UserModel", exp.displayText().c_str());
+    OATPP_LOGE("UserModel", ":%s(): %s", __func__, exp.displayText().c_str());
     return nullptr;
   }
 }
@@ -192,7 +206,7 @@ oatpp::Object<UserProfileDto> UserModel::getProfileFromId(std::string &id) {
     return profile;
   }
   catch(Exception& exp) {
-    OATPP_LOGE("UserModel", exp.displayText().c_str());
+    OATPP_LOGE("UserModel", ":%s(): %s", __func__, exp.displayText().c_str());
     return nullptr;
   }
 }
@@ -234,7 +248,7 @@ std::unordered_map<std::string, oatpp::Object<UserProfileDto>> UserModel::getPro
     return profiles;
   }
   catch(Exception& exp) {
-    OATPP_LOGE("UserModel", exp.displayText().c_str());
+    OATPP_LOGE("UserModel", ":%s(): %s", __func__, exp.displayText().c_str());
     return {};
   }
 }
@@ -259,7 +273,7 @@ std::pair<oatpp::Object<UserProfileDto>, std::string> UserModel::getProfileFromU
     return {profile, retrunId.value()};
   }
   catch(Exception& exp) {
-    OATPP_LOGE("UserModel", exp.displayText().c_str());
+    OATPP_LOGE("UserModel", ":%s(): %s", __func__, exp.displayText().c_str());
     return {nullptr, ""};
   }
 }

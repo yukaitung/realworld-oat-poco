@@ -49,7 +49,7 @@ std::string TagCache::getNameFromId(const std::string &id) {
   return name;
 }
 
-void TagModel::initCache() {
+void TagModel::InitCache() {
   try {
     Session session(Database::getPool()->get());
     Statement select(session);

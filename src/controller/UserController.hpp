@@ -2,6 +2,8 @@
 #ifndef USERCONTROLLER_HPP
 #define USERCONTROLLER_HPP
 
+#include "dto/StatusDto.hpp"
+
 #include "service/UserService.hpp"
 #include "helper/TokenAuthorization.hpp"
 
@@ -27,21 +29,51 @@ public:
     return std::make_shared<UserController>(objectMapper);
   }
 
+  ENDPOINT_INFO(createUser) {
+    info->summary = "Create new user";
+    info->addConsumes<Object<UserRegJsonDto>>("application/json");
+    info->addResponse<Object<UserJsonDto>>(Status::CODE_200, "application/json");
+    info->addResponse<Object<ErrorJsonDto>>(Status::CODE_422, "application/json");
+    info->addResponse<Object<ErrorJsonDto>>(Status::CODE_500, "application/json");
+  }
   ENDPOINT("POST", "/users", createUser, BODY_DTO(Object<UserRegJsonDto>, dto))
   {
     return createDtoResponse(Status::CODE_200, userService.createUser(dto));
   }
 
+  ENDPOINT_INFO(login) {
+    info->summary = "Login";
+    info->addResponse<Object<UserJsonDto>>(Status::CODE_200, "application/json");
+    info->addResponse<Object<ErrorJsonDto>>(Status::CODE_404, "application/json");
+    info->addResponse<Object<ErrorJsonDto>>(Status::CODE_422, "application/json");
+    info->addResponse<Object<ErrorJsonDto>>(Status::CODE_500, "application/json");
+  }
   ENDPOINT("POST", "/users/login", login, BODY_DTO(Object<UserAuthJsonDto>, dto))
   {
     return createDtoResponse(Status::CODE_200, userService.login(dto));
   }
 
+  ENDPOINT_INFO(getUser) {
+    info->summary = "Get current user";
+    info->addResponse<Object<UserJsonDto>>(Status::CODE_200, "application/json");
+    info->addResponse<Object<ErrorJsonDto>>(Status::CODE_401, "application/json");
+    info->addResponse<Object<ErrorJsonDto>>(Status::CODE_422, "application/json");
+    info->addResponse<Object<ErrorJsonDto>>(Status::CODE_500, "application/json");
+    info->addSecurityRequirement("Token");
+  }
   ENDPOINT("GET", "/user", getUser, AUTHORIZATION(std::shared_ptr<TokenAuthorizationObject>, authObject))
   {
     return createDtoResponse(Status::CODE_200, userService.getUser(authObject->id));
   }
 
+  ENDPOINT_INFO(updateUser) {
+    info->summary = "Update information for current user";
+    info->addResponse<Object<UserJsonDto>>(Status::CODE_200, "application/json");
+    info->addResponse<Object<ErrorJsonDto>>(Status::CODE_401, "application/json");
+    info->addResponse<Object<ErrorJsonDto>>(Status::CODE_422, "application/json");
+    info->addResponse<Object<ErrorJsonDto>>(Status::CODE_500, "application/json");
+    info->addSecurityRequirement("Token");
+  }
   ENDPOINT("PUT", "/user", updateUser, BODY_DTO(Object<UserUpdateJsonDto>, dto), AUTHORIZATION(std::shared_ptr<TokenAuthorizationObject>, authObject))
   {
     return createDtoResponse(Status::CODE_200, userService.updateUser(authObject->id, dto));

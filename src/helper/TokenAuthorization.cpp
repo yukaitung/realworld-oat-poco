@@ -19,16 +19,16 @@ std::shared_ptr<AuthorizationObject> TokenAuthorizationHandler::handleAuthorizat
     OATPP_ASSERT_HTTP(false, Status::CODE_401, "Unauthorized");
   }
 
-  OATPP_ASSERT_HTTP(false, Status::CODE_401, "Authorization Required");
+  OATPP_ASSERT_HTTP(false, Status::CODE_401, "The authorization is required.");
 }
 
 std::shared_ptr<AuthorizationObject> TokenAuthorizationHandler::authorize(const oatpp::String& token) {
   if(!token->empty()) {
     std::string id = Jwt::validateJWT(token);
-    OATPP_ASSERT_HTTP(!id.empty(), Status::CODE_401, "Token Error");
+    OATPP_ASSERT_HTTP(!id.empty(), Status::CODE_401, "The token is incorrect.");
     return std::make_shared<TokenAuthorizationObject>(id);
   }
-  OATPP_ASSERT_HTTP(false, Status::CODE_401, "Authorization Failed");
+  OATPP_ASSERT_HTTP(false, Status::CODE_401, "The authorization is unsuccessful");
   return nullptr;
 }
 
@@ -45,7 +45,7 @@ std::shared_ptr<AuthorizationObject> OptionalTokenAuthorizationHandler::authoriz
   std::string id = "";
   if(!token->empty()) {
     id = Jwt::validateJWT(token);
-    OATPP_ASSERT_HTTP(!id.empty(), Status::CODE_401, "Token Error");
+    OATPP_ASSERT_HTTP(!id.empty(), Status::CODE_401, "The token is incorrect.");
   }
   return std::make_shared<TokenAuthorizationObject>(id);
 }

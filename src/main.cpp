@@ -7,6 +7,7 @@
 
 #include "model/TagModel.hpp"
 
+#include "oatpp-swagger/Controller.hpp"
 #include "oatpp/network/Server.hpp"
 
 #include <iostream>
@@ -21,15 +22,17 @@ void run() {
   Database::InitDatabase(connectionName, connectionString);
 
   // Init cache
-  TagModel::initCache();
+  TagModel::InitCache();
 
   auto router = app.httpRouter.getObject();
   oatpp::web::server::api::Endpoints docEndpoints;
+
+  docEndpoints.append(router->addController(UserController::createShared())->getEndpoints());
+  router->addController(oatpp::swagger::Controller::createShared(docEndpoints)); // One by one
   docEndpoints.append(router->addController(ArticleController::createShared())->getEndpoints());
   docEndpoints.append(router->addController(ArticleControllerOptionalAuth::createShared())->getEndpoints());
   docEndpoints.append(router->addController(ProfileController::createShared())->getEndpoints());
   docEndpoints.append(router->addController(ProfileControllerOptionalAuth::createShared())->getEndpoints());
-  docEndpoints.append(router->addController(UserController::createShared())->getEndpoints());
 
   /* Get connection handler component */
   OATPP_COMPONENT(std::shared_ptr<oatpp::network::ConnectionHandler>, connectionHandler);

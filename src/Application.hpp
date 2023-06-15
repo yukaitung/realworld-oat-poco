@@ -2,6 +2,9 @@
 #ifndef APPLICATION_HPP
 #define APPLICATION_HPP
 
+#include "SwaggerComponent.hpp"
+#include "ErrorHandler.hpp"
+
 #include "oatpp/web/server/HttpConnectionHandler.hpp"
 #include "oatpp/web/server/HttpRouter.hpp"
 #include "oatpp/network/tcp/server/ConnectionProvider.hpp"
@@ -14,6 +17,10 @@
  */
 class Application {
 public:
+  /**
+   *  Swagger component
+   */
+  SwaggerComponent swaggerComponent;
 
   /**
    * Create ObjectMapper component to serialize/deserialize DTOs in Contoller's API
@@ -28,7 +35,7 @@ public:
    *  Create ConnectionProvider component which listens on the port
    */
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::ServerConnectionProvider>, serverConnectionProvider)([] {
-    return oatpp::network::tcp::server::ConnectionProvider::createShared({"0.0.0.0", 8001, oatpp::network::Address::IP_4});
+    return oatpp::network::tcp::server::ConnectionProvider::createShared({"0.0.0.0", 8000, oatpp::network::Address::IP_4});
   }());
   
   /**
@@ -47,7 +54,7 @@ public:
     OATPP_COMPONENT(std::shared_ptr<oatpp::data::mapping::ObjectMapper>, objectMapper); // get ObjectMapper component
 
     auto connectionHandler = oatpp::web::server::HttpConnectionHandler::createShared(router);
-    //connectionHandler->setErrorHandler(std::make_shared<ErrorHandler>(objectMapper));
+    connectionHandler->setErrorHandler(std::make_shared<ErrorHandler>(objectMapper));
     return connectionHandler;
 
   }());
