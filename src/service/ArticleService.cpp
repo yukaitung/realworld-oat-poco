@@ -37,19 +37,19 @@ oatpp::Object<ArticleJsonDto> ArticleService::createArticle(std::string &id, con
   title = removeBothSpace(title);
   std::string description = dto->article->description;
   std::string body = dto->article->body;
-  OATPP_ASSERT_HTTP(!title.empty(), Status::CODE_422, "Missing title.");
-  OATPP_ASSERT_HTTP(!description.empty(), Status::CODE_422, "Missing description.");
-  OATPP_ASSERT_HTTP(!body.empty(), Status::CODE_422, "Missing body.");
+  OATPP_ASSERT_HTTP(!title.empty(), Status::CODE_422, "The title is missing.");
+  OATPP_ASSERT_HTTP(!description.empty(), Status::CODE_422, "The description is missing.");
+  OATPP_ASSERT_HTTP(!body.empty(), Status::CODE_422, "The body is missing.");
 
-  // Create tags
+  // Tags
   auto tags = dto->article->tagList;
   std::string tagsStr = "[";
   if(tags != nullptr) {
     bool result = tagModel.createTags(tags);
-    OATPP_ASSERT_HTTP(result, Status::CODE_500, "Server error.");
+    OATPP_ASSERT_HTTP(result, Status::CODE_500, "Internal Server Error.");
 
     // Generate JSON string
-    auto tagsId = tagModel.getTagsId(tags);
+    auto tagsId = tagModel.getTagsIdFromNames(tags);
     for(int i = 0; i < tagsId->size(); i++) {
       tagsStr += tagsId->at(i);
       if(i < tagsId->size() - 1)
@@ -58,6 +58,7 @@ oatpp::Object<ArticleJsonDto> ArticleService::createArticle(std::string &id, con
   }
   tagsStr += ']';
   
+  // Slug, Create Time
   // slug = title replacing space + user id + timestamp
   Poco::LocalDateTime dateTime;
   std::string slug = "";
@@ -67,7 +68,7 @@ oatpp::Object<ArticleJsonDto> ArticleService::createArticle(std::string &id, con
 
   // Create article
   auto article = articleModel.createArticle(id, slug, title, description, body, tagsStr, createTime);
-  OATPP_ASSERT_HTTP(article != nullptr, Status::CODE_500, "Server error.");
+  OATPP_ASSERT_HTTP(article != nullptr, Status::CODE_500, "Internal Server Error.");
 
   // Sort tag name
   std::sort(tags->begin(), tags->end(), [] (const auto &lhs, const auto &rhs) {
@@ -75,7 +76,7 @@ oatpp::Object<ArticleJsonDto> ArticleService::createArticle(std::string &id, con
   });
   article->tagList = tags;
 
-  // Response data
+  // Author
   auto author = userModel.getProfileFromId(id);
   author->following = false;
   article->author = author;
@@ -86,18 +87,20 @@ oatpp::Object<ArticleJsonDto> ArticleService::createArticle(std::string &id, con
 }
 
 oatpp::Object<ArticleJsonDto> ArticleService::getArticle(std::string &id, std::string &slug) {
-  OATPP_ASSERT_HTTP(!slug.empty(), Status::CODE_400, "Missing slug");
+  OATPP_ASSERT_HTTP(!slug.empty(), Status::CODE_422, "The slug is missing.");
   
   // Get article
   auto articleObj = articleModel.getArticle(slug);
+  auto article = std::get<ArticleModel::GetArticleEnum::Article>(articleObj);
+  OATPP_ASSERT_HTTP(article != nullptr, Status::CODE_500, "Internal Server Error.");
+  auto articleId = std::get<ArticleModel::GetArticleEnum::ArticleId>(articleObj);
+  OATPP_ASSERT_HTTP(!articleId.empty(), Status::CODE_404, "The article could not be found.");
   std::string authorId = std::get<ArticleModel::GetArticleEnum::AuthorId>(articleObj);
-  OATPP_ASSERT_HTTP(!authorId.empty(), Status::CODE_500, "Server error."); // Missing author id = error
+  OATPP_ASSERT_HTTP(!authorId.empty(), Status::CODE_500, "Internal Server Error."); // Missing author id = error
 
   // Response data
-  auto article = std::get<ArticleModel::GetArticleEnum::Article>(articleObj);
-  auto articleId = std::get<ArticleModel::GetArticleEnum::ArticleId>(articleObj);
   auto favouriteData = articleHasFavouriteModel.getArticlefavouriteData(articleId, id);
-  OATPP_ASSERT_HTTP(favouriteData.first >= 0, Status::CODE_500, "Server error.");
+  OATPP_ASSERT_HTTP(favouriteData.first >= 0, Status::CODE_500, "Internal Server Error.");
   article->favourited = favouriteData.second;
   article->favouritesCount = favouriteData.first;
   auto author = userModel.getProfileFromId(authorId);
@@ -120,7 +123,7 @@ oatpp::Object<ArticleJsonDto> ArticleService::getArticle(std::string &id, std::s
 oatpp::Object<ArticlesJsonDto> ArticleService::getArticles(std::string &id, unsigned int limit, unsigned int offset, std::string &tag, std::string &author, std::string &favouritedBy, bool feed) {
   // Convert User input to system parameter
   if(!tag.empty()) // tag name -> tag id
-    tag = tagModel.getTagId(tag);
+    tag = tagModel.getTagIdFromName(tag);
   if(!author.empty()) // author user name -> user Id
     author = userModel.getProfileFromUsername(author).second;
   if(!favouritedBy.empty())
@@ -128,13 +131,13 @@ oatpp::Object<ArticlesJsonDto> ArticleService::getArticles(std::string &id, unsi
   
   auto articlesObj = articleModel.getArticles(limit, offset, tag, author, favouritedBy, feed, id);
 
-  // Response data
+  // Append data for articles
   auto articles = std::get<ArticleModel::GetArticleEnum::Article>(articlesObj);
-  OATPP_ASSERT_HTTP(articles != nullptr, Status::CODE_500, "Server error.");
+  OATPP_ASSERT_HTTP(articles != nullptr, Status::CODE_500, "Internal Server Error.");
 
   // Favourite
   std::vector<std::string> articleIdList = std::get<ArticleModel::GetArticleEnum::ArticleId>(articlesObj);
-  std::unordered_map<std::string, std::pair<unsigned int, bool>> favouriteData = articleHasFavouriteModel.getArticlefavouriteDataFromList(articleIdList, id);
+  std::unordered_map<std::string, std::pair<unsigned int, bool>> favouriteData = articleHasFavouriteModel.getArticlesfavouriteData(articleIdList, id);
 
   // Get authors profile and following
   std::vector<std::string> tagsJsonStrList = std::get<ArticleModel::GetArticleEnum::TagsJsonStr>(articlesObj);
@@ -171,12 +174,17 @@ oatpp::Object<ArticlesJsonDto> ArticleService::getArticles(std::string &id, unsi
 }
 
 oatpp::Object<ArticleJsonDto> ArticleService::updateArticle(std::string &id, std::string &slug, const oatpp::Object<ArticleExchangeJsonDto> &dto) {
-  OATPP_ASSERT_HTTP(!slug.empty(), Status::CODE_400, "Missing slug");
+  OATPP_ASSERT_HTTP(!slug.empty(), Status::CODE_422, "The slug is missing.");
   
   // Get article, validate the author
   auto articleObj = articleModel.getArticle(slug);
+  auto article = std::get<ArticleModel::GetArticleEnum::Article>(articleObj);
+  OATPP_ASSERT_HTTP(article != nullptr, Status::CODE_500, "Internal Server Error.");
+  auto articleId = std::get<ArticleModel::GetArticleEnum::ArticleId>(articleObj);
+  OATPP_ASSERT_HTTP(!articleId.empty(), Status::CODE_404, "The article could not be found.");
+
   std::string authorId = std::get<ArticleModel::GetArticleEnum::AuthorId>(articleObj);
-  OATPP_ASSERT_HTTP(id.compare(authorId) == 0, Status::CODE_400, "Unauthorized access.");
+  OATPP_ASSERT_HTTP(id.compare(authorId) == 0, Status::CODE_403, "The article is not belongs to the user.");
 
   std::string title = dto->article->title ? dto->article->title : "";
   title = removeBothSpace(title);
@@ -195,13 +203,9 @@ oatpp::Object<ArticleJsonDto> ArticleService::updateArticle(std::string &id, std
 
   if(!title.empty() || !description.empty() || !body.empty()) {
     bool result = articleModel.updateArticle(slug, newSlug, title, description, body, updateTime);
-    OATPP_ASSERT_HTTP(result, Status::CODE_500, "Server error.");
+    OATPP_ASSERT_HTTP(result, Status::CODE_500, "Internal Server Error.");
   }
-
-  // Response data
-  auto article = std::get<ArticleModel::GetArticleEnum::Article>(articleObj);
-  auto articleId = std::get<ArticleModel::GetArticleEnum::ArticleId>(articleObj);
-
+  
   // Update response data if necessary
   if(!title.empty()) {
     article->slug = newSlug;
@@ -215,7 +219,7 @@ oatpp::Object<ArticleJsonDto> ArticleService::updateArticle(std::string &id, std
   
   // Favourite, profile
   auto favouriteData = articleHasFavouriteModel.getArticlefavouriteData(articleId, id);
-  OATPP_ASSERT_HTTP(favouriteData.first >= 0, Status::CODE_500, "Server error.");
+  OATPP_ASSERT_HTTP(favouriteData.first >= 0, Status::CODE_500, "Internal Server Error.");
   article->favourited = favouriteData.second;
   article->favouritesCount = favouriteData.first;
   auto author = userModel.getProfileFromId(id);
@@ -234,15 +238,19 @@ oatpp::Object<ArticleJsonDto> ArticleService::updateArticle(std::string &id, std
 }
 
 oatpp::Object<ArticleJsonDto> ArticleService::deleteArticle(std::string &id, std::string &slug) {
-  OATPP_ASSERT_HTTP(!slug.empty(), Status::CODE_400, "Missing slug");
+  OATPP_ASSERT_HTTP(!slug.empty(), Status::CODE_422, "The slug is missing");
   
   // Get article, validate the author
   auto articleObj = articleModel.getArticle(slug);
+  auto article = std::get<ArticleModel::GetArticleEnum::Article>(articleObj);
+  OATPP_ASSERT_HTTP(article != nullptr, Status::CODE_500, "Internal Server Error.");
+  std::string articleId = std::get<ArticleModel::GetArticleEnum::ArticleId>(articleObj);
+  OATPP_ASSERT_HTTP(!articleId.empty(), Status::CODE_404, "The article could not be found.");
   std::string authorId = std::get<ArticleModel::GetArticleEnum::AuthorId>(articleObj);
-  OATPP_ASSERT_HTTP(id.compare(authorId) == 0, Status::CODE_400, "Unauthorized access.");
+  OATPP_ASSERT_HTTP(id.compare(authorId) == 0, Status::CODE_403, "The article is not belongs to the user.");
 
   bool result = articleModel.deleteArticle(slug);
-  OATPP_ASSERT_HTTP(result, Status::CODE_500, "Server error.");
+  OATPP_ASSERT_HTTP(result, Status::CODE_500, "Internal Server Error.");
 
   auto response = ArticleJsonDto::createShared();
   response->article = ArticleDto::createShared();
@@ -251,27 +259,28 @@ oatpp::Object<ArticleJsonDto> ArticleService::deleteArticle(std::string &id, std
 }
 
 oatpp::Object<ArticleJsonDto> ArticleService::favouriteArticle(std::string &id, std::string &slug) {
-  OATPP_ASSERT_HTTP(!slug.empty(), Status::CODE_400, "Missing slug");
+  OATPP_ASSERT_HTTP(!slug.empty(), Status::CODE_422, "The slug is missing");
 
   // Get article
   auto articleObj = articleModel.getArticle(slug);
+  auto article = std::get<ArticleModel::GetArticleEnum::Article>(articleObj);
+  OATPP_ASSERT_HTTP(article != nullptr, Status::CODE_500, "Internal Server Error.");
   std::string articleId = std::get<ArticleModel::GetArticleEnum::ArticleId>(articleObj);
-  OATPP_ASSERT_HTTP(!articleId.empty(), Status::CODE_500, "Server error."); // Missing ArticleId = error
+  OATPP_ASSERT_HTTP(!articleId.empty(), Status::CODE_404, "The article could not be found.");
 
   // Favourite an article
   bool result = articleHasFavouriteModel.favouriteArticle(articleId, id);
-  OATPP_ASSERT_HTTP(result, Status::CODE_500, "Server error.");
+  OATPP_ASSERT_HTTP(result, Status::CODE_500, "Internal Server Error.");
 
   // Get favourite data
   auto favouriteData = articleHasFavouriteModel.getArticlefavouriteData(articleId, id);
-  OATPP_ASSERT_HTTP(favouriteData.first >= 0, Status::CODE_500, "Server error.");
+  OATPP_ASSERT_HTTP(favouriteData.first >= 0, Status::CODE_500, "Internal Server Error.");
 
   // Response data
   std::string authorId = std::get<ArticleModel::GetArticleEnum::AuthorId>(articleObj);
   auto author = userModel.getProfileFromId(authorId);
   author->following = userHasFollowerModel.userHasThisFollower(authorId, id);
   
-  auto article = std::get<ArticleModel::GetArticleEnum::Article>(articleObj);
   article->favourited = true;
   article->favouritesCount = favouriteData.first;
   article->author = author;
@@ -289,27 +298,28 @@ oatpp::Object<ArticleJsonDto> ArticleService::favouriteArticle(std::string &id, 
 }
 
 oatpp::Object<ArticleJsonDto> ArticleService::unfavouriteArticle(std::string &id, std::string &slug) {
-  OATPP_ASSERT_HTTP(!slug.empty(), Status::CODE_400, "Missing slug");
+  OATPP_ASSERT_HTTP(!slug.empty(), Status::CODE_422, "The slug is missing");
 
   // Get article
   auto articleObj = articleModel.getArticle(slug);
+  auto article = std::get<ArticleModel::GetArticleEnum::Article>(articleObj);
+  OATPP_ASSERT_HTTP(article != nullptr, Status::CODE_500, "Internal Server Error.");
   std::string articleId = std::get<ArticleModel::GetArticleEnum::ArticleId>(articleObj);
-  OATPP_ASSERT_HTTP(!articleId.empty(), Status::CODE_500, "Server error."); // Missing ArticleId = error
+  OATPP_ASSERT_HTTP(!articleId.empty(), Status::CODE_404, "The article could not be found.");
 
   // Unavourite an article
   bool result = articleHasFavouriteModel.unfavouriteArticle(articleId, id);
-  OATPP_ASSERT_HTTP(result, Status::CODE_500, "Server error.");
+  OATPP_ASSERT_HTTP(result, Status::CODE_500, "Internal Server Error.");
 
   // Get favourite data
   auto favouriteData = articleHasFavouriteModel.getArticlefavouriteData(articleId, id);
-  OATPP_ASSERT_HTTP(favouriteData.first >= 0, Status::CODE_500, "Server error.");
+  OATPP_ASSERT_HTTP(favouriteData.first >= 0, Status::CODE_500, "Internal Server Error.");
 
   // Response data
   std::string authorId = std::get<ArticleModel::GetArticleEnum::AuthorId>(articleObj);
   auto author = userModel.getProfileFromId(authorId);
   author->following = userHasFollowerModel.userHasThisFollower(authorId, id);
   
-  auto article = std::get<ArticleModel::GetArticleEnum::Article>(articleObj);
   article->favourited = false;
   article->favouritesCount = favouriteData.first;
   article->author = author;
@@ -328,16 +338,16 @@ oatpp::Object<ArticleJsonDto> ArticleService::unfavouriteArticle(std::string &id
 
 oatpp::Object<CommentJsonDto> ArticleService::createComment(std::string &id, std::string &slug, const oatpp::Object<CommentJsonDto> &dto) {
   std::string body = dto->comment->body;
-  OATPP_ASSERT_HTTP(!body.empty(), Status::CODE_422, "Missing body.");
-  OATPP_ASSERT_HTTP(!slug.empty(), Status::CODE_422, "Missing slug.");
+  OATPP_ASSERT_HTTP(!body.empty(), Status::CODE_422, "The comment is missing.");
+  OATPP_ASSERT_HTTP(!slug.empty(), Status::CODE_422, "The slug is missing.");
 
   std::string articleId = articleModel.getArticleIdFromSlug(slug);
-  OATPP_ASSERT_HTTP(!articleId.empty(), Status::CODE_404, "Article not found.");
+  OATPP_ASSERT_HTTP(!articleId.empty(), Status::CODE_404, "The article could not be found.");
 
   Poco::LocalDateTime dateTime;
   std::string createTime = Poco::DateTimeFormatter::format(dateTime.timestamp(), "%Y-%m-%d %H:%M:%S", Poco::Timezone::tzd());
   auto comment = commentModel.createComment(id, articleId, body, createTime);
-  OATPP_ASSERT_HTTP(comment, Status::CODE_500, "Server error.");
+  OATPP_ASSERT_HTTP(comment, Status::CODE_500, "Internal Server Error.");
 
   auto response = CommentJsonDto::createShared();
   response->comment = comment;
@@ -348,14 +358,14 @@ oatpp::Object<CommentJsonDto> ArticleService::createComment(std::string &id, std
 }
 
 oatpp::Object<CommentsJsonDto> ArticleService::getComments(std::string &id, std::string &slug) {
-  OATPP_ASSERT_HTTP(!slug.empty(), Status::CODE_422, "Missing slug.");
+  OATPP_ASSERT_HTTP(!slug.empty(), Status::CODE_422, "The slug is missing.");
 
   std::string articleId = articleModel.getArticleIdFromSlug(slug);
-  OATPP_ASSERT_HTTP(!articleId.empty(), Status::CODE_404, "Article not found.");
+  OATPP_ASSERT_HTTP(!articleId.empty(), Status::CODE_404, "The article could not be found.");
 
   auto commentsData = commentModel.getComments(articleId);
   auto comments = commentsData.first;
-  OATPP_ASSERT_HTTP(comments != nullptr, Status::CODE_500, "Server Error.");
+  OATPP_ASSERT_HTTP(comments != nullptr, Status::CODE_500, "Internal Server Error.");
   std::vector<std::string> authorIds = commentsData.second;
   std::unordered_map<std::string, oatpp::Object<UserProfileDto>> authorProfiles = userModel.getProfilesFromId(authorIds);
   std::unordered_set<std::string> userFollingList;
@@ -377,15 +387,15 @@ oatpp::Object<CommentsJsonDto> ArticleService::getComments(std::string &id, std:
 }
 
 oatpp::Object<CommentJsonDto> ArticleService::deleteComment(std::string &id, std::string &slug, std::string &commentId) {
-  OATPP_ASSERT_HTTP(!slug.empty(), Status::CODE_400, "Missing slug");
-  OATPP_ASSERT_HTTP(!commentId.empty(), Status::CODE_400, "Missing comment id");
+  OATPP_ASSERT_HTTP(!slug.empty(), Status::CODE_422, "The slug is missing.");
+  OATPP_ASSERT_HTTP(!commentId.empty(), Status::CODE_422, "The comment id is missing.");
   
   std::string authorId = commentModel.getCommentAuthorId(commentId);
-  OATPP_ASSERT_HTTP(!authorId.empty(), Status::CODE_404, "Comment Not Found.");
-  OATPP_ASSERT_HTTP(authorId.compare(id) == 0, Status::CODE_400, "Unauthorized access.");
+  OATPP_ASSERT_HTTP(!authorId.empty(), Status::CODE_404, "The comment could not be found.");
+  OATPP_ASSERT_HTTP(authorId.compare(id) == 0, Status::CODE_400, "The comment is not belongs to the user.");
 
   bool result = commentModel.deleteComment(commentId);
-  OATPP_ASSERT_HTTP(result, Status::CODE_500, "Server error.");
+  OATPP_ASSERT_HTTP(result, Status::CODE_500, "Internal Server Error.");
 
   auto response = CommentJsonDto::createShared();
   response->comment = CommentDto::createShared();
@@ -396,6 +406,6 @@ oatpp::Object<CommentJsonDto> ArticleService::deleteComment(std::string &id, std
 
 oatpp::Object<TagJsonDto> ArticleService::getTags() {
   auto tags = tagModel.getTags();
-  OATPP_ASSERT_HTTP(tags, Status::CODE_500, "Server error.");
+  OATPP_ASSERT_HTTP(tags, Status::CODE_500, "Internal Server Error.");
   return tags;
 }

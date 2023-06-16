@@ -39,7 +39,7 @@ oatpp::Object<ArticleDto> ArticleModel::createArticle(std::string &userId, std::
     return article;
   }
   catch(Exception& exp) {
-    OATPP_LOGE("ArticleModel", exp.displayText().c_str());
+    OATPP_LOGE("ArticleModel", ":%s(): %s", __func__, exp.displayText().c_str());
     return nullptr;
   }
 }
@@ -76,10 +76,10 @@ std::tuple<oatpp::Object<ArticleDto>, std::string, std::string, std::string> Art
     article->createdAt = timeTz(retrunCreatedAt);
     article->updatedAt = timeTz(retrunUpdateddAt);
     
-    return {article , retrunArticleId.value(), retrunUserId.value(), retrunTagList.value()};
+    return {article , !retrunArticleId.isNull() ? retrunArticleId.value() : "", !retrunUserId.isNull() ? retrunUserId.value() : "", !retrunTagList.isNull() ? retrunTagList.value() : ""};
   }
   catch(Exception& exp) {
-    OATPP_LOGE("ArticleModel", exp.displayText().c_str());
+    OATPP_LOGE("ArticleModel", ":%s(): %s", __func__, exp.displayText().c_str());
     return {nullptr , "", "", ""};
   }
 }
@@ -163,7 +163,7 @@ std::tuple<oatpp::Vector<oatpp::Object<ArticleDto>>, std::vector<std::string>, s
     return {articles, articleIds, authorUsers, tagsJson};
   }
   catch(Exception& exp) {
-    OATPP_LOGE("ArticleModel", exp.displayText().c_str());
+    OATPP_LOGE("ArticleModel", ":%s(): %s", __func__, exp.displayText().c_str());
     return {nullptr , {}, {}, {}};
   }
 }
@@ -187,7 +187,7 @@ bool ArticleModel::updateArticle(std::string &slug, std::string &newSlug, std::s
     return true;
   }
   catch(Exception& exp) {
-    OATPP_LOGE("ArticleModel", exp.displayText().c_str());
+    OATPP_LOGE("ArticleModel", ":%s(): %s", __func__, exp.displayText().c_str());
     return false;
   }
 }
@@ -199,7 +199,7 @@ bool ArticleModel::deleteArticle(std::string &slug) {
     return true;
   }
   catch(Exception& exp) {
-    OATPP_LOGE("ArticleModel", exp.displayText().c_str());
+    OATPP_LOGE("ArticleModel", ":%s(): %s", __func__, exp.displayText().c_str());
     return false;
   }
 }
@@ -214,7 +214,7 @@ std::string ArticleModel::getArticleIdFromSlug(std::string &slug) {
     return !retrunArticleId.isNull() ? retrunArticleId.value() : "";
   }
   catch(Exception& exp) {
-    OATPP_LOGE("ArticleModel", exp.displayText().c_str());
+    OATPP_LOGE("ArticleModel", ":%s(): %s", __func__, exp.displayText().c_str());
     return "";
   }
 }

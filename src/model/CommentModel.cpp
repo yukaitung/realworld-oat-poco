@@ -39,7 +39,7 @@ oatpp::Object<CommentDto> CommentModel::createComment(std::string &userId, std::
     return comment;
   }
   catch(Exception& exp) {
-    OATPP_LOGE("CommentModel", exp.displayText().c_str());
+    OATPP_LOGE("CommentModel", ":%s(): %s", __func__, exp.displayText().c_str());
     return nullptr;
   }
 }
@@ -72,7 +72,7 @@ std::pair<oatpp::Vector<oatpp::Object<CommentDto>>, std::vector<std::string>> Co
     return {comments, authorIds};
   }
   catch(Exception& exp) {
-    OATPP_LOGE("CommentModel", exp.displayText().c_str());
+    OATPP_LOGE("CommentModel", ":%s(): %s", __func__, exp.displayText().c_str());
     return {nullptr, {}};
   }
 }
@@ -87,7 +87,7 @@ std::string CommentModel::getCommentAuthorId(std::string &commentId) {
     return !retrunId.isNull() ? retrunId.value() : "";
   }
   catch(Exception& exp) {
-    OATPP_LOGE("CommentModel", exp.displayText().c_str());
+    OATPP_LOGE("CommentModel", ":%s(): %s", __func__, exp.displayText().c_str());
     return "";
   }
 }
@@ -100,7 +100,7 @@ bool CommentModel::deleteComment(std::string &commentId) {
     return true;
   }
   catch(Exception& exp) {
-    OATPP_LOGE("CommentModel", exp.displayText().c_str());
+    OATPP_LOGE("CommentModel", ":%s(): %s", __func__, exp.displayText().c_str());
     return false;
   }
 }

@@ -35,7 +35,7 @@ std::pair<bool, bool> UserModel::validateUser(std::string &email, std::string &u
     return {returnEmailExist.value() == 1, returnUsernameExist.value() == 1};
   }
   catch(Exception& exp) {
-    OATPP_LOGE("UserModel", ":%s(): %s", __func__, exp.displayText().c_str());
+    OATPP_LOGE("UserModel", ":%s(): %s", __func__, ":%s(): %s", __func__, exp.displayText().c_str());
     return {false, false};
   }
 }
@@ -73,7 +73,7 @@ oatpp::Object<UserDto> UserModel::createUser(std::string &email, std::string &us
     return user;
   }
   catch(Exception& exp) {
-    OATPP_LOGE("UserModel", ":%s(): %s", __func__, exp.displayText().c_str());
+    OATPP_LOGE("UserModel", ":%s(): %s", __func__, ":%s(): %s", __func__, exp.displayText().c_str());
     return nullptr;
   }
 }
@@ -121,7 +121,7 @@ oatpp::Object<UserDto> UserModel::login(std::string &email, std::string &passwor
     return nullptr;
   }
   catch(Exception& exp) {
-    OATPP_LOGE("UserModel", ":%s(): %s", __func__, exp.displayText().c_str());
+    OATPP_LOGE("UserModel", ":%s(): %s", __func__, ":%s(): %s", __func__, exp.displayText().c_str());
     return nullptr;
   }
 }
@@ -148,7 +148,7 @@ oatpp::Object<UserDto> UserModel::getUser(std::string &id) {
     return user;
   }
   catch(Exception& exp) {
-    OATPP_LOGE("UserModel", ":%s(): %s", __func__, exp.displayText().c_str());
+    OATPP_LOGE("UserModel", ":%s(): %s", __func__, ":%s(): %s", __func__, exp.displayText().c_str());
     return nullptr;
   }
 }
@@ -181,7 +181,7 @@ oatpp::Object<UserDto> UserModel::updateUser(std::string &id, std::string &email
     return user;
   }
   catch(Exception& exp) {
-    OATPP_LOGE("UserModel", ":%s(): %s", __func__, exp.displayText().c_str());
+    OATPP_LOGE("UserModel", ":%s(): %s", __func__, ":%s(): %s", __func__, exp.displayText().c_str());
     return nullptr;
   }
 }
@@ -206,7 +206,7 @@ oatpp::Object<UserProfileDto> UserModel::getProfileFromId(std::string &id) {
     return profile;
   }
   catch(Exception& exp) {
-    OATPP_LOGE("UserModel", ":%s(): %s", __func__, exp.displayText().c_str());
+    OATPP_LOGE("UserModel", ":%s(): %s", __func__, ":%s(): %s", __func__, exp.displayText().c_str());
     return nullptr;
   }
 }
@@ -248,7 +248,7 @@ std::unordered_map<std::string, oatpp::Object<UserProfileDto>> UserModel::getPro
     return profiles;
   }
   catch(Exception& exp) {
-    OATPP_LOGE("UserModel", ":%s(): %s", __func__, exp.displayText().c_str());
+    OATPP_LOGE("UserModel", ":%s(): %s", __func__, ":%s(): %s", __func__, exp.displayText().c_str());
     return {};
   }
 }
@@ -273,7 +273,7 @@ std::pair<oatpp::Object<UserProfileDto>, std::string> UserModel::getProfileFromU
     return {profile, !retrunId.isNull() ? retrunId.value() : ""};
   }
   catch(Exception& exp) {
-    OATPP_LOGE("UserModel", ":%s(): %s", __func__, exp.displayText().c_str());
+    OATPP_LOGE("UserModel", ":%s(): %s", __func__, ":%s(): %s", __func__, exp.displayText().c_str());
     return {nullptr, ""};
   }
 }

@@ -21,7 +21,7 @@ bool ArticleHasFavouriteModel::favouriteArticle(std::string &articleId, std::str
     return true;
   }
   catch(Exception& exp) {
-    OATPP_LOGE("ArticleHasFavouriteModel", exp.displayText().c_str());
+    OATPP_LOGE("ArticleHasFavouriteModel", ":%s(): %s", __func__, exp.displayText().c_str());
     return false;
   }
 }
@@ -33,7 +33,7 @@ bool ArticleHasFavouriteModel::unfavouriteArticle(std::string &articleId, std::s
     return true;
   }
   catch(Exception& exp) {
-    OATPP_LOGE("ArticleHasFavouriteModel", exp.displayText().c_str());
+    OATPP_LOGE("ArticleHasFavouriteModel", ":%s(): %s", __func__, exp.displayText().c_str());
     return false;
   }
 }
@@ -48,12 +48,12 @@ std::pair<unsigned int, bool> ArticleHasFavouriteModel::getArticlefavouriteData(
     return {retrunFavouriteCount.value(), retrunUserFavourite.value() >= 1};
   }
   catch(Exception& exp) {
-    OATPP_LOGE("ArticleHasFavouriteModel", exp.displayText().c_str());
+    OATPP_LOGE("ArticleHasFavouriteModel", ":%s(): %s", __func__, exp.displayText().c_str());
     return {-1, false};
   } 
 }
 
-std::unordered_map<std::string, std::pair<unsigned int, bool>> ArticleHasFavouriteModel::getArticlefavouriteDataFromList(std::vector<std::string> &articleId, std::string &userId) {
+std::unordered_map<std::string, std::pair<unsigned int, bool>> ArticleHasFavouriteModel::getArticlesfavouriteData(std::vector<std::string> &articleId, std::string &userId) {
   if(articleId.empty())
     return {};
 
@@ -83,7 +83,7 @@ std::unordered_map<std::string, std::pair<unsigned int, bool>> ArticleHasFavouri
     return favourtieData;
   }
   catch(Exception& exp) {
-    OATPP_LOGE("ArticleHasFavouriteModel", exp.displayText().c_str());
+    OATPP_LOGE("ArticleHasFavouriteModel", ":%s(): %s", __func__, exp.displayText().c_str());
     return {};
   } 
 }
@@ -108,7 +108,7 @@ std::vector<std::string> ArticleHasFavouriteModel::getUserFavourite(std::string 
     return favouriteArticles;
   }
   catch(Exception& exp) {
-    OATPP_LOGE("ArticleHasFavouriteModel", exp.displayText().c_str());
+    OATPP_LOGE("ArticleHasFavouriteModel", ":%s(): %s", __func__, exp.displayText().c_str());
     return {};
   }
 }

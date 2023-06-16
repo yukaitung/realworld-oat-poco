@@ -40,7 +40,7 @@ std::string Jwt::validateJWT(const std::string &jwt) {
   }
   catch(Exception& exp)
   {
-    OATPP_LOGE("Jwt", exp.displayText().c_str());
+    OATPP_LOGE("Jwt", ":%s(): %s", __func__, exp.displayText().c_str());
     return id;
   }
 }

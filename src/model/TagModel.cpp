@@ -62,7 +62,7 @@ void TagModel::InitCache() {
     }
   }
   catch(Exception& exp) {
-    OATPP_LOGE("TagModel", exp.displayText().c_str());
+    OATPP_LOGE("TagModel", ":%s(): %s", __func__, exp.displayText().c_str());
   }
 }
 
@@ -110,18 +110,18 @@ bool TagModel::createTags(const oatpp::Vector<oatpp::String> &tags) {
       }
     }
     catch(Exception& exp) {
-      OATPP_LOGE("TagModel", exp.displayText().c_str());
+      OATPP_LOGE("TagModel", ":%s(): %s", __func__, exp.displayText().c_str());
       return false;
     }
   }
   return true;
 }
 
-std::string TagModel::getTagId(const std::string &tags) {
-  return tagCache.getIdFromName(tags);
+std::string TagModel::getTagIdFromName(const std::string &tag) {
+  return tagCache.getIdFromName(tag);
 }
 
-oatpp::Vector<oatpp::String> TagModel::getTagsId(const oatpp::Vector<oatpp::String> &tags) {
+oatpp::Vector<oatpp::String> TagModel::getTagsIdFromNames(const oatpp::Vector<oatpp::String> &tags) {
   oatpp::Vector<oatpp::String> id = oatpp::Vector<oatpp::String>::createShared();
   id->resize(tags->size());
   for(int i = 0; i < tags->size(); i++) {
