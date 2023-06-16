@@ -36,6 +36,16 @@ To build the project on macOS:
   cmake --build . -j $(sysctl -n hw.ncpu)
 ```
 
+Setup the env 
+
+```bash
+  export REALWORLD_DB_HOST=127.0.0.1
+  export REALWORLD_DB_PORT=3306
+  export REALWORLD_DB_NAME=Realworld
+  export REALWORLD_DB_USER=
+  export REALWORLD_DB_PASSWORD=
+```
+
 # 廣東話
 # ![RealWorld 示範應用程式](logo.png)
 

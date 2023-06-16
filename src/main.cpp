@@ -12,14 +12,25 @@
 #include "oatpp/network/Server.hpp"
 
 #include <iostream>
+#include <string>
+
+std::string getEnvVar(std::string const &key)
+{
+  char *val = getenv(key.c_str());
+  return val == NULL ? std::string("") : std::string(val);
+}
 
 void run() {
   Application app;
 
   // Setup Database
-  // TODO: dont insert secret
+  std::string dbHost = getEnvVar("REALWORLD_DB_HOST");
+  std::string dbPort = getEnvVar("REALWORLD_DB_PORT");
+  std::string dbName = getEnvVar("REALWORLD_DB_NAME");
+  std::string dbUser = getEnvVar("REALWORLD_DB_USER");
+  std::string dbPassword = getEnvVar("REALWORLD_DB_PASSWORD");
   std::string connectionName = "MySQL";
-  std::string connectionString = "host=127.0.0.1;port=3306;db=Realworld;user=root;password=GueBPjHlPFUgXc7hm=;compress=true;auto-reconnect=true";
+  std::string connectionString = "host=" + dbHost + ";port=" + dbPort + ";db=" + dbName + ";user=" + dbUser + ";password=" + dbPassword + ";compress=true;auto-reconnect=true";
   Database::InitDatabase(connectionName, connectionString);
 
   // Init cache
