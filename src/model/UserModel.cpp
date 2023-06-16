@@ -270,7 +270,7 @@ std::pair<oatpp::Object<UserProfileDto>, std::string> UserModel::getProfileFromU
     if(!retrunImage.isNull())
     profile->image = retrunImage.value();
     profile->following = false;
-    return {profile, retrunId.value()};
+    return {profile, !retrunId.isNull() ? retrunId.value() : ""};
   }
   catch(Exception& exp) {
     OATPP_LOGE("UserModel", ":%s(): %s", __func__, exp.displayText().c_str());

@@ -19,7 +19,7 @@ void run() {
   // Setup Database
   // TODO: dont insert secret
   std::string connectionName = "MySQL";
-  std::string connectionString = "host=127.0.0.1;port=3306;db=Realworld;user=root;password=GueBPjHlPFUgXc7hm=;compress=true;auto-reconnect=true";
+  std::string connectionString = "host=127.0.0.1;port=3306;db=Realworld;user=root;password=GueBPjHlPFUgXc7hm=;compress=true;auto-reconnect=true;charset=utf8mb4;collation=utf8mb4_unicode_ci";
   Database::InitDatabase(connectionName, connectionString);
 
   // Init cache
@@ -29,11 +29,12 @@ void run() {
   oatpp::web::server::api::Endpoints docEndpoints;
 
   docEndpoints.append(router->addController(UserController::createShared())->getEndpoints());
+  docEndpoints.append(router->addController(ProfileController::createShared())->getEndpoints());
+  docEndpoints.append(router->addController(ProfileControllerOptionalAuth::createShared())->getEndpoints());
   router->addController(oatpp::swagger::Controller::createShared(docEndpoints)); // One by one
   docEndpoints.append(router->addController(ArticleController::createShared())->getEndpoints());
   docEndpoints.append(router->addController(ArticleControllerOptionalAuth::createShared())->getEndpoints());
-  docEndpoints.append(router->addController(ProfileController::createShared())->getEndpoints());
-  docEndpoints.append(router->addController(ProfileControllerOptionalAuth::createShared())->getEndpoints());
+  
 
   /* Get connection handler component */
   OATPP_COMPONENT(std::shared_ptr<oatpp::network::ConnectionHandler>, connectionHandler);

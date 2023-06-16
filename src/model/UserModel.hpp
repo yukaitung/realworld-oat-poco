@@ -78,7 +78,7 @@ class UserModel {
     /**
     * This method is to fetch an profile from database using username.
     * @param username The username.
-    * @return std::pair<oatpp::Object<UserProfileDto>, std::string> This returns profile object and profile user id.
+    * @return std::pair<oatpp::Object<UserProfileDto>, std::string> This returns a profile object and user ID. The profile requires adding the following status. If the user ID is empty, it is not found.
     */
     std::pair<oatpp::Object<UserProfileDto>, std::string> getProfileFromUsername(std::string &username);
 };

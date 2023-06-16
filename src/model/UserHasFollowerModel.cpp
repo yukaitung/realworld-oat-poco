@@ -18,14 +18,12 @@ bool UserHasFollowerModel::userHasThisFollower(std::string &userId, std::string 
   Poco::Nullable<int> result;
 
   try {
-    // Fetch result
     Session session(Database::getPool()->get());
     session << "SELECT COUNT(*) FROM users_has_followers WHERE user_id = ? AND follower_id = ?", into(result), use(userId), use(followerId), now;
-
     return (result == 1);
   }
   catch(Exception& exp) {
-    OATPP_LOGE("UserHasFollowerModel", exp.displayText().c_str());
+    OATPP_LOGE("UserHasFollowerModel", ":%s(): %s", __func__, exp.displayText().c_str());
     return false;
   }
 }
@@ -37,7 +35,7 @@ bool UserHasFollowerModel::userNewFollower(std::string &userId, std::string &fol
     return true;
   }
   catch(Exception& exp) {
-    OATPP_LOGE("UserHasFollowerModel", exp.displayText().c_str());
+    OATPP_LOGE("UserHasFollowerModel", ":%s(): %s", __func__, exp.displayText().c_str());
     return false;
   }
 }
@@ -49,7 +47,7 @@ bool UserHasFollowerModel::userRemoveFollower(std::string &userId, std::string &
     return true;
   }
   catch(Exception& exp) {
-    OATPP_LOGE("UserHasFollowerModel", exp.displayText().c_str());
+    OATPP_LOGE("UserHasFollowerModel", ":%s(): %s", __func__, exp.displayText().c_str());
     return false;
   }
 }
@@ -82,7 +80,7 @@ std::unordered_set<std::string> UserHasFollowerModel::validUserIsFollowingFromLi
     return userFollowingIds;
   }
   catch(Exception& exp) {
-    OATPP_LOGE("UserHasFollowerModel", exp.displayText().c_str());
+    OATPP_LOGE("UserHasFollowerModel", ":%s(): %s", __func__, exp.displayText().c_str());
     return {};
   }
 }
