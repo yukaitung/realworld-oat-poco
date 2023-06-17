@@ -10,6 +10,12 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(EXECUTABLE_OUTPUT_PATH "bin")
 
+set_target_properties(${TARGET_NAME} PROPERTIES
+  CXX_STANDARD 17
+  CXX_STANDARD_REQUIRED OFF
+  CXX_EXTENSIONS OFF
+)
+
 # Prevent building in the source directory
 
 if(PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
@@ -42,14 +48,13 @@ add_executable(${PROJECT_NAME}
 
 target_include_directories(${PROJECT_NAME}
   PUBLIC ${PROJECT_SOURCE_DIR}/src
-  PUBLIC $ENV{HOME}/Develop/mysql/include # Custom MySQL installation
 )
 
 # Required Packages
 
 find_package(oatpp REQUIRED)
 find_package(oatpp-swagger REQUIRED)
-find_package(poco REQUIRED Foundation Data DataMySQL JWT)
+find_package(Poco REQUIRED Foundation Data DataMySQL JWT)
 
 target_link_libraries(${PROJECT_NAME}
   PUBLIC oatpp::oatpp
@@ -74,7 +79,5 @@ target_link_libraries(${PROJECT_NAME}
   #Poco::NetSSL
 )
 
-add_definitions(
-  ## define path to swagger-ui static resources folder
-  -DOATPP_SWAGGER_RES_PATH="${oatpp-swagger_INCLUDE_DIRS}/../bin/oatpp-swagger/res"
-)
+# Copy swagger res folder
+file(COPY "${oatpp-swagger_INCLUDE_DIRS}/../bin/oatpp-swagger/res" DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_OUTPUT_PATH})

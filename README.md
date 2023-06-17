@@ -32,7 +32,7 @@ To build the project on macOS:
 ```bash
   conan install . --output-folder=build --build=missing
   cd build
-  cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
+  cmake .. -DCMAKE_CXX_FLAGS=-isystem\ /usr/include/mysql -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
   cmake --build . -j $(sysctl -n hw.ncpu)
 ```
 

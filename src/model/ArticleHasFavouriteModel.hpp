@@ -1,6 +1,7 @@
 #ifndef ARTICLEHASFAVOURITEMODEL_HPP
 #define ARTICLEHASFAVOURITEMODEL_HPP
 
+#include <vector>
 #include <string>
 #include <utility>
 #include <unordered_map>
