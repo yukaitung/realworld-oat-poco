@@ -30,7 +30,7 @@ code_quality:
     - apt upgrade -qy
     - apt -qy install cppcheck
   script:
-    - cppcheck --xml --enable=warning,style,performance ./src/ 2> cppcheck_out.xml
+    - cppcheck --xml --enable=all ./src/ 2> cppcheck_out.xml
   artifacts:
     paths:
       - cppcheck_out.xml
