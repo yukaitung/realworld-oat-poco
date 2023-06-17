@@ -25,10 +25,28 @@ void run() {
 
   // Setup Database
   std::string dbHost = getEnvVar("REALWORLD_DB_HOST");
+  if(dbHost.empty()) {
+    dbHost = "127.0.0.1";
+  }
   std::string dbPort = getEnvVar("REALWORLD_DB_PORT");
+  if(dbPort.empty()) {
+    dbPort = "3306";
+  }
   std::string dbName = getEnvVar("REALWORLD_DB_NAME");
+  if(dbName.empty()) {
+    OATPP_LOGE(REALWORLD_PROJECT_NAME, "The database name is missing.");
+    exit(1);
+  }
   std::string dbUser = getEnvVar("REALWORLD_DB_USER");
+  if(dbUser.empty()) {
+    OATPP_LOGE(REALWORLD_PROJECT_NAME, "The database user is missing.");
+    exit(1);
+  }
   std::string dbPassword = getEnvVar("REALWORLD_DB_PASSWORD");
+  if(dbPassword.empty()) {
+    OATPP_LOGE(REALWORLD_PROJECT_NAME, "The database password is missing.");
+    exit(1);
+  }
   std::string connectionName = "MySQL";
   std::string connectionString = "host=" + dbHost + ";port=" + dbPort + ";db=" + dbName + ";user=" + dbUser + ";password=" + dbPassword + ";compress=true;auto-reconnect=true";
   Database::InitDatabase(connectionName, connectionString);
