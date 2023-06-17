@@ -18,11 +18,8 @@ build:
     paths:
       - build/bin
 
-# run tests using the binary built before
-#test:
-#  stage: test
-#  script:
-#    - ./runmytests.sh
+test:
+  stage: test
 
 #deploy:
 #  stage: deploy
