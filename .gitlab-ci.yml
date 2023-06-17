@@ -20,6 +20,8 @@ build:
 
 test:
   stage: test
+  script:
+    - echo Test
 
 #deploy:
 #  stage: deploy
