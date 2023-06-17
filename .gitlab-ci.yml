@@ -23,6 +23,10 @@ test:
   script:
     - echo Test
 
+# Code Quality
+include:
+  - template: Code-Quality.gitlab-ci.yml
+
 #deploy:
 #  stage: deploy
 #  script: echo "Define your deployment script!"
