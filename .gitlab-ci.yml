@@ -26,6 +26,8 @@ test:
 code_quality:
   stage: test
   before_script:
+    - apt update -qy
+    - apt upgrade -qy
     - apt -qy install cppcheck
   script:
     - cppcheck --xml --enable=warning,style,performance ./src/ 2> cppcheck_out.xml
