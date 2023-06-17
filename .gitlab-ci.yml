@@ -1,0 +1,31 @@
+image: ubuntu:22.04
+
+build:
+  stage: build
+  before_script:
+    - apt update -qy
+    - apt upgrade -qy
+    - apt install -qy --no-install-recommends g++ make pip perl libmysqlclient-dev
+    - pip install conan cmake
+    - ln -s /usr/local/bin/cmake /usr/bin/cmake
+  script:
+    - conan profile detect --force
+    - conan install . --output-folder=build --build=missing
+    - mkdir build
+    - cd build
+    - cmake .. -DCMAKE_CXX_FLAGS=-isystem\ /usr/include/mysql -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
+    - cmake --build . -j`nproc`
+  artifacts:
+    paths:
+      - build/bin
+
+# run tests using the binary built before
+#test:
+#  stage: test
+#  script:
+#    - ./runmytests.sh
+
+#deploy:
+#  stage: deploy
+#  script: echo "Define your deployment script!"
+#  environment: production
