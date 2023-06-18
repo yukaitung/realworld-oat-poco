@@ -8,36 +8,41 @@ variables:
   CONTAINER_TEST_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
   CONTAINER_RELEASE_IMAGE: $CI_PROJECT_NAME:latest
 
-build-linux:
-  image: ubuntu:22.04
-  stage: build
-  before_script:
-    - apt update -qy
-    - apt upgrade -qy
-    - apt install -qy --no-install-recommends g++ make pip perl libmysqlclient-dev
-    - pip install conan cmake
-    - ln -s /usr/local/bin/cmake /usr/bin/cmake
-  script:
-    - conan profile detect --force
-    - conan install . --output-folder=build --build=missing
-    - cd build
-    - cmake .. -DCMAKE_CXX_FLAGS=-isystem\ /usr/include/mysql -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
-    - cmake --build . -j`nproc`
-  artifacts:
-    paths:
-      - build/bin
+#build-linux:
+#  image: ubuntu:22.04
+#  stage: build
+#  before_script:
+#    - apt update -qy
+#    - apt upgrade -qy
+#    - apt install -qy --no-install-recommends g++ make pip perl libmysqlclient-dev
+#    - pip install conan cmake
+#    - ln -s /usr/local/bin/cmake /usr/bin/cmake
+#  script:
+#    - conan profile detect --force
+#    - conan install . --output-folder=build --build=missing
+#    - cd build
+#    - cmake .. -DCMAKE_CXX_FLAGS=-isystem\ /usr/include/mysql -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
+#    - cmake --build . -j`nproc`
+#  artifacts:
+#    paths:
+#      - build/bin
 
-build-docker:
+build:
   image: docker:23.0.5
   stage: build
   services:
     - docker:23.0.5-dind
   script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker build --pull -t $CONTAINER_TEST_IMAGE .
+    - export DOCKER_BUILDKIT=1
+    - docker build --pull --target export -t $CONTAINER_TEST_IMAGE . --output bin
+    - docker build -t $CONTAINER_TEST_IMAGE .
     - docker push $CONTAINER_TEST_IMAGE
+  artifacts:
+    paths:
+      - bin
   
-test-linux:
+test:
   image: ubuntu:22.04
   stage: test
   before_script:
@@ -55,7 +60,7 @@ test-linux:
     - export REALWORLD_TEST_DB_NAME=RealworldTest
     - export REALWORLD_TEST_DB_USER=admin
     - export REALWORLD_TEST_DB_PASSWORD=123456
-    - cd build/bin
+    - cd bin
     - ./Realworld-test
 
 #code_quality:

@@ -37,6 +37,7 @@
 .build/*
 out/*
 build*/*
+bin/*
 
 # Cmake
 CMakeUserPresets.json
