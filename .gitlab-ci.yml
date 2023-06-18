@@ -1,7 +1,7 @@
 stages:
   - build
   - test
-#  - release
+  - release
 #  - deploy
 
 variables:
@@ -32,13 +32,11 @@ build-docker:
   stage: build
   services:
     - docker:23.0.5-dind
-  before_script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker build --pull -t $CONTAINER_TEST_IMAGE .
     - docker push $CONTAINER_TEST_IMAGE
   
-
 test-linux:
   image: ubuntu:22.04
   stage: test
@@ -72,6 +70,19 @@ test-linux:
 #  artifacts:
 #    paths:
 #      - cppcheck_out.xml
+
+release-docker:
+  image: docker:23.0.5
+  stage: release
+  services:
+    - docker:23.0.5-dind
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker pull $CONTAINER_TEST_IMAGE
+    - docker logout $CI_REGISTRY
+    - docker login -u $EXT_USER -p $EXT_PAT $CI_REGISTRY
+    - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_RELEASE_IMAGE
+    - docker push $CONTAINER_RELEASE_IMAGE
 
 #deploy:
 #  stage: deploy
