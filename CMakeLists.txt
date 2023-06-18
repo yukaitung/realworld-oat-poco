@@ -22,14 +22,10 @@ if(PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
   message(FATAL_ERROR "In-source builds not allowed.\n")
 endif()
 
-# Source Code 
+# Project source code
 
 configure_file(src/Config.h.in ${PROJECT_SOURCE_DIR}/src/Config.h)
-
-add_executable(${PROJECT_NAME}
-  src/main.cpp
-  src/ErrorHandler.cpp
-
+add_library(${PROJECT_NAME}-lib
   src/helper/Database.cpp
   src/helper/Jwt.cpp
   src/helper/TokenAuthorization.cpp
@@ -45,20 +41,19 @@ add_executable(${PROJECT_NAME}
   src/model/UserHasFollowerModel.cpp
   src/model/UserModel.cpp
 )
-
-target_include_directories(${PROJECT_NAME}
+target_include_directories(${PROJECT_NAME}-lib
   PUBLIC ${PROJECT_SOURCE_DIR}/src
 )
 
-# Required Packages
+# Required packages
 
 find_package(oatpp REQUIRED)
 find_package(oatpp-swagger REQUIRED)
 find_package(Poco REQUIRED Foundation Data DataMySQL JWT)
 
-target_link_libraries(${PROJECT_NAME}
+target_link_libraries(${PROJECT_NAME}-lib
   PUBLIC oatpp::oatpp
-  #oatpp::oatpp-test
+  PUBLIC oatpp::oatpp-test
   PUBLIC oatpp::oatpp-swagger
   PUBLIC Poco::Foundation
   #Poco::JSON
@@ -79,5 +74,28 @@ target_link_libraries(${PROJECT_NAME}
   #Poco::NetSSL
 )
 
+# Output executable
+
+add_executable(${PROJECT_NAME}
+  src/main.cpp
+  src/ErrorHandler.cpp
+)
+target_link_libraries(${PROJECT_NAME} ${PROJECT_NAME}-lib)
+
 # Copy swagger res folder
 file(COPY "${oatpp-swagger_INCLUDE_DIRS}/../bin/oatpp-swagger/res" DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_OUTPUT_PATH})
+
+# Output test
+
+add_executable(${PROJECT_NAME}-test
+  test/tests.cpp
+
+  test/app/TestClient.hpp
+  test/app/TestComponent.hpp
+
+  test/UserControllerTest.hpp
+  test/UserControllerTest.cpp
+)
+target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME}-lib)
+enable_testing()
+add_test(project-tests ${PROJECT_NAME}-test)

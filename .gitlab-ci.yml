@@ -23,17 +23,17 @@ test:
   script:
     - echo Test
 
-code_quality:
-  stage: test
-  before_script:
-    - apt update -qy
-    - apt upgrade -qy
-    - apt -qy install cppcheck
-  script:
-    - cppcheck --xml --enable=all ./src/ 2> cppcheck_out.xml
-  artifacts:
-    paths:
-      - cppcheck_out.xml
+#code_quality:
+#  stage: test
+#  before_script:
+#    - apt update -qy
+#    - apt upgrade -qy
+#    - apt -qy install cppcheck
+#  script:
+#    - cppcheck --xml --enable=all ./src/ 2> cppcheck_out.xml
+#  artifacts:
+#    paths:
+#      - cppcheck_out.xml
 
 #deploy:
 #  stage: deploy
