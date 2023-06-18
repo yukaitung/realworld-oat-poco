@@ -80,7 +80,7 @@ release-docker:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker pull $CONTAINER_TEST_IMAGE
     - docker logout $CI_REGISTRY
-    - docker login -u $EXT_USER -p $EXT_PAT $CI_REGISTRY
+    - docker login -u $EXT_USER -p $EXT_PAT $EXT_REGISTRY
     - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_RELEASE_IMAGE
     - docker push $CONTAINER_RELEASE_IMAGE
 
