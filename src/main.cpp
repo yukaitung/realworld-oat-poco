@@ -69,17 +69,17 @@ int main (int argc, const char * argv[])
   }
   std::string dbName = getEnvVar("REALWORLD_DB_NAME");
   if(dbName.empty()) {
-    OATPP_LOGE(REALWORLD_PROJECT_NAME, "The database name is missing.");
+    std::cout << "The database name is missing, terminating\n";
     exit(1);
   }
   std::string dbUser = getEnvVar("REALWORLD_DB_USER");
   if(dbUser.empty()) {
-    OATPP_LOGE(REALWORLD_PROJECT_NAME, "The database user is missing.");
+    std::cout << "The database user is missing, terminating\n";
     exit(1);
   }
   std::string dbPassword = getEnvVar("REALWORLD_DB_PASSWORD");
   if(dbPassword.empty()) {
-    OATPP_LOGE(REALWORLD_PROJECT_NAME, "The database password is missing.");
+    std::cout << "The database password is missing, terminating\n";
     exit(1);
   }
   std::string connectionName = "MySQL";
