@@ -123,9 +123,9 @@ You can use the [Postman Collection](https://github.com/gothinkster/realworld/bl
 # 廣東話
 # ![RealWorld 示範應用程式](img/logo.png)
 
-> ### C++，POCO，Oat++ 現實應用原始碼 (CRUD、用户驗證、MVCS pattern等) 符合 [RealWorld](https://github.com/gothinkster/realworld) 規格及 API。
+> ### C++，POCO，Oat++ 現實應用原始碼 (CRUD、使用者驗證、MVCS pattern等) 符合 [RealWorld](https://github.com/gothinkster/realworld) 規格及 API。
 
-本原始碼是用來展示以 **C++、POCO、Oat++** 建立的完整應用程式，包括 CRUD、用户驗證、routing、分頁等功能。
+本原始碼是用來展示以 **C++、POCO、Oat++** 建立的完整應用程式，包括 CRUD、使用者驗證、routing、分頁等功能。
 
 如需更多關於如何與整合其他 Frontend / Backend 的資訊，請參考 [RealWorld 的 GitHub repository](https://github.com/gothinkster/realworld)。
 
@@ -146,8 +146,8 @@ You can use the [Postman Collection](https://github.com/gothinkster/realworld/bl
 Oat++：
 
 * 寄存 RESTful API (口語：Host 一個RESTful API)
-* 用户驗證
-* 校驗用户輸入
+* 使用者驗證
+* 校驗使用者輸入
 * 執行 API 測試
 * 整合 Swagger UI
 
@@ -161,12 +161,12 @@ POCO：
 
 本項目跟隨 MVCS pattern [(例子)](https://github.com/oatpp/example-crud) [(什麼是 MVCS)](https://stackoverflow.com/questions/5702391/mvcs-model-view-controller-service)。以下是本項目對 MVCS 的解釋。
 
-* 用户傳送了一個 request
-* Controller 驗證用户及轉發至有關 Service
-* Service 校驗用户輸及選擇有關 Model
+* 使用者傳送了一個 request
+* Controller 驗證使用者及轉發至有關 Service
+* Service 校驗使用者輸及選擇有關 Model
 * Model 新增、修改及刪除 MySQL 數據庫內的資料，然後將資料傳送至 Service
 * Service 可能再由 Model 提取資料，然後將完成的數據傳送至 Controller
-* Controller 然後將數據傳送至用户
+* Controller 然後將數據傳送至使用者
 
 ## 統一碼 (Unicode) 支援
 
@@ -200,7 +200,7 @@ cmake --build . -j`nproc` # Linux
 cmake --build . -j$(sysctl -n hw.ncpu) # macOS
 ```
 
-在執行程式前，你需要設定一些 environment variables。然後建立 MySQL 數據庫，參考檔案   [realworld.sql](sql/realworld.sql)
+在執行程式前，你需要設定一些 environment variables。然後建立 MySQL 數據庫，參考檔案 [realworld.sql](sql/realworld.sql)
 
 ```bash
 export REALWORLD_DB_HOST=<MySQL Server IP>
