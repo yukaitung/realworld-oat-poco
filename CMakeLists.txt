@@ -60,7 +60,7 @@ target_link_libraries(${PROJECT_NAME}-lib
   #Poco::Net
   #Poco::Redis
   #Poco::XML
-  #Poco::Crypto
+  PUBLIC Poco::Crypto
   PUBLIC Poco::Data
   PUBLIC Poco::DataMySQL
   #Poco::DataPostgreSQL

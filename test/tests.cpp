@@ -1,5 +1,12 @@
+#include "helper/Database.hpp"
+#include "model/TagModel.hpp"
+#include "Config.h"
+
 #include "oatpp/core/base/Environment.hpp"
 #include "UserControllerTest.hpp"
+
+#include "Poco/Crypto/Crypto.h"
+#include "Poco/Exception.h"
 
 #include <iostream>
 
@@ -9,7 +16,51 @@ namespace {
   }
 }
 
+std::string getEnvVar(std::string const &key)
+{
+  char *val = getenv(key.c_str());
+  return val == NULL ? std::string("") : std::string(val);
+}
+
 int main() {
+  try {
+    Poco::Crypto::initializeCrypto();
+  }
+  catch(Poco::Exception& exp) {
+    //OATPP_LOGE(REALWORLD_PROJECT_NAME, ":%s(): %s", __func__, exp.displayText().c_str());
+  }
+  
+  // Setup Database
+  std::string dbHost = getEnvVar("REALWORLD_DB_HOST");
+  if(dbHost.empty()) {
+    dbHost = "127.0.0.1";
+  }
+  std::string dbPort = getEnvVar("REALWORLD_DB_PORT");
+  if(dbPort.empty()) {
+    dbPort = "3306";
+  }
+  std::string dbName = getEnvVar("REALWORLD_DB_NAME");
+  if(dbName.empty()) {
+    OATPP_LOGE(REALWORLD_PROJECT_NAME, "The database name is missing.");
+    exit(1);
+  }
+  std::string dbUser = getEnvVar("REALWORLD_DB_USER");
+  if(dbUser.empty()) {
+    OATPP_LOGE(REALWORLD_PROJECT_NAME, "The database user is missing.");
+    exit(1);
+  }
+  std::string dbPassword = getEnvVar("REALWORLD_DB_PASSWORD");
+  if(dbPassword.empty()) {
+    OATPP_LOGE(REALWORLD_PROJECT_NAME, "The database password is missing.");
+    exit(1);
+  }
+  std::string connectionName = "MySQL";
+  std::string connectionString = "host=" + dbHost + ";port=" + dbPort + ";db=" + dbName + ";user=" + dbUser + ";password=" + dbPassword + ";compress=true;auto-reconnect=true";
+  Database::InitDatabase(connectionName, connectionString);
+
+  // Init cache
+  TagModel::InitCache();
+
   oatpp::base::Environment::init();
 
   runTests();
@@ -23,6 +74,8 @@ int main() {
   OATPP_ASSERT(oatpp::base::Environment::getObjectsCount() == 0);
 
   oatpp::base::Environment::destroy();
+  
+  Poco::Crypto::uninitializeCrypto();
 
   return 0;
 }

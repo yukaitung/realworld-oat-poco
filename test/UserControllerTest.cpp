@@ -34,15 +34,13 @@ void UserControllerTest::onRun() {
     auto client = TestClient::createShared(requestExecutor, objectMapper);
 
     // Start Test
-
     auto dto = UserRegJsonDto::createShared();
-
-    //dto->userName = "jondoe";
-    //dto->email = "jon.doe@abc.com";
-    //dto->password = "1234";
-
-    /* Call server API */
+    dto->user = UserRegDto::createShared();
+    dto->user->username = "user12344132321";
+    dto->user->email = "dsadasdsadasda@gmail.com";
+    dto->user->password = "123456";
     auto addedUserResponse = client->createUser(dto);
+    OATPP_ASSERT(addedUserResponse != nullptr);
     OATPP_ASSERT(addedUserResponse->getStatusCode() == 200);
 
   }, std::chrono::minutes(10) /* test timeout */);
