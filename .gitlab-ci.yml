@@ -1,6 +1,15 @@
-image: ubuntu:22.04
+stages:
+  - build
+  - test
+#  - release
+#  - deploy
 
-build:
+variables:
+  CONTAINER_TEST_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+  CONTAINER_RELEASE_IMAGE: $CI_REGISTRY_IMAGE:latest
+
+build-linux:
+  image: ubuntu:22.04
   stage: build
   before_script:
     - apt update -qy
@@ -18,7 +27,18 @@ build:
     paths:
       - build/bin
 
-test:
+build-docker:
+  image: docker:23.0.5
+  stage: build
+  before_script:
+    - docker login -u $SET_USERNAME -p $SET_PAT $CI_REGISTRY
+  script:
+    - docker build --pull -t $CONTAINER_TEST_IMAGE .
+    - docker push $CONTAINER_TEST_IMAGE
+  
+
+test-linux:
+  image: ubuntu:22.04
   stage: test
   before_script:
     - apt update -qy
@@ -39,6 +59,7 @@ test:
     - ./Realworld-test
 
 #code_quality:
+#  image: ubuntu:22.04
 #  stage: test
 #  before_script:
 #    - apt update -qy
