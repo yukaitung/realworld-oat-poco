@@ -31,25 +31,25 @@ int main() {
   }
   
   // Setup Database
-  std::string dbHost = getEnvVar("REALWORLD_DB_HOST");
+  std::string dbHost = getEnvVar("REALWORLD_TEST_DB_HOST");
   if(dbHost.empty()) {
     dbHost = "127.0.0.1";
   }
-  std::string dbPort = getEnvVar("REALWORLD_DB_PORT");
+  std::string dbPort = getEnvVar("REALWORLD_TEST_DB_PORT");
   if(dbPort.empty()) {
     dbPort = "3306";
   }
-  std::string dbName = getEnvVar("REALWORLD_DB_NAME");
+  std::string dbName = getEnvVar("REALWORLD_TEST_DB_NAME");
   if(dbName.empty()) {
     OATPP_LOGE(REALWORLD_PROJECT_NAME, "The database name is missing.");
     exit(1);
   }
-  std::string dbUser = getEnvVar("REALWORLD_DB_USER");
+  std::string dbUser = getEnvVar("REALWORLD_TEST_DB_USER");
   if(dbUser.empty()) {
     OATPP_LOGE(REALWORLD_PROJECT_NAME, "The database user is missing.");
     exit(1);
   }
-  std::string dbPassword = getEnvVar("REALWORLD_DB_PASSWORD");
+  std::string dbPassword = getEnvVar("REALWORLD_TEST_DB_PASSWORD");
   if(dbPassword.empty()) {
     OATPP_LOGE(REALWORLD_PROJECT_NAME, "The database password is missing.");
     exit(1);
