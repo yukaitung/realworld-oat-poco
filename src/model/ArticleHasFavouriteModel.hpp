@@ -11,6 +11,7 @@ class ArticleHasFavouriteModel {
     ArticleHasFavouriteModel() {};
     bool favouriteArticle(std::string &articleId, std::string &userId);
     bool unfavouriteArticle(std::string &articleId, std::string &userId);
+    bool deleteFavouriteForArticle(std::string &articleId);
 
     /**
     * This method is to obtain favourite count and see if the user favourited the article.

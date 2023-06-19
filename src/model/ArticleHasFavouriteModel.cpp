@@ -38,6 +38,18 @@ bool ArticleHasFavouriteModel::unfavouriteArticle(std::string &articleId, std::s
   }
 }
 
+bool ArticleHasFavouriteModel::deleteFavouriteForArticle(std::string &articleId) {
+try {
+    Session session(Database::getPool()->get());
+    session << "DELETE FROM articles_has_favourites WHERE (article_id = ?)", use(articleId), now;
+    return true;
+  }
+  catch(Exception& exp) {
+    OATPP_LOGE("ArticleHasFavouriteModel", ":%s(): %s", __func__, exp.displayText().c_str());
+    return false;
+  }
+}
+
 std::pair<unsigned int, bool> ArticleHasFavouriteModel::getArticlefavouriteData(std::string &articleId, std::string &userId) {
   Poco::Nullable<unsigned int> retrunFavouriteCount;
   Poco::Nullable<unsigned int> retrunUserFavourite;

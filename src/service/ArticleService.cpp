@@ -278,7 +278,13 @@ oatpp::Object<ArticleJsonDto> ArticleService::deleteArticle(std::string &id, std
   bool result = articleModel.deleteArticle(slug);
   OATPP_ASSERT_HTTP(result, Status::CODE_500, "Internal Server Error.");
 
-  // TODO: delete comment delete favourite
+  // Delete Comments
+  result = commentModel.deleteCommentForArticle(articleId);
+  OATPP_ASSERT_HTTP(result, Status::CODE_500, "Internal Server Error.");
+
+  // Delete Favourite
+  result = articleHasFavouriteModel.deleteFavouriteForArticle(articleId);
+  OATPP_ASSERT_HTTP(result, Status::CODE_500, "Internal Server Error.");
 
   auto response = ArticleJsonDto::createShared();
   response->article = ArticleDto::createShared();

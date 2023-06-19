@@ -15,6 +15,7 @@ class CommentModel {
     std::pair<oatpp::Vector<oatpp::Object<CommentDto>>, std::vector<std::string>> getComments(std::string &articleId);
     std::string getCommentAuthorId(std::string &commentId);
     bool deleteComment(std::string &commentId);
+    bool deleteCommentForArticle(std::string &articleId);
 };
 
 #endif // COMMENTMODEL_HPP

@@ -83,7 +83,6 @@ std::string CommentModel::getCommentAuthorId(std::string &commentId) {
   try {
     Session session(Database::getPool()->get());
     session << "SELECT CAST(user_id AS char) FROM comments WHERE id = ?", use(commentId), into(retrunId), now;
-
     return !retrunId.isNull() ? retrunId.value() : "";
   }
   catch(Exception& exp) {
@@ -96,7 +95,18 @@ bool CommentModel::deleteComment(std::string &commentId) {
   try {
     Session session(Database::getPool()->get());
     session << "DELETE FROM comments WHERE id = ?", use(commentId), now;
+    return true;
+  }
+  catch(Exception& exp) {
+    OATPP_LOGE("CommentModel", ":%s(): %s", __func__, exp.displayText().c_str());
+    return false;
+  }
+}
 
+bool CommentModel::deleteCommentForArticle(std::string &articleId) {
+  try {
+    Session session(Database::getPool()->get());
+    session << "DELETE FROM comments WHERE article_id = ?", use(articleId), now;
     return true;
   }
   catch(Exception& exp) {
