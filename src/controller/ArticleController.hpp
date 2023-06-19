@@ -30,20 +30,6 @@ public:
     return std::make_shared<ArticleController>(objectMapper);
   }
 
-  ENDPOINT_INFO(createArticle) {
-    info->summary = "Create new article";
-    info->addResponse<Object<ArticleJsonDto>>(Status::CODE_200, "application/json");
-    info->addResponse<Object<ErrorJsonDto>>(Status::CODE_401, "application/json");
-    info->addResponse<Object<ErrorJsonDto>>(Status::CODE_422, "application/json");
-    info->addResponse<Object<ErrorJsonDto>>(Status::CODE_500, "application/json");
-    info->addSecurityRequirement("Token");
-    info->addTag("ArticleController");
-  }
-  ENDPOINT("POST", "/articles", createArticle, BODY_DTO(Object<ArticleExchangeJsonDto>, dto), AUTHORIZATION(std::shared_ptr<TokenAuthorizationObject>, authObject))
-  {
-    return createDtoResponse(Status::CODE_200, articleService.createArticle(authObject->id, dto));
-  }
-
   ENDPOINT_INFO(feedArticles) {
     info->summary = "Get multiple articles created by followed users, ordered by most recent first";
     info->addResponse<Object<ArticlesJsonDto>>(Status::CODE_200, "application/json");
@@ -66,6 +52,20 @@ public:
         offset = std::stoul(value);
     }
     return createDtoResponse(Status::CODE_200, articleService.getArticles(authObject->id, limit, offset, dummy, dummy, dummy, true));
+  }
+
+  ENDPOINT_INFO(createArticle) {
+    info->summary = "Create new article";
+    info->addResponse<Object<ArticleJsonDto>>(Status::CODE_200, "application/json");
+    info->addResponse<Object<ErrorJsonDto>>(Status::CODE_401, "application/json");
+    info->addResponse<Object<ErrorJsonDto>>(Status::CODE_422, "application/json");
+    info->addResponse<Object<ErrorJsonDto>>(Status::CODE_500, "application/json");
+    info->addSecurityRequirement("Token");
+    info->addTag("ArticleController");
+  }
+  ENDPOINT("POST", "/articles", createArticle, BODY_DTO(Object<ArticleExchangeJsonDto>, dto), AUTHORIZATION(std::shared_ptr<TokenAuthorizationObject>, authObject))
+  {
+    return createDtoResponse(Status::CODE_200, articleService.createArticle(authObject->id, dto));
   }
 
   ENDPOINT_INFO(updateArticle) {

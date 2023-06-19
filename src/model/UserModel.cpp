@@ -154,6 +154,20 @@ oatpp::Object<UserDto> UserModel::getUser(std::string &id) {
 }
 
 oatpp::Object<UserDto> UserModel::updateUser(std::string &id, std::string &email, std::string &username, std::string &password, std::string &bio, std::string &image) {
+  std::string salt = "";
+  if(!password.empty()) {
+    // Generate salt
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> random(65, 90);
+    for(int i = 0; i < 8; i++)
+      salt += char(random(gen));
+    
+    // Hash password
+    password += salt;
+    password = hashPassword(password);
+  }
+  
   try {
     Session session(Database::getPool()->get());
     Statement updateStatment(session);
@@ -162,8 +176,8 @@ oatpp::Object<UserDto> UserModel::updateUser(std::string &id, std::string &email
       updateStatment << " email = ?,", use(email);
     if(!username.empty())
       updateStatment << " username = ?,", use(username);
-    if(!password.empty())
-      updateStatment << " password = ?,", use(password);
+    if(!password.empty()) 
+      updateStatment << " password = ?, salt = ?,", use(password), use(salt);
     if(!bio.empty())
       updateStatment << " bio = ?,", use(bio);
     if(!image.empty())
