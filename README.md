@@ -12,7 +12,7 @@ For more information on how this works with other frontends/backends, head over 
 
 ### Links
 
-*   [Docker Repository](https://hub.docker.com/repository/docker/yukaitung/realworld-oat-poco/)
+*   [Docker Repository](https://hub.docker.com/r/yukaitung/realworld-oat-poco)
 
 # Try To Use British English
 
@@ -135,7 +135,7 @@ You can use the [Postman Collection](https://github.com/gothinkster/realworld/bl
 
 ### Links
 
-*   [Docker Repository](https://hub.docker.com/repository/docker/yukaitung/realworld-oat-poco/)
+*   [Docker Repository](https://hub.docker.com/r/yukaitung/realworld-oat-poco)
 
 # 嘗試使用英式英文
 
