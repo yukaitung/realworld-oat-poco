@@ -70,7 +70,7 @@ test-newman:
   before_script:
     - apt update -qy
     - apt upgrade -qy
-    - apt install -qy --no-install-recommends mysql-server nodejs
+    - apt install -qy --no-install-recommends mysql-server npm
     - npm install -g npx
     - service mysql restart
   script:
