@@ -44,7 +44,7 @@ std::string Jwt::validateJWT(const std::string &jwt) {
     Token token = signer.verify(jwt);
     Poco::LocalDateTime now;
     Poco::Timestamp tokenExpireTime = token.getExpiration();
-    if(tokenExpireTime == 0 || now.timestamp() > tokenExpireTime) {
+    if(now.timestamp() > tokenExpireTime) {
       return "";
     }
     Poco::Dynamic::Var returnId = token.payload().get("id");
