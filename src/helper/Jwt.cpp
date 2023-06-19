@@ -1,5 +1,7 @@
 #include "helper/Jwt.hpp"
 
+#include "Config.h"
+
 #include "Poco/JWT/Token.h"
 #include "Poco/JWT/Signer.h"
 #include "Poco/LocalDateTime.h"
@@ -9,6 +11,13 @@
 using Poco::JWT::Token;
 using Poco::JWT::Signer;
 using Poco::Exception;
+
+std::string Jwt::signerSecret = "";
+
+void Jwt::setSignerSecret(const std::string &secret) {
+  if(signerSecret.empty())
+    signerSecret = secret;
+}
 
 std::string Jwt::issueJWT(const std::string &id) {
   Token token;
@@ -22,18 +31,22 @@ std::string Jwt::issueJWT(const std::string &id) {
   time += Poco::Timespan(0, 0, 15, 0, 0);
   token.setExpiration(time.timestamp());
 
-  Signer signer("REALWORLD-OAT-POCO-123456");
+  Signer signer(signerSecret);
   std::string jwt = signer.sign(token, Signer::ALGO_HS256);
   return jwt;
 }
 
 std::string Jwt::validateJWT(const std::string &jwt) {
-  Signer signer("REALWORLD-OAT-POCO-123456");
-
+  Signer signer(signerSecret);
   std::string id = "";
+
   try {
     Token token = signer.verify(jwt);
-    // TODO: expire
+    Poco::LocalDateTime now;
+    Poco::Timestamp tokenExpireTime = token.getExpiration();
+    if(tokenExpireTime == 0 || now.timestamp() > tokenExpireTime) {
+      return "";
+    }
     Poco::Dynamic::Var returnId = token.payload().get("id");
     id = returnId.toString(); // incorrect type --> exception
     return id;
@@ -41,6 +54,6 @@ std::string Jwt::validateJWT(const std::string &jwt) {
   catch(Exception& exp)
   {
     OATPP_LOGE("Jwt", ":%s(): %s", __func__, exp.displayText().c_str());
-    return id;
+    return "";
   }
 }

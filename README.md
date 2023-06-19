@@ -90,6 +90,7 @@ export REALWORLD_DB_PORT=<MySQL Server Port>
 export REALWORLD_DB_NAME=<Database name>
 export REALWORLD_DB_USER=<MySQL Server Username>
 export REALWORLD_DB_PASSWORD=<MySQL Server Password>
+export REALWORLD_SIGNER_SECRET=<Some secret for JWT signer>
 ./Realworld
 ```
 
@@ -103,6 +104,7 @@ export REALWORLD_TEST_DB_PORT=<MySQL Server Port>
 export REALWORLD_TEST_DB_NAME=<Database name>
 export REALWORLD_TEST_DB_USER=<MySQL Server Username>
 export REALWORLD_TEST_DB_PASSWORD=<MySQL Server Password>
+export REALWORLD_TEST_SIGNER_SECRET=<Some secret for JWT signer>
 ./Realworld-test
 ```
 

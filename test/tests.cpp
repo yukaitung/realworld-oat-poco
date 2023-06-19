@@ -1,4 +1,5 @@
 #include "Config.h"
+#include "helper/Jwt.hpp"
 #include "helper/Database.hpp"
 #include "model/TagModel.hpp"
 
@@ -66,6 +67,12 @@ int main() {
     std::cout << "Truncate the database\n";
     Database::TestTruncateDatabase();
   }
+
+  std::string signerSecret = getEnvVar("REALWORLD_TEST_SIGNER_SECRET");
+  if(signerSecret.empty()) {
+    signerSecret = "REALWORLD-OAT-POCO-123456";
+  }
+  Jwt::setSignerSecret(signerSecret);
 
   // Init cache
   TagModel::InitCache();

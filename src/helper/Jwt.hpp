@@ -4,8 +4,13 @@
 #include <string>
 
 class Jwt {
+  private:
+    static std::string signerSecret;
+
   public:
     Jwt() = delete;
+
+    static void setSignerSecret(const std::string &secret);
 
     /**
     * This method is used to issue a JWT token.
