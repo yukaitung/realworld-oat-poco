@@ -71,6 +71,7 @@ test-newman:
     - apt update -qy
     - apt upgrade -qy
     - apt install -qy --no-install-recommends mysql-server nodejs
+    - npm install -g npx
     - service mysql restart
   script:
     - mysql -e "CREATE USER 'admin'@'127.0.0.1' IDENTIFIED BY '123456';"
