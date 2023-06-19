@@ -43,7 +43,7 @@ build:
 #    paths:
 #      - build/bin
 
-test:
+test-oatpp:
   image: ubuntu:22.04
   stage: test
   before_script:
@@ -63,6 +63,40 @@ test:
     - export REALWORLD_TEST_DB_PASSWORD=123456
     - cd bin
     - ./Realworld-test
+
+test-newman:
+  image: ubuntu:22.04
+  stage: test
+  before_script:
+    - apt update -qy
+    - apt upgrade -qy
+    - apt install -qy --no-install-recommends mysql-server
+    - service mysql restart
+  script:
+    - mysql -e "CREATE USER 'admin'@'127.0.0.1' IDENTIFIED BY '123456';"
+    - mysql -e "GRANT ALL PRIVILEGES ON *.* TO 'admin'@'127.0.0.1';"
+    - mysql -e "CREATE DATABASE Realworld;"
+    - mysql Realworld < sql/realworld.sql
+    - export REALWORLD_DB_HOST=127.0.0.1
+    - export REALWORLD_DB_PORT=3306
+    - export REALWORLD_DB_NAME=Realworld
+    - export REALWORLD_DB_USER=admin
+    - export REALWORLD_DB_PASSWORD=123456
+    - cd bin
+    - ./Realworld &
+    - cd ..
+    - SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+    - APIURL=127.0.0.1
+    - USERNAME=user
+    - EMAIL=user@example.com
+    - PASSWORD=123456
+    - npx newman run $SCRIPTDIR/Conduit.postman_collection.json \
+    - --delay-request 500 \
+    - --global-var "APIURL=$APIURL" \
+    - --global-var "USERNAME=$USERNAME" \
+    - --global-var "EMAIL=$EMAIL" \
+    - --global-var "PASSWORD=$PASSWORD" \
+    - "$@"
 
 #code_quality:
 #  image: ubuntu:22.04

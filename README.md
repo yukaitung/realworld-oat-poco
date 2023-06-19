@@ -122,7 +122,7 @@ This project contains a GitLab CI/CD script, refer to [.gitlab-ci.yml](.gitlab-c
 
 ### Test the program
 
-You can use the [Postman Collection](https://github.com/gothinkster/realworld/blob/main/api/Conduit.postman_collection.json) to test the project. Additionally, this project is integrated with Swagger UI. Navigate to [http://localhost:8000/swagger/ui](http://localhost:8000/swagger/ui) to try it on the browser.
+You can use the [Postman Collection](test/Conduit.postman_collection_uk.json) to test the project. Additionally, this project is integrated with Swagger UI. Navigate to [http://localhost:8000/swagger/ui](http://localhost:8000/swagger/ui) to try it on the browser.
 
 # 廣東話
 # ![RealWorld 示範應用程式](img/logo.png)
@@ -245,4 +245,4 @@ docker run -p 8000:8000 -e "REALWORLD_DB_HOST=<MySQL Server IP>" -e "REALWORLD_D
 
 ### 測試程式
 
-你可以使用 [Postman Collection](https://github.com/gothinkster/realworld/blob/main/api/Conduit.postman_collection.json) 來測試，或者在瀏覽器進入 [http://localhost:8000/swagger/ui](http://localhost:8000/swagger/ui) 使用 Swagger UI 來測試。
+你可以使用 [Postman Collection](test/Conduit.postman_collection_uk.json) 來測試，或者在瀏覽器進入 [http://localhost:8000/swagger/ui](http://localhost:8000/swagger/ui) 使用 Swagger UI 來測試。
