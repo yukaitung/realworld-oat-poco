@@ -4,6 +4,7 @@
 
 #include "oatpp/core/base/Environment.hpp"
 #include "UserControllerTest.hpp"
+#include "ProfileControllerTest.hpp"
 
 #include "Poco/Crypto/Crypto.h"
 #include "Poco/Exception.h"
@@ -13,6 +14,7 @@
 namespace {
   void runTests() {
     OATPP_RUN_TEST(UserControllerTest);
+    OATPP_RUN_TEST(ProfileControllerTest);
   }
 }
 
@@ -57,6 +59,11 @@ int main() {
   std::string connectionName = "MySQL";
   std::string connectionString = "host=" + dbHost + ";port=" + dbPort + ";db=" + dbName + ";user=" + dbUser + ";password=" + dbPassword + ";compress=true;auto-reconnect=true";
   Database::InitDatabase(connectionName, connectionString);
+  std::string truncate = getEnvVar("REALWORLD_TEST_TRUNCATE_DB");
+  if(truncate.compare("1") == 0) {
+    std::cout << "Truncate the database\n";
+    Database::TestTruncateDatabase();
+  }
 
   // Init cache
   TagModel::InitCache();

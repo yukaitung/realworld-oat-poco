@@ -9,6 +9,8 @@
 #include "oatpp/web/client/HttpRequestExecutor.hpp"
 #include "oatpp-test/web/ClientServerTestRunner.hpp"
 
+#include "Poco/URI.h"
+
 #include <cstdio>
 
 void ProfileControllerTest::onRun() {
@@ -20,6 +22,8 @@ void ProfileControllerTest::onRun() {
 
   /* Add UserController endpoints to the router of the test server */
   runner.addController(UserController::createShared());
+  runner.addController(ProfileController::createShared());
+  runner.addController(ProfileControllerOptionalAuth::createShared());
 
   /* Run test */
   runner.run([this, &runner] {
@@ -36,8 +40,58 @@ void ProfileControllerTest::onRun() {
     auto client = TestClient::createShared(requestExecutor, objectMapper);
 
     // Start Test
+    OATPP_LOGD("ProfileControllerTest", "Login");
+    auto loginDto = UserAuthJsonDto::createShared();
+    loginDto->user = UserAuthDto::createShared();
+    loginDto->user->email = TestData::user[0].email;
+    loginDto->user->password = TestData::user[0].password;
+    auto response = client->login(loginDto);
+    OATPP_ASSERT(response != nullptr);
+    OATPP_ASSERT(response->getStatusCode() == 200);
+    auto loginResponseDto = response->readBodyToDto<oatpp::Object<UserJsonDto>>(objectMapper.get());
+    OATPP_ASSERT(loginResponseDto->user != nullptr);
+    OATPP_ASSERT(loginResponseDto->user->username != nullptr && loginResponseDto->user->username->compare(TestData::user[0].username) == 0);
+    OATPP_ASSERT(loginResponseDto->user->email != nullptr && loginResponseDto->user->email->compare(TestData::user[0].email) == 0);
+    OATPP_ASSERT(loginResponseDto->user->token != nullptr && !loginResponseDto->user->token->empty());
+    userToken = "Token " + loginResponseDto->user->token;
 
-  }, std::chrono::minutes(10) /* test timeout */);
+    OATPP_LOGD("ProfileControllerTest", "Follow a user");
+    response = client->followProfile(TestData::user[1].username, userToken);
+    OATPP_ASSERT(response != nullptr);
+    OATPP_ASSERT(response->getStatusCode() == 200);
+    auto followProfileResponseDto = response->readBodyToDto<oatpp::Object<UserProfileJsonDto>>(objectMapper.get());
+    OATPP_ASSERT(followProfileResponseDto->profile != nullptr);
+    OATPP_ASSERT(followProfileResponseDto->profile->username != nullptr && followProfileResponseDto->profile->username->compare(TestData::user[1].username) == 0);
+    OATPP_ASSERT(followProfileResponseDto->profile->following == true);
+
+    OATPP_LOGD("ProfileControllerTest", "Validating the following status");
+    response = client->getProfile(TestData::user[1].username, userToken);
+    OATPP_ASSERT(response != nullptr);
+    OATPP_ASSERT(response->getStatusCode() == 200);
+    followProfileResponseDto = response->readBodyToDto<oatpp::Object<UserProfileJsonDto>>(objectMapper.get());
+    OATPP_ASSERT(followProfileResponseDto->profile != nullptr);
+    OATPP_ASSERT(followProfileResponseDto->profile->username != nullptr && followProfileResponseDto->profile->username->compare(TestData::user[1].username) == 0);
+    OATPP_ASSERT(followProfileResponseDto->profile->following == true);
+
+    OATPP_LOGD("ProfileControllerTest", "Unfollow a user");
+    response = client->unfollowProfile(TestData::user[1].username, userToken);
+    OATPP_ASSERT(response != nullptr);
+    OATPP_ASSERT(response->getStatusCode() == 200);
+
+    OATPP_LOGD("ProfileControllerTest", "Validating the following status");
+    response = client->getProfile(TestData::user[1].username, userToken);
+    OATPP_ASSERT(response != nullptr);
+    OATPP_ASSERT(response->getStatusCode() == 200);
+    followProfileResponseDto = response->readBodyToDto<oatpp::Object<UserProfileJsonDto>>(objectMapper.get());
+    OATPP_ASSERT(followProfileResponseDto->profile != nullptr);
+    OATPP_ASSERT(followProfileResponseDto->profile->username != nullptr && followProfileResponseDto->profile->username->compare(TestData::user[1].username) == 0);
+    OATPP_ASSERT(followProfileResponseDto->profile->following == false);
+
+    OATPP_LOGD("ProfileControllerTest", "Get a non exist user");
+    response = client->getProfile(TestData::user[3].username, userToken);
+    OATPP_ASSERT(response != nullptr);
+    OATPP_ASSERT(response->getStatusCode() == 404);
+  }, std::chrono::minutes(2) /* test timeout */);
 
   /* wait all server threads finished */
   std::this_thread::sleep_for(std::chrono::seconds(1));

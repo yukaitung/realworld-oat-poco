@@ -9,6 +9,8 @@
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 
+#include "Poco/URI.h"
+
 #include OATPP_CODEGEN_BEGIN(ApiController)
 
 /**

@@ -14,6 +14,7 @@ class Database {
     Database() = delete;
     static void InitDatabase(std::string connectionName, std::string connectionString);
     static std::shared_ptr<Poco::Data::SessionPool> getPool() {return Database::pool;};
+    static void TestTruncateDatabase();
 };
 
 #endif // DATABASE_HPP

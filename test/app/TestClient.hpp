@@ -38,9 +38,9 @@ class TestClient : public oatpp::web::client::ApiClient {
   API_CALL("GET", "/tags", getTags)
 
   // Profile Controller
+  API_CALL("GET", "/profiles/{username}", getProfile, PATH(String, username), HEADER(String, token, "Authorization"))
   API_CALL("POST", "/profiles/{username}/follow", followProfile, PATH(String, username), HEADER(String, token, "Authorization"))
   API_CALL("DELETE", "/profiles/{username}/follow", unfollowProfile, PATH(String, username), HEADER(String, token, "Authorization"))
-  API_CALL("GET", "/profiles/{username}", getProfile, PATH(String, username), HEADER(String, token, "Authorization"))
 };
 
 #include OATPP_CODEGEN_END(ApiClient)

@@ -96,6 +96,8 @@ add_executable(${PROJECT_NAME}-test
 
   test/UserControllerTest.hpp
   test/UserControllerTest.cpp
+  test/ProfileControllerTest.hpp
+  test/ProfileControllerTest.cpp
 )
 target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME}-lib)
 enable_testing()

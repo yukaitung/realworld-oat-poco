@@ -151,7 +151,7 @@ void UserControllerTest::onRun() {
     response = client->createUser(createUserDto);
     OATPP_ASSERT(response != nullptr);
     OATPP_ASSERT(response->getStatusCode() == 200);
-  }, std::chrono::minutes(10) /* test timeout */);
+  }, std::chrono::minutes(2) /* test timeout */);
 
   /* wait all server threads finished */
   std::this_thread::sleep_for(std::chrono::seconds(1));
