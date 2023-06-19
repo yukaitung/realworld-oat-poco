@@ -5,6 +5,7 @@
 #include "oatpp/core/base/Environment.hpp"
 #include "UserControllerTest.hpp"
 #include "ProfileControllerTest.hpp"
+#include "ArticleControllerTest.hpp"
 
 #include "Poco/Crypto/Crypto.h"
 #include "Poco/Exception.h"
@@ -15,6 +16,7 @@ namespace {
   void runTests() {
     OATPP_RUN_TEST(UserControllerTest);
     OATPP_RUN_TEST(ProfileControllerTest);
+    OATPP_RUN_TEST(ArticleControllerTest);
   }
 }
 

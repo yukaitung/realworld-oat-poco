@@ -13,9 +13,20 @@ class User {
     std::string image;
 };
 
+class Article {
+  public:
+    std::string title;
+    std::string description;
+    std::string body;
+    std::vector<int> tagId;
+};
+
 class TestData {
   public:
     const static std::vector<User> user;
+    const static std::vector<Article> article;
+    const static std::vector<std::string> tag;
+    const static std::vector<std::string> comment;
 };
 
 #endif // TESTDATA_HPP

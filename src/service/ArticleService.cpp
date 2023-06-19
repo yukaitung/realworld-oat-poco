@@ -191,6 +191,24 @@ oatpp::Object<ArticleJsonDto> ArticleService::updateArticle(std::string &id, std
   std::string description = dto->article->description ? dto->article->description : "";
   std::string body = dto->article->body ? dto->article->body : "";
 
+  // Tags
+  auto tags = dto->article->tagList;
+  std::string tagsStr = "";
+  if(tags != nullptr) {
+    tagsStr = "[";
+    bool result = tagModel.createTags(tags);
+    OATPP_ASSERT_HTTP(result, Status::CODE_500, "Internal Server Error.");
+
+    // Generate JSON string
+    auto tagsId = tagModel.getTagsIdFromNames(tags);
+    for(int i = 0; i < tagsId->size(); i++) {
+      tagsStr += tagsId->at(i);
+      if(i < tagsId->size() - 1)
+        tagsStr += ',';
+    }
+    tagsStr += ']';
+  }
+  
   // New slug if title is changed
   Poco::LocalDateTime dateTime;
   std::string newSlug = "";
@@ -202,7 +220,7 @@ oatpp::Object<ArticleJsonDto> ArticleService::updateArticle(std::string &id, std
   std::string updateTime = Poco::DateTimeFormatter::format(dateTime.timestamp(), "%Y-%m-%d %H:%M:%S", Poco::Timezone::tzd());
 
   if(!title.empty() || !description.empty() || !body.empty()) {
-    bool result = articleModel.updateArticle(slug, newSlug, title, description, body, updateTime);
+    bool result = articleModel.updateArticle(slug, newSlug, title, description, body, tagsStr, updateTime);
     OATPP_ASSERT_HTTP(result, Status::CODE_500, "Internal Server Error.");
   }
   
@@ -226,12 +244,20 @@ oatpp::Object<ArticleJsonDto> ArticleService::updateArticle(std::string &id, std
   article->author = author;
 
   // Tag data
-  std::string tagsListJson = std::get<ArticleModel::GetArticleEnum::TagsJsonStr>(articleObj);
-  std::vector<std::string> tagsIdList = splitStr(tagsListJson, splitJsonArrRegex);
-  tagsIdList.erase(tagsIdList.begin()); // First element is empty
-  auto tagNameList = tagModel.getTagsName(tagsIdList);
-  article->tagList = tagNameList;
-
+  if(tagsStr.empty()) {
+    // No update on tag, use old tag
+    std::string tagsListJson = std::get<ArticleModel::GetArticleEnum::TagsJsonStr>(articleObj);
+    std::vector<std::string> tagsIdList = splitStr(tagsListJson, splitJsonArrRegex);
+    tagsIdList.erase(tagsIdList.begin()); // First element is empty
+    article->tagList = tagModel.getTagsName(tagsIdList);
+  }
+  else {
+    // Updated on tag, use old tag
+    std::vector<std::string> tagsIdList = splitStr(tagsStr, splitJsonArrRegex);
+    tagsIdList.erase(tagsIdList.begin()); // First element is empty
+    article->tagList = tagModel.getTagsName(tagsIdList);
+  }
+  
   auto response = ArticleJsonDto::createShared();
   response->article = article;
   return response;
@@ -251,6 +277,8 @@ oatpp::Object<ArticleJsonDto> ArticleService::deleteArticle(std::string &id, std
 
   bool result = articleModel.deleteArticle(slug);
   OATPP_ASSERT_HTTP(result, Status::CODE_500, "Internal Server Error.");
+
+  // TODO: delete comment delete favourite
 
   auto response = ArticleJsonDto::createShared();
   response->article = ArticleDto::createShared();
@@ -401,7 +429,6 @@ oatpp::Object<CommentJsonDto> ArticleService::deleteComment(std::string &id, std
   response->comment = CommentDto::createShared();
   response->comment->id = std::stoul(commentId);
   return response;
-
 }
 
 oatpp::Object<TagJsonDto> ArticleService::getTags() {

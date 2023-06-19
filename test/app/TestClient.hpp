@@ -25,16 +25,16 @@ class TestClient : public oatpp::web::client::ApiClient {
 
   // Article Controller
   API_CALL("GET", "/articles/feed", feedArticles, HEADER(String, token, "Authorization"))
-  API_CALL("POST", "/articles", createArticle, BODY_DTO(Object<ArticleJsonDto>, dto), HEADER(String, token, "Authorization"))
+  API_CALL("POST", "/articles", createArticle, BODY_DTO(Object<ArticleExchangeJsonDto>, dto), HEADER(String, token, "Authorization"))
   API_CALL("GET", "/articles/{slug}", getArticle, PATH(String, slug), HEADER(String, token, "Authorization"))
-  API_CALL("GET", "/articles", getArticles, PATH(String, slug), QUERY(String, tag), QUERY(String, author), QUERY(String, favourited), HEADER(String, token, "Authorization"))
+  API_CALL("GET", "/articles", getArticles, QUERY(String, tag), QUERY(String, author), QUERY(String, favourited), HEADER(String, token, "Authorization"))
   API_CALL("PUT", "/articles/{slug}", updateArticle, PATH(String, slug), BODY_DTO(Object<ArticleExchangeJsonDto>, dto), HEADER(String, token, "Authorization"))
   API_CALL("DELETE", "/articles/{slug}", deleteArticle, PATH(String, slug), HEADER(String, token, "Authorization"))
   API_CALL("POST", "/articles/{slug}/favourite", favouriteArticle, PATH(String, slug), HEADER(String, token, "Authorization"))
   API_CALL("DELETE", "/articles/{slug}/favourite", unfavouriteArticle, PATH(String, slug), HEADER(String, token, "Authorization"))
   API_CALL("POST", "/articles/{slug}/comments", createComment, PATH(String, slug), BODY_DTO(Object<CommentJsonDto>, dto), HEADER(String, token, "Authorization"))
   API_CALL("GET", "/articles/{slug}/comments", getComments, PATH(String, slug), HEADER(String, token, "Authorization"))
-  API_CALL("DELETE", "/articles/{slug}/comments/{id}", deleteComment, PATH(String, slug), PATH(String, id), HEADER(String, token, "Authorization"))
+  API_CALL("DELETE", "/articles/{slug}/comments/{id}", deleteComment, PATH(String, slug), PATH(UInt32, id), HEADER(String, token, "Authorization"))
   API_CALL("GET", "/tags", getTags)
 
   // Profile Controller

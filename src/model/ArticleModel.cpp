@@ -61,20 +61,22 @@ std::tuple<oatpp::Object<ArticleDto>, std::string, std::string, std::string> Art
     session << "SELECT CAST(id AS char), CAST(user_id AS char), slug, title, description, body, CAST(tag_list AS char), CAST(created_at AS char), CAST(updated_at AS char) FROM articles WHERE slug = ?", into(retrunArticleId), into(retrunUserId), into(retrunSlug), into(retrunTitle), into(retrunDescription), into(retrunBody), into(retrunTagList), into(retrunCreatedAt), into(retrunUpdateddAt), use(slug), now;
     
     auto article = ArticleDto::createShared();
-    article->slug = retrunSlug.value();
-    if(!retrunTitle.isNull())
-      article->title = retrunTitle.value();
-    if(!retrunDescription.isNull())
-      article->description = retrunDescription.value();
-    if(!retrunBody.isNull())
-      article->body = retrunBody.value();
-    if(retrunTagList.isNull()) {
-      retrunTagList = "[]";
+    if(!retrunSlug.isNull()) {
+      article->slug = retrunSlug.value();
+      if(!retrunTitle.isNull())
+        article->title = retrunTitle.value();
+      if(!retrunDescription.isNull())
+        article->description = retrunDescription.value();
+      if(!retrunBody.isNull())
+        article->body = retrunBody.value();
+      if(retrunTagList.isNull()) {
+        retrunTagList = "[]";
+      }
+      article->favourited = false;
+      article->favouritesCount = 0;
+      article->createdAt = timeTz(retrunCreatedAt);
+      article->updatedAt = timeTz(retrunUpdateddAt);
     }
-    article->favourited = false;
-    article->favouritesCount = 0;
-    article->createdAt = timeTz(retrunCreatedAt);
-    article->updatedAt = timeTz(retrunUpdateddAt);
     
     return {article , !retrunArticleId.isNull() ? retrunArticleId.value() : "", !retrunUserId.isNull() ? retrunUserId.value() : "", !retrunTagList.isNull() ? retrunTagList.value() : ""};
   }
@@ -168,7 +170,7 @@ std::tuple<oatpp::Vector<oatpp::Object<ArticleDto>>, std::vector<std::string>, s
   }
 }
 
-bool ArticleModel::updateArticle(std::string &slug, std::string &newSlug, std::string &title, std::string &description, std::string &body, std::string &updateTime) {
+bool ArticleModel::updateArticle(std::string &slug, std::string &newSlug, std::string &title, std::string &description, std::string &body, std::string &tagsStr, std::string &updateTime) {
   try {
     Session session(Database::getPool()->get());
     Statement updateStatment(session);
@@ -179,6 +181,8 @@ bool ArticleModel::updateArticle(std::string &slug, std::string &newSlug, std::s
       updateStatment << " title = ?,",use(title);
     if(!description.empty())
       updateStatment << " description = ?,", use(description);
+    if(!tagsStr.empty())
+      updateStatment << " tag_list = ?,", use(tagsStr);
     if(!body.empty())
       updateStatment << " body = ?,", use(body);
     updateStatment << " updated_at = ? WHERE slug = ?", use(updateTime), use(slug);

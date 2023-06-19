@@ -127,7 +127,19 @@ void UserControllerTest::onRun() {
     OATPP_ASSERT(updateUserResponseDto->user->token != nullptr && !updateUserResponseDto->user->token->empty());
     OATPP_ASSERT(updateUserResponseDto->user->bio != nullptr && updateUserResponseDto->user->bio->compare(TestData::user[2].bio) == 0);
     OATPP_ASSERT(updateUserResponseDto->user->image != nullptr && updateUserResponseDto->user->image->compare(TestData::user[2].image) == 0);
-    userToken = "Token " + updateUserResponseDto->user->token; 
+    userToken = "Token " + updateUserResponseDto->user->token;
+
+    OATPP_LOGD("UserControllerTest", "Validate user is updated");
+    response = client->getUser(userToken);
+    OATPP_ASSERT(response != nullptr);
+    OATPP_ASSERT(response->getStatusCode() == 200);
+    getUserResponseDto = response->readBodyToDto<oatpp::Object<UserJsonDto>>(objectMapper.get());
+    OATPP_ASSERT(getUserResponseDto->user != nullptr);
+    OATPP_ASSERT(getUserResponseDto->user->username != nullptr && getUserResponseDto->user->username->compare(TestData::user[2].username) == 0);
+    OATPP_ASSERT(getUserResponseDto->user->email != nullptr && getUserResponseDto->user->email->compare(TestData::user[2].email) == 0);
+    OATPP_ASSERT(getUserResponseDto->user->token != nullptr && !getUserResponseDto->user->token->empty());
+    OATPP_ASSERT(getUserResponseDto->user->bio != nullptr && getUserResponseDto->user->bio->compare(TestData::user[2].bio) == 0);
+    OATPP_ASSERT(getUserResponseDto->user->image != nullptr && getUserResponseDto->user->image->compare(TestData::user[2].image) == 0);
 
     OATPP_LOGD("UserControllerTest", "Update user, username taken")
     updateUserDto->user->username = TestData::user[1].username;

@@ -3,6 +3,7 @@
 
 #include "service/ArticleService.hpp"
 #include "helper/TokenAuthorization.hpp"
+#include "dto/StatusDto.hpp"
 
 #include "oatpp/web/server/api/ApiController.hpp"
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"

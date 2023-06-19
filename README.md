@@ -4,24 +4,19 @@
 
 [廣東話 (Cantonese)](#廣東話) 
 
-> ### C++, POCO, Oat++ codebase containing real-world examples (CRUD, auth, MVCS patterns, etc.) that adheres to the [RealWorld](https://github.com/gothinkster/realworld) specification and API.
+> ### C++, Oat++, POCO codebase containing real-world examples (CRUD, auth, MVCS patterns, etc.) that adheres to the [RealWorld](https://github.com/gothinkster/realworld) specification and API.
 
-This codebase was created to demonstrate a fully-fledged full-stack application built with **C++, POCO, Oat++**, including CRUD operations, authentication, routing, pagination, and more.
+This codebase was created to demonstrate a fully-fledged full-stack application built with **C++, Oat++, POCO**, including CRUD operations, authentication, routing, pagination, and more.
 
 For more information on how this works with other frontends/backends, head over to the [RealWorld](https://github.com/gothinkster/realworld) repository.
 
 ### Links
 
-*   [Docker Repository](https://hub.docker.com/r/yukaitung/realworld-oat-poco)
+*   [Project Docker Repository](https://hub.docker.com/r/yukaitung/realworld-oat-poco)
 
 # Try To Use British English
 
-All variable names, comments, function names, etc., should use British English. Pleast change `favorite` into `favourite` when using the project.
-
-# To-Do List
-
-1. Write tests.
-2. Optimize performance / Remove duplicated code.
+All API endpoints, parameters and source code, should use British English. Please change `favorite` into `favourite` when evaluating the project.
 
 # How it works
 ### Software
@@ -85,6 +80,8 @@ cmake --build . -j`nproc` # Linux
 cmake --build . -j$(sysctl -n hw.ncpu) # macOS
 ```
 
+### Run
+
 You need to set up environment variables before executing the program. Then you should create the SQL schema, refer to [realworld.sql](sql/realworld.sql)
 
 ```bash
@@ -96,7 +93,9 @@ export REALWORLD_DB_PASSWORD=<MySQL Server Password>
 ./Realworld
 ```
 
-If you would like to run the test, you should create the SQL schema as well, refer to [realworld.sql](sql/realworld.sql). And the database should be empty.
+### Test
+
+If you would like to run the test, you should create the SQL schema as well, refer to [realworld.sql](sql/realworld.sql).
 
 ```bash
 export REALWORLD_TEST_DB_HOST=<MySQL Server IP>
@@ -105,6 +104,12 @@ export REALWORLD_TEST_DB_NAME=<Database name>
 export REALWORLD_TEST_DB_USER=<MySQL Server Username>
 export REALWORLD_TEST_DB_PASSWORD=<MySQL Server Password>
 ./Realworld-test
+```
+
+You can set the environment variable below to clean the database before running the tests.
+
+```bash
+export REALWORLD_TEST_TRUNCATE_DB=1
 ```
 
 ### Docker
@@ -118,7 +123,7 @@ docker run -p 8000:8000 -e "REALWORLD_DB_HOST=<MySQL Server IP>" -e "REALWORLD_D
 
 ### GitLab CI/CD
 
-This project contains a GitLab CI/CD script, refer to [.gitlab-ci.yml](.gitlab-ci.yml)
+This project contains a GitLab CI/CD script. It automatically builds the executable and Docker image, runs the tests, and finally uploads the Docker image to docker.io. Refer to the [.gitlab-ci.yml](.gitlab-ci.yml) script for more details.
 
 ### Test the program
 
@@ -127,24 +132,19 @@ You can use the [Postman Collection](test/Conduit.postman_collection_uk.json) to
 # 廣東話
 # ![RealWorld 示範應用程式](img/logo.png)
 
-> ### C++，POCO，Oat++ 現實應用原始碼 (CRUD、使用者驗證、MVCS pattern等) 符合 [RealWorld](https://github.com/gothinkster/realworld) 規格及 API。
+> ### C++、Oat++、POCO 現實應用原始碼 (CRUD、使用者驗證、MVCS pattern等) 符合 [RealWorld](https://github.com/gothinkster/realworld) 規格及 API。
 
-本原始碼是用來展示以 **C++、POCO、Oat++** 建立的完整應用程式，包括 CRUD、使用者驗證、routing、分頁等功能。
+本原始碼是用來展示以 **C++、Oat++、POCO** 建立的完整應用程式，包括 CRUD、使用者驗證、routing、分頁等功能。
 
 如需更多關於如何與整合其他 Frontend / Backend 的資訊，請參考 [RealWorld 的 GitHub repository](https://github.com/gothinkster/realworld)。
 
 ### Links
 
-*   [Docker Repository](https://hub.docker.com/r/yukaitung/realworld-oat-poco)
+*   [本項目的 Docker Repository](https://hub.docker.com/r/yukaitung/realworld-oat-poco)
 
 # 嘗試使用英式英文
 
-所有變數名稱、註解、函數名稱等都應該使用英式英文。Pleast change `favorite` into `favourite` when using the project.
-
-# 待辦事項
-
-1. 撰寫測試。
-2. 改善 / 刪除重複原始碼。
+所有 API endpoints, 參數及原始碼都使用英式英文。測試本項目時請將`favorite`更改為`favourite`。
 
 # 軟件運作方式
 ### 軟件
@@ -153,7 +153,7 @@ You can use the [Postman Collection](test/Conduit.postman_collection_uk.json) to
 
 Oat++：
 
-* 寄存 RESTful API (口語：Host 一個RESTful API)
+* 寄存 RESTful API (口語：Host 一個 RESTful API)
 * 使用者驗證
 * 校驗使用者輸入
 * 執行 API 測試
@@ -184,9 +184,9 @@ POCO：
 
 # 如何使用
 
-### 先設條件
+### 軟件要求
 
-本項目需要在電腦上安裝 C++ 編譯器, CMake 2.23, [Conan 2.0](https://conan.io/), MySQL, and pip。在 macOS 可使用 [Homebrew](https://docs.brew.sh/Installation)。
+本項目需要在電腦上安裝 C++ 編譯器, CMake 2.23, [Conan 2.0](https://conan.io/), MySQL, 及 pip。在 macOS 可使用 [Homebrew](https://docs.brew.sh/Installation) 取代 pip。
 
 ### 編譯
 
@@ -208,6 +208,8 @@ cmake --build . -j`nproc` # Linux
 cmake --build . -j$(sysctl -n hw.ncpu) # macOS
 ```
 
+### 執行程式
+
 在執行程式前，你需要設定一些 environment variables。然後建立 MySQL 數據庫，參考檔案 [realworld.sql](sql/realworld.sql)
 
 ```bash
@@ -219,7 +221,9 @@ export REALWORLD_DB_PASSWORD=<MySQL Server Password>
 ./Realworld
 ```
 
-如果你想執行測試，首先建立 MySQL 數據庫，參考檔案 [realworld.sql](sql/realworld.sql)。數據庫必需是空的。
+### 執行測試
+
+如果你想執行測試，首先建立 MySQL 數據庫，參考檔案 [realworld.sql](sql/realworld.sql)。
 
 ```bash
 export REALWORLD_TEST_DB_HOST=<MySQL Server IP>
@@ -228,6 +232,12 @@ export REALWORLD_TEST_DB_NAME=<Database name>
 export REALWORLD_TEST_DB_USER=<MySQL Server Username>
 export REALWORLD_TEST_DB_PASSWORD=<MySQL Server Password>
 ./Realworld-test
+```
+
+你可以設定以下 environment variable ，當執行測試時會清除數據庫。
+
+```bash
+export REALWORLD_TEST_TRUNCATE_DB=1
 ```
 
 ### Docker
@@ -241,7 +251,7 @@ docker run -p 8000:8000 -e "REALWORLD_DB_HOST=<MySQL Server IP>" -e "REALWORLD_D
 
 ### GitLab CI/CD
 
-本項目有 GitLab CI/CD script，參考檔案 [.gitlab-ci.yml](.gitlab-ci.yml)
+這個 script 會自動編譯項目執行檔和 Docker image、執行測試、將 Docker image 上傳至 docker.io 。參考檔案 [.gitlab-ci.yml](.gitlab-ci.yml)。
 
 ### 測試程式
 

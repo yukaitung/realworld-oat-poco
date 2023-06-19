@@ -94,6 +94,8 @@ add_executable(${PROJECT_NAME}-test
   test/app/TestClient.hpp
   test/app/TestComponent.hpp
 
+  test/ArticleControllerTest.hpp
+  test/ArticleControllerTest.cpp
   test/UserControllerTest.hpp
   test/UserControllerTest.cpp
   test/ProfileControllerTest.hpp

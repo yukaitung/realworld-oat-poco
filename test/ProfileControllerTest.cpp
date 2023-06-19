@@ -64,7 +64,7 @@ void ProfileControllerTest::onRun() {
     OATPP_ASSERT(followProfileResponseDto->profile->username != nullptr && followProfileResponseDto->profile->username->compare(TestData::user[1].username) == 0);
     OATPP_ASSERT(followProfileResponseDto->profile->following == true);
 
-    OATPP_LOGD("ProfileControllerTest", "Validating the following status");
+    OATPP_LOGD("ProfileControllerTest", "Validate the user is being followed");
     response = client->getProfile(TestData::user[1].username, userToken);
     OATPP_ASSERT(response != nullptr);
     OATPP_ASSERT(response->getStatusCode() == 200);
@@ -78,7 +78,7 @@ void ProfileControllerTest::onRun() {
     OATPP_ASSERT(response != nullptr);
     OATPP_ASSERT(response->getStatusCode() == 200);
 
-    OATPP_LOGD("ProfileControllerTest", "Validating the following status");
+    OATPP_LOGD("ProfileControllerTest", "Validate the user is no longer being followed");
     response = client->getProfile(TestData::user[1].username, userToken);
     OATPP_ASSERT(response != nullptr);
     OATPP_ASSERT(response->getStatusCode() == 200);
