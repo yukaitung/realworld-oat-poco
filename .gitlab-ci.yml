@@ -85,7 +85,7 @@ test-newman:
     - cd bin
     - ./Realworld &
     - cd ..
-    - export APIURL=127.0.0.1
+    - export APIURL=127.0.0.1:8000
     - export USERNAME=user
     - export EMAIL=user@example.com
     - export PASSWORD=123456
