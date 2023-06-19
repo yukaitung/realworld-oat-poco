@@ -1,6 +1,6 @@
 # Build
 FROM ubuntu:22.04 AS build
-# The abi are not match in alpine when compling the mysqlclient
+# The abi does not not match in alpine when compling the mysqlclient
 
 RUN apt update -qy
 RUN apt upgrade -qy
@@ -16,11 +16,11 @@ WORKDIR /realworld/build
 RUN cmake .. -DCMAKE_CXX_FLAGS=-isystem\ /usr/include/mysql -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
 RUN cmake --build . -j`nproc`
 
-# Export bin
+# Export the executable
 FROM scratch AS export
 COPY --from=build /realworld/build/bin .
 
-# Runtime
+# Export the image
 FROM ubuntu:22.04 AS image
 RUN mkdir realworld
 WORKDIR /realworld

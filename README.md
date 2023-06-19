@@ -16,7 +16,7 @@ For more information on how this works with other frontends/backends, head over 
 
 # Try To Use British English
 
-All variable names, comments, function names, etc., should use British English. American English is used to satisfy the API requirements.
+All variable names, comments, function names, etc., should use British English. Pleast change `favorite` into `favourite` when using the project.
 
 # To-Do List
 
@@ -139,7 +139,7 @@ You can use the [Postman Collection](https://github.com/gothinkster/realworld/bl
 
 # 嘗試使用英式英文
 
-所有變數名稱、註解、函數名稱等都應該使用英式英文。美式英文只是用來符合 API 規格。
+所有變數名稱、註解、函數名稱等都應該使用英式英文。Pleast change `favorite` into `favourite` when using the project.
 
 # 待辦事項
 

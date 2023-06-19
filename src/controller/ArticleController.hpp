@@ -111,7 +111,7 @@ public:
     info->addSecurityRequirement("Token");
     info->addTag("ArticleController");
   }
-  ENDPOINT("POST", "/articles/{slug}/favorite", favouriteArticle, PATH(String, slug), AUTHORIZATION(std::shared_ptr<TokenAuthorizationObject>, authObject))
+  ENDPOINT("POST", "/articles/{slug}/favourite", favouriteArticle, PATH(String, slug), AUTHORIZATION(std::shared_ptr<TokenAuthorizationObject>, authObject))
   {
     std::string slugStr = slug.getValue("");
     return createDtoResponse(Status::CODE_200, articleService.favouriteArticle(authObject->id, slugStr));
@@ -127,7 +127,7 @@ public:
     info->addSecurityRequirement("Token");
     info->addTag("ArticleController");
   }
-  ENDPOINT("DELETE", "/articles/{slug}/favorite", unfavouriteArticle, PATH(String, slug), AUTHORIZATION(std::shared_ptr<TokenAuthorizationObject>, authObject))
+  ENDPOINT("DELETE", "/articles/{slug}/favourite", unfavouriteArticle, PATH(String, slug), AUTHORIZATION(std::shared_ptr<TokenAuthorizationObject>, authObject))
   {
     std::string slugStr = slug.getValue("");
     return createDtoResponse(Status::CODE_200, articleService.unfavouriteArticle(authObject->id, slugStr));
@@ -232,7 +232,7 @@ public:
         Poco::URI::decode(value, tag);
       else if(strcmp(key, "author") == 0)
         Poco::URI::decode(value, author);
-      else if(strcmp(key, "favorited") == 0)
+      else if(strcmp(key, "favourited") == 0)
         Poco::URI::decode(value, favouritedBy);
       else if(strcmp(key, "limit") == 0)
         limit = std::stoul(value);
