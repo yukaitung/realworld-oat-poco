@@ -1,4 +1,5 @@
 #include "UserControllerTest.hpp"
+#include "TestData.hpp"
 #include "app/TestClient.hpp"
 #include "app/TestComponent.hpp"
 
@@ -8,8 +9,6 @@
 #include "oatpp-test/web/ClientServerTestRunner.hpp"
 
 #include <cstdio>
-
-std::string UserControllerTest::USER_TOKEN = "Token ";
 
 void UserControllerTest::onRun() {
   /* Register test components */
@@ -39,35 +38,35 @@ void UserControllerTest::onRun() {
     OATPP_LOGD("UserControllerTest", "Create user");
     auto createUserDto = UserRegJsonDto::createShared();
     createUserDto->user = UserRegDto::createShared();
-    createUserDto->user->username = USER_NAME;
-    createUserDto->user->email = USER_EMAIL;
-    createUserDto->user->password = USER_PASSWORD;
+    createUserDto->user->username = TestData::user[0].username;
+    createUserDto->user->email = TestData::user[0].email;
+    createUserDto->user->password = TestData::user[0].password;
     auto response = client->createUser(createUserDto);
     OATPP_ASSERT(response != nullptr);
     OATPP_ASSERT(response->getStatusCode() == 200);
     auto addedUserResponseDto = response->readBodyToDto<oatpp::Object<UserJsonDto>>(objectMapper.get());
     OATPP_ASSERT(addedUserResponseDto->user != nullptr);
-    OATPP_ASSERT(addedUserResponseDto->user->username != nullptr && addedUserResponseDto->user->username->compare(USER_NAME) == 0);
-    OATPP_ASSERT(addedUserResponseDto->user->email != nullptr && addedUserResponseDto->user->email->compare(USER_EMAIL) == 0);
+    OATPP_ASSERT(addedUserResponseDto->user->username != nullptr && addedUserResponseDto->user->username->compare(TestData::user[0].username) == 0);
+    OATPP_ASSERT(addedUserResponseDto->user->email != nullptr && addedUserResponseDto->user->email->compare(TestData::user[0].email) == 0);
     OATPP_ASSERT(addedUserResponseDto->user->token != nullptr && !addedUserResponseDto->user->token->empty());
 
     OATPP_LOGD("UserControllerTest", "Create user, username taken");
-    createUserDto->user->username = USER_NAME;
-    createUserDto->user->email = USER_EMAIL + "1";
+    createUserDto->user->username = TestData::user[0].username;
+    createUserDto->user->email = TestData::user[1].email;
     response = client->createUser(createUserDto);
     OATPP_ASSERT(response != nullptr);
     OATPP_ASSERT(response->getStatusCode() == 422);
 
     OATPP_LOGD("UserControllerTest", "Create user, email taken");
-    createUserDto->user->username = USER_NAME + "1";
-    createUserDto->user->email = USER_EMAIL;
+    createUserDto->user->username = TestData::user[1].username;
+    createUserDto->user->email = TestData::user[0].email;
     response = client->createUser(createUserDto);
     OATPP_ASSERT(response != nullptr);
     OATPP_ASSERT(response->getStatusCode() == 422);
 
-    OATPP_LOGD("UserControllerTest", "Create srcond user");
-    createUserDto->user->username = USER_NAME + "1";
-    createUserDto->user->email = USER_EMAIL + "1";
+    OATPP_LOGD("UserControllerTest", "Create second user");
+    createUserDto->user->username = TestData::user[1].username;
+    createUserDto->user->email = TestData::user[1].email;
     response = client->createUser(createUserDto);
     OATPP_ASSERT(response != nullptr);
     OATPP_ASSERT(response->getStatusCode() == 200);
@@ -75,72 +74,72 @@ void UserControllerTest::onRun() {
     OATPP_LOGD("UserControllerTest", "Login");
     auto loginDto = UserAuthJsonDto::createShared();
     loginDto->user = UserAuthDto::createShared();
-    loginDto->user->email = USER_EMAIL;
-    loginDto->user->password = USER_PASSWORD;
+    loginDto->user->email = TestData::user[0].email;
+    loginDto->user->password = TestData::user[0].password;
     response = client->login(loginDto);
     OATPP_ASSERT(response != nullptr);
     OATPP_ASSERT(response->getStatusCode() == 200);
     auto loginResponseDto = response->readBodyToDto<oatpp::Object<UserJsonDto>>(objectMapper.get());
     OATPP_ASSERT(loginResponseDto->user != nullptr);
-    OATPP_ASSERT(loginResponseDto->user->username != nullptr && loginResponseDto->user->username->compare(USER_NAME) == 0);
-    OATPP_ASSERT(loginResponseDto->user->email != nullptr && loginResponseDto->user->email->compare(USER_EMAIL) == 0);
+    OATPP_ASSERT(loginResponseDto->user->username != nullptr && loginResponseDto->user->username->compare(TestData::user[0].username) == 0);
+    OATPP_ASSERT(loginResponseDto->user->email != nullptr && loginResponseDto->user->email->compare(TestData::user[0].email) == 0);
     OATPP_ASSERT(loginResponseDto->user->token != nullptr && !loginResponseDto->user->token->empty());
-    USER_TOKEN += loginResponseDto->user->token;
+    userToken = "Token " + loginResponseDto->user->token;
 
     OATPP_LOGD("UserControllerTest", "Login, user not exist");
-    loginDto->user->email = USER_EMAIL + "Error";
+    loginDto->user->email = TestData::user[2].email;
     response = client->login(loginDto);
     OATPP_ASSERT(response != nullptr);
     OATPP_ASSERT(response->getStatusCode() == 404);
 
     OATPP_LOGD("UserControllerTest", "Login, incorrect password");
-    loginDto->user->email = USER_EMAIL;
-    loginDto->user->password = USER_PASSWORD + "Error";
+    loginDto->user->email = TestData::user[0].email;
+    loginDto->user->password = TestData::user[1].password;
     response = client->login(loginDto);
     OATPP_ASSERT(response != nullptr);
     OATPP_ASSERT(response->getStatusCode() == 422);
 
     OATPP_LOGD("UserControllerTest", "Get user");
-    response = client->getUser(USER_TOKEN);
+    response = client->getUser(userToken);
     OATPP_ASSERT(response != nullptr);
     OATPP_ASSERT(response->getStatusCode() == 200);
     auto getUserResponseDto = response->readBodyToDto<oatpp::Object<UserJsonDto>>(objectMapper.get());
     OATPP_ASSERT(getUserResponseDto->user != nullptr);
-    OATPP_ASSERT(getUserResponseDto->user->username != nullptr && getUserResponseDto->user->username->compare(USER_NAME) == 0);
-    OATPP_ASSERT(getUserResponseDto->user->email != nullptr && getUserResponseDto->user->email->compare(USER_EMAIL) == 0);
+    OATPP_ASSERT(getUserResponseDto->user->username != nullptr && getUserResponseDto->user->username->compare(TestData::user[0].username) == 0);
+    OATPP_ASSERT(getUserResponseDto->user->email != nullptr && getUserResponseDto->user->email->compare(TestData::user[0].email) == 0);
     OATPP_ASSERT(getUserResponseDto->user->token != nullptr && !getUserResponseDto->user->token->empty());
 
     OATPP_LOGD("UserControllerTest", "Update user")
     auto updateUserDto = UserUpdateJsonDto::createShared();
     updateUserDto->user = UserUpdateDto::createShared();
-    updateUserDto->user->username = USER_NAME + "0";
-    updateUserDto->user->email = USER_EMAIL + "0";
-    updateUserDto->user->password = USER_PASSWORD + "0";
-    updateUserDto->user->bio = USER_BIO;
-    updateUserDto->user->image = USER_IMAGE;
-    response = client->updateUser(updateUserDto, USER_TOKEN);
+    updateUserDto->user->username = TestData::user[2].username;
+    updateUserDto->user->email = TestData::user[2].email;
+    updateUserDto->user->password = TestData::user[2].password;
+    updateUserDto->user->bio = TestData::user[2].bio;
+    updateUserDto->user->image = TestData::user[2].image;
+    response = client->updateUser(updateUserDto, userToken);
     OATPP_ASSERT(response != nullptr);
     OATPP_ASSERT(response->getStatusCode() == 200);
     auto updateUserResponseDto = response->readBodyToDto<oatpp::Object<UserJsonDto>>(objectMapper.get());
     OATPP_ASSERT(updateUserResponseDto->user != nullptr);
-    OATPP_ASSERT(updateUserResponseDto->user->username != nullptr && updateUserResponseDto->user->username->compare(USER_NAME + "0") == 0);
-    OATPP_ASSERT(updateUserResponseDto->user->email != nullptr && updateUserResponseDto->user->email->compare(USER_EMAIL + "0") == 0);
+    OATPP_ASSERT(updateUserResponseDto->user->username != nullptr && updateUserResponseDto->user->username->compare(TestData::user[2].username) == 0);
+    OATPP_ASSERT(updateUserResponseDto->user->email != nullptr && updateUserResponseDto->user->email->compare(TestData::user[2].email) == 0);
     OATPP_ASSERT(updateUserResponseDto->user->token != nullptr && !updateUserResponseDto->user->token->empty());
-    OATPP_ASSERT(updateUserResponseDto->user->bio != nullptr && updateUserResponseDto->user->bio->compare(USER_BIO) == 0);
-    OATPP_ASSERT(updateUserResponseDto->user->image != nullptr && updateUserResponseDto->user->image->compare(USER_IMAGE) == 0);
-    USER_TOKEN = "Token " + updateUserResponseDto->user->token; 
+    OATPP_ASSERT(updateUserResponseDto->user->bio != nullptr && updateUserResponseDto->user->bio->compare(TestData::user[2].bio) == 0);
+    OATPP_ASSERT(updateUserResponseDto->user->image != nullptr && updateUserResponseDto->user->image->compare(TestData::user[2].image) == 0);
+    userToken = "Token " + updateUserResponseDto->user->token; 
 
     OATPP_LOGD("UserControllerTest", "Update user, username taken")
-    updateUserDto->user->username = USER_NAME + "1";
-    updateUserDto->user->email = USER_EMAIL + "0";
-    response = client->updateUser(updateUserDto, USER_TOKEN);
+    updateUserDto->user->username = TestData::user[1].username;
+    updateUserDto->user->email = TestData::user[0].email;
+    response = client->updateUser(updateUserDto, userToken);
     OATPP_ASSERT(response != nullptr);
     OATPP_ASSERT(response->getStatusCode() == 422);
 
     OATPP_LOGD("UserControllerTest", "Update user, email taken")
-    updateUserDto->user->username = USER_NAME + "0";
-    updateUserDto->user->email = USER_EMAIL + "1";
-    response = client->updateUser(updateUserDto, USER_TOKEN);
+    updateUserDto->user->username = TestData::user[0].username;
+    updateUserDto->user->email = TestData::user[1].email;
+    response = client->updateUser(updateUserDto, userToken);
     OATPP_ASSERT(response != nullptr);
     OATPP_ASSERT(response->getStatusCode() == 422);
   }, std::chrono::minutes(10) /* test timeout */);

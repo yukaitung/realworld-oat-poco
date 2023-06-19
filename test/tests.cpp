@@ -1,6 +1,6 @@
+#include "Config.h"
 #include "helper/Database.hpp"
 #include "model/TagModel.hpp"
-#include "Config.h"
 
 #include "oatpp/core/base/Environment.hpp"
 #include "UserControllerTest.hpp"

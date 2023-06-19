@@ -89,6 +89,7 @@ file(COPY "${oatpp-swagger_INCLUDE_DIRS}/../bin/oatpp-swagger/res" DESTINATION $
 
 add_executable(${PROJECT_NAME}-test
   test/tests.cpp
+  test/TestData.cpp
 
   test/app/TestClient.hpp
   test/app/TestComponent.hpp
