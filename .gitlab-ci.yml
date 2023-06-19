@@ -85,12 +85,11 @@ test-newman:
     - cd bin
     - ./Realworld &
     - cd ..
-    - SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-    - APIURL=127.0.0.1
-    - USERNAME=user
-    - EMAIL=user@example.com
-    - PASSWORD=123456
-    - npx newman run $SCRIPTDIR/Conduit.postman_collection.json \
+    - export APIURL=127.0.0.1
+    - export USERNAME=user
+    - export EMAIL=user@example.com
+    - export PASSWORD=123456
+    - npx newman run pwd/test/Conduit.postman_collection_uk.json \
     - --delay-request 500 \
     - --global-var "APIURL=$APIURL" \
     - --global-var "USERNAME=$USERNAME" \
