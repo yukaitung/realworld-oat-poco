@@ -77,7 +77,7 @@ test:
 #      - cppcheck_out.xml
 
 release-docker:
-  image: docker:23.0.5
+  image: docker:23.0.5-git
   stage: release
   services:
     - docker:23.0.5-dind

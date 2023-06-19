@@ -24,7 +24,7 @@ COPY --from=build /realworld/build/bin .
 FROM ubuntu:22.04 AS image
 RUN mkdir realworld
 WORKDIR /realworld
-COPY --from=export /realworld/build/bin .
+COPY --from=build /realworld/build/bin .
 
 EXPOSE 8000 8000
 
