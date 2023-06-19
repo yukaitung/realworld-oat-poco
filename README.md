@@ -4,6 +4,8 @@
 
 [廣東話 (Cantonese)](#廣東話) 
 
+[Coming from GitHub? Press here to redirect to GitLab Repository](https://gitlab.com/yukaitung/realworld-oat-poco)
+
 > ### C++, Oat++, POCO codebase containing real-world examples (CRUD, auth, MVCS patterns, etc.) that adheres to the [RealWorld](https://github.com/gothinkster/realworld) specification and API.
 
 This codebase was created to demonstrate a fully-fledged full-stack application built with **C++, Oat++, POCO**, including CRUD operations, authentication, routing, pagination, and more.
@@ -135,6 +137,10 @@ You can use the [Postman Collection](test/Conduit.postman_collection_uk.json) to
 
 # 廣東話
 # ![RealWorld 示範應用程式](img/logo.png)
+
+![GitLab Pipeline](https://gitlab.com/yukaitung/realworld-oat-poco/badges/main/pipeline.svg)
+
+[Coming from GitHub? Press here to redirect to GitLab Repository](https://gitlab.com/yukaitung/realworld-oat-poco)
 
 > ### C++、Oat++、POCO 現實應用原始碼 (CRUD、使用者驗證、MVCS pattern等) 符合 [RealWorld](https://github.com/gothinkster/realworld) 規格及 API。
 
