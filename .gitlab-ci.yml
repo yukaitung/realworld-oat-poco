@@ -33,6 +33,7 @@ build:
   services:
     - docker:23.0.5-dind
   script:
+    - APK add git
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - export DOCKER_BUILDKIT=1
     - docker build --pull --target export -t $CONTAINER_TEST_IMAGE . --output bin
