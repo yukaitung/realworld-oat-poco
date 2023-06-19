@@ -12,6 +12,8 @@ For more information on how this works with other frontends/backends, head over 
 
 ### Links
 
+*   [GitLab Repository](https://gitlab.com/yukaitung/realworld-oat-poco)
+*   [GitHub Repository](https://github.com/yukaitung/realworld-oat-poco)
 *   [Project Docker Repository](https://hub.docker.com/r/yukaitung/realworld-oat-poco)
 
 # Try To Use British English
@@ -142,6 +144,8 @@ You can use the [Postman Collection](test/Conduit.postman_collection_uk.json) to
 
 ### Links
 
+*   [本項目的 GitLab Repository](https://gitlab.com/yukaitung/realworld-oat-poco)
+*   [本項目的 GitHub Repository](https://github.com/yukaitung/realworld-oat-poco)
 *   [本項目的 Docker Repository](https://hub.docker.com/r/yukaitung/realworld-oat-poco)
 
 # 嘗試使用英式英文
