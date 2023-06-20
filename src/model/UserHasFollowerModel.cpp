@@ -1,5 +1,5 @@
 #include "model/UserHasFollowerModel.hpp"
-#include "helper/Database.hpp"
+#include "helper/DatabaseHelper.hpp"
 
 #include "Poco/Data/Session.h"
 #include "Poco/Data/RecordSet.h"
@@ -18,7 +18,7 @@ bool UserHasFollowerModel::userHasThisFollower(std::string &userId, std::string 
   Poco::Nullable<int> result;
 
   try {
-    Session session(Database::getPool()->get());
+    Session session(DatabaseHelper::getSession());
     session << "SELECT COUNT(*) FROM users_has_followers WHERE user_id = ? AND follower_id = ?", into(result), use(userId), use(followerId), now;
     return (result == 1);
   }
@@ -30,7 +30,7 @@ bool UserHasFollowerModel::userHasThisFollower(std::string &userId, std::string 
 
 bool UserHasFollowerModel::userNewFollower(std::string &userId, std::string &followerId) {
   try {
-    Session session(Database::getPool()->get());
+    Session session(DatabaseHelper::getSession());
     session << "INSERT INTO users_has_followers (user_id, follower_id) VALUES (?, ?)", use(userId), use(followerId), now;
     return true;
   }
@@ -42,7 +42,7 @@ bool UserHasFollowerModel::userNewFollower(std::string &userId, std::string &fol
 
 bool UserHasFollowerModel::userRemoveFollower(std::string &userId, std::string &followerId) {
   try {
-    Session session(Database::getPool()->get());
+    Session session(DatabaseHelper::getSession());
     session << "DELETE FROM users_has_followers WHERE user_id = ? AND follower_id = ?", use(userId), use(followerId), now;
     return true;
   }
@@ -59,7 +59,7 @@ std::unordered_set<std::string> UserHasFollowerModel::validUserIsFollowingFromLi
   std::unordered_set<std::string> userFollowingIds;
   
   try {
-    Session session(Database::getPool()->get());
+    Session session(DatabaseHelper::getSession());
     Statement select(session);
     select << "SELECT user_id FROM users_has_followers WHERE user_id IN (";
     for(int i = 0; i < userIds.size(); i++) {

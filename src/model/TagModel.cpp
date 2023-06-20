@@ -1,5 +1,5 @@
 #include "model/TagModel.hpp"
-#include "helper/Database.hpp"
+#include "helper/DatabaseHelper.hpp"
 
 #include "Poco/Data/Session.h"
 #include "Poco/Data/RecordSet.h"
@@ -51,7 +51,7 @@ std::string TagCache::getNameFromId(const std::string &id) {
 
 void TagModel::InitCache() {
   try {
-    Session session(Database::getPool()->get());
+    Session session(DatabaseHelper::getSession());
     Statement select(session);
     select << "SELECT id, name FROM tags ORDER BY name ASC", now;
     RecordSet rs(select);
@@ -79,7 +79,7 @@ bool TagModel::createTags(const oatpp::Vector<oatpp::String> &tags) {
   if(!create.empty()) {
     try {
       // Generate insert SQL
-      Session session(Database::getPool()->get());
+      Session session(DatabaseHelper::getSession());
       Statement insert(session);
       insert << "INSERT INTO tags (name) VALUES ";
       for(int i = 0; i < create.size(); i++) {

@@ -1,5 +1,5 @@
 #include "model/ArticleHasFavouriteModel.hpp"
-#include "helper/Database.hpp"
+#include "helper/DatabaseHelper.hpp"
 
 #include "Poco/Data/Session.h"
 #include "Poco/Data/RecordSet.h"
@@ -16,7 +16,7 @@ using oatpp::web::protocol::http::Status;
 
 bool ArticleHasFavouriteModel::favouriteArticle(std::string &articleId, std::string &userId) {
   try {
-    Session session(Database::getPool()->get());
+    Session session(DatabaseHelper::getSession());
     session << "INSERT INTO articles_has_favourites (article_id, user_id) VALUES (?, ?)", use(articleId), use(userId), now;
     return true;
   }
@@ -28,7 +28,7 @@ bool ArticleHasFavouriteModel::favouriteArticle(std::string &articleId, std::str
 
 bool ArticleHasFavouriteModel::unfavouriteArticle(std::string &articleId, std::string &userId) {
   try {
-    Session session(Database::getPool()->get());
+    Session session(DatabaseHelper::getSession());
     session << "DELETE FROM articles_has_favourites WHERE (article_id = ?) and (user_id = ?)", use(articleId), use(userId), now;
     return true;
   }
@@ -40,7 +40,7 @@ bool ArticleHasFavouriteModel::unfavouriteArticle(std::string &articleId, std::s
 
 bool ArticleHasFavouriteModel::deleteFavouriteForArticle(std::string &articleId) {
 try {
-    Session session(Database::getPool()->get());
+    Session session(DatabaseHelper::getSession());
     session << "DELETE FROM articles_has_favourites WHERE (article_id = ?)", use(articleId), now;
     return true;
   }
@@ -55,7 +55,7 @@ std::pair<unsigned int, bool> ArticleHasFavouriteModel::getArticlefavouriteData(
   Poco::Nullable<unsigned int> retrunUserFavourite;
 
   try {
-    Session session(Database::getPool()->get());
+    Session session(DatabaseHelper::getSession());
     session << "SELECT COUNT(*), COUNT(CASE WHEN user_id = ? THEN 1 END) FROM articles_has_favourites WHERE article_id = ?", into(retrunFavouriteCount), into(retrunUserFavourite), use(userId), use(articleId), now;
     return {retrunFavouriteCount.value(), retrunUserFavourite.value() >= 1};
   }
@@ -72,7 +72,7 @@ std::unordered_map<std::string, std::pair<unsigned int, bool>> ArticleHasFavouri
   std::unordered_map<std::string, std::pair<unsigned int, bool>> favourtieData;
 
   try {
-    Session session(Database::getPool()->get());
+    Session session(DatabaseHelper::getSession());
     Statement select(session);
     select << "SELECT article_id, COUNT(*), COUNT(CASE WHEN user_id = ? THEN 1 END) FROM articles_has_favourites WHERE article_id IN(", use(userId);
     for(int i = 0; i < articleId.size(); i++) {
@@ -104,7 +104,7 @@ std::vector<std::string> ArticleHasFavouriteModel::getUserFavourite(std::string 
   std::vector<std::string> favouriteArticles;
 
   try {
-    Session session(Database::getPool()->get());
+    Session session(DatabaseHelper::getSession());
     Statement select(session);
     select << "SELECT article_id FROM articles_has_favourites WHERE user_id = ?", use(userId);
 

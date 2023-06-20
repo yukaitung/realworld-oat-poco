@@ -1,6 +1,6 @@
 #include "Config.h"
 #include "helper/Jwt.hpp"
-#include "helper/Database.hpp"
+#include "helper/DatabaseHelper.hpp"
 #include "model/TagModel.hpp"
 
 #include "oatpp/core/base/Environment.hpp"
@@ -36,7 +36,7 @@ int main() {
   }
   
   // Setup Database
-    std::string dbHost = getEnvVar("REALWORLD_TEST_DB_HOST");
+  std::string dbHost = getEnvVar("REALWORLD_TEST_DB_HOST");
   if(dbHost.empty()) {
     dbHost = "127.0.0.1";
   }
@@ -60,12 +60,12 @@ int main() {
     exit(1);
   }
   std::string connectionName = "MySQL";
-  std::string connectionString = "host=" + dbHost + ";port=" + dbPort + ";db=" + dbName + ";user=" + dbUser + ";password=" + dbPassword + ";compress=true;auto-reconnect=true";
-  Database::InitDatabase(connectionName, connectionString);
+  DatabaseHelper::initDatabase(connectionName, dbHost, dbPort, dbName, dbUser, dbPassword);
+
   std::string truncate = getEnvVar("REALWORLD_TEST_TRUNCATE_DB");
   if(truncate.compare("1") == 0) {
     std::cout << "Truncate the database\n";
-    Database::TestTruncateDatabase();
+    DatabaseHelper::testTruncateDatabase();
   }
 
   std::string signerSecret = getEnvVar("REALWORLD_TEST_SIGNER_SECRET");

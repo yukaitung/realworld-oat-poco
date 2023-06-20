@@ -1,5 +1,5 @@
 #include "model/CommentModel.hpp"
-#include "helper/Database.hpp"
+#include "helper/DatabaseHelper.hpp"
 
 #include "Poco/Data/Session.h"
 #include "Poco/Data/RecordSet.h"
@@ -23,7 +23,7 @@ std::string CommentModel::timeTz(std::string &time) {
 oatpp::Object<CommentDto> CommentModel::createComment(std::string &userId, std::string &articleId, std::string &body, std::string &createTime) {
   try {
     // Insert comment
-    Session session(Database::getPool()->get());
+    Session session(DatabaseHelper::getSession());
     session << "INSERT INTO comments (article_id, user_id, body, created_at, updated_at) VALUES (?, ?, ?, ?, ?)", use(articleId), use(userId), use(body), use(createTime), use(createTime), now;
 
     // Get id
@@ -47,7 +47,7 @@ oatpp::Object<CommentDto> CommentModel::createComment(std::string &userId, std::
 std::pair<oatpp::Vector<oatpp::Object<CommentDto>>, std::vector<std::string>> CommentModel::getComments(std::string &articleId) {
   try {
     // Insert comment
-    Session session(Database::getPool()->get());
+    Session session(DatabaseHelper::getSession());
     Statement select(session);
     select << "SELECT id, CAST(user_id AS char), body, created_at, updated_at FROM comments WHERE article_id = ? ORDER BY updated_at DESC, id DESC", use(articleId), now;
     RecordSet rs(select);
@@ -81,7 +81,7 @@ std::string CommentModel::getCommentAuthorId(std::string &commentId) {
   Poco::Nullable<std::string> retrunId;
 
   try {
-    Session session(Database::getPool()->get());
+    Session session(DatabaseHelper::getSession());
     session << "SELECT CAST(user_id AS char) FROM comments WHERE id = ?", use(commentId), into(retrunId), now;
     return !retrunId.isNull() ? retrunId.value() : "";
   }
@@ -93,7 +93,7 @@ std::string CommentModel::getCommentAuthorId(std::string &commentId) {
 
 bool CommentModel::deleteComment(std::string &commentId) {
   try {
-    Session session(Database::getPool()->get());
+    Session session(DatabaseHelper::getSession());
     session << "DELETE FROM comments WHERE id = ?", use(commentId), now;
     return true;
   }
@@ -105,7 +105,7 @@ bool CommentModel::deleteComment(std::string &commentId) {
 
 bool CommentModel::deleteCommentForArticle(std::string &articleId) {
   try {
-    Session session(Database::getPool()->get());
+    Session session(DatabaseHelper::getSession());
     session << "DELETE FROM comments WHERE article_id = ?", use(articleId), now;
     return true;
   }

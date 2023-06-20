@@ -1,6 +1,6 @@
 #include "model/UserModel.hpp"
 #include "helper/Jwt.hpp"
-#include "helper/Database.hpp"
+#include "helper/DatabaseHelper.hpp"
 
 #include "Poco/Data/Session.h"
 #include "Poco/Data/RecordSet.h"
@@ -30,7 +30,7 @@ std::pair<bool, bool> UserModel::validateUser(std::string &email, std::string &u
   Poco::Nullable<int> returnUsernameExist;
 
   try {
-    Session session(Database::getPool()->get());
+    Session session(DatabaseHelper::getSession());
     session << "SELECT COUNT(CASE WHEN email = ? THEN 1 END), COUNT(CASE WHEN username = ? THEN 1 END) FROM users", use(email), use(username), into(returnEmailExist), into(returnUsernameExist), now;
     return {returnEmailExist.value() == 1, returnUsernameExist.value() == 1};
   }
@@ -55,7 +55,7 @@ oatpp::Object<UserDto> UserModel::createUser(std::string &email, std::string &us
 
   try {
     // Insert user
-    Session session(Database::getPool()->get());
+    Session session(DatabaseHelper::getSession());
     session << "INSERT INTO users (email, username, password, salt) VALUES (?, ?, ?, ?)", use(email), use(username), use(password), use(salt), now;
 
     // Get id
@@ -89,7 +89,7 @@ oatpp::Object<UserDto> UserModel::login(std::string &email, std::string &passwor
 
   // Fetch result
   try {
-    Session session(Database::getPool()->get());
+    Session session(DatabaseHelper::getSession());
     session << "SELECT CAST(id AS char), username, email, password, salt, bio, image FROM users WHERE email = ?", into(retrunId), into(retrunUsername), into(retrunEmail), into(retrunPassword), into(retrunSalt), into(retrunBio), into(retrunImage), use(email), now;
     // Validate password
     if(!retrunPassword.isNull() && !retrunSalt.isNull()) {
@@ -134,7 +134,7 @@ oatpp::Object<UserDto> UserModel::getUser(std::string &id) {
   Poco::Nullable<std::string> retrunImage;
 
   try {
-    Session session(Database::getPool()->get());
+    Session session(DatabaseHelper::getSession());
     session << "SELECT username, email, token, bio, image FROM users WHERE id = ?", into(retrunUsername), into(retrunEmail), into(retrunToken), into(retrunBio), into(retrunImage), use(id), now;
 
     auto user = UserDto::createShared();
@@ -169,7 +169,7 @@ oatpp::Object<UserDto> UserModel::updateUser(std::string &id, std::string &email
   }
   
   try {
-    Session session(Database::getPool()->get());
+    Session session(DatabaseHelper::getSession());
     Statement updateStatment(session);
     updateStatment << "UPDATE users SET";
     if(!email.empty())
@@ -207,7 +207,7 @@ oatpp::Object<UserProfileDto> UserModel::getProfileFromId(std::string &id) {
 
   try {
     // Fetch result
-    Session session(Database::getPool()->get());
+    Session session(DatabaseHelper::getSession());
     session << "SELECT username, bio, image FROM users WHERE id = ?", into(retrunUsername), into(retrunBio), into(retrunImage), use(id), now;
 
     auto profile = UserProfileDto::createShared();
@@ -232,7 +232,7 @@ std::unordered_map<std::string, oatpp::Object<UserProfileDto>> UserModel::getPro
   std::unordered_map<std::string, oatpp::Object<UserProfileDto>> profiles;
   
   try {
-    Session session(Database::getPool()->get());
+    Session session(DatabaseHelper::getSession());
     Statement select(session);
     select << "SELECT id, username, bio, image FROM users WHERE id IN (";
     for(int i = 0; i < ids.size(); i++) {
@@ -274,7 +274,7 @@ std::pair<oatpp::Object<UserProfileDto>, std::string> UserModel::getProfileFromU
 
   try {
     // Fetch result
-    Session session(Database::getPool()->get());
+    Session session(DatabaseHelper::getSession());
     session << "SELECT CAST(id AS char), bio, image FROM users WHERE username = ?", into(retrunId), into(retrunBio), into(retrunImage), use(username), now;
 
     auto profile = UserProfileDto::createShared();

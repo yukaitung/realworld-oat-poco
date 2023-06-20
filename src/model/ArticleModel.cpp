@@ -1,5 +1,5 @@
 #include "model/ArticleModel.hpp"
-#include "helper/Database.hpp"
+#include "helper/DatabaseHelper.hpp"
 
 #include "Poco/Data/Session.h"
 #include "Poco/Data/RecordSet.h"
@@ -23,7 +23,7 @@ std::string ArticleModel::timeTz(std::string &time) {
 oatpp::Object<ArticleDto> ArticleModel::createArticle(std::string &userId, std::string &slug, std::string &title, std::string &description, std::string &body, std::string &tagsStr, std::string &createTime) {
   try {
     // Insert article
-    Session session(Database::getPool()->get());
+    Session session(DatabaseHelper::getSession());
     session << "INSERT INTO articles (user_id, slug, title, description, body, tag_list, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", use(userId), use(slug), use(title), use(description), use(body), use(tagsStr), use(createTime), use(createTime), now;
 
     auto article = ArticleDto::createShared();
@@ -57,7 +57,7 @@ std::tuple<oatpp::Object<ArticleDto>, std::string, std::string, std::string> Art
   
   try {
     // Insert article
-    Session session(Database::getPool()->get());
+    Session session(DatabaseHelper::getSession());
     session << "SELECT CAST(id AS char), CAST(user_id AS char), slug, title, description, body, CAST(tag_list AS char), CAST(created_at AS char), CAST(updated_at AS char) FROM articles WHERE slug = ?", into(retrunArticleId), into(retrunUserId), into(retrunSlug), into(retrunTitle), into(retrunDescription), into(retrunBody), into(retrunTagList), into(retrunCreatedAt), into(retrunUpdateddAt), use(slug), now;
     
     auto article = ArticleDto::createShared();
@@ -98,7 +98,7 @@ std::tuple<oatpp::Vector<oatpp::Object<ArticleDto>>, std::vector<std::string>, s
     conditionCount++;
   
   try {
-    Session session(Database::getPool()->get());
+    Session session(DatabaseHelper::getSession());
     Statement select(session);
     select << "SELECT CAST(id AS char), CAST(articles.user_id AS char), slug, title, description, body, CAST(tag_list AS char), CAST(created_at AS char), CAST(updated_at AS char) FROM articles";
     if(!favouritedBy.empty()) // favouritedBy requires join
@@ -172,7 +172,7 @@ std::tuple<oatpp::Vector<oatpp::Object<ArticleDto>>, std::vector<std::string>, s
 
 bool ArticleModel::updateArticle(std::string &slug, std::string &newSlug, std::string &title, std::string &description, std::string &body, std::string &tagsStr, std::string &updateTime) {
   try {
-    Session session(Database::getPool()->get());
+    Session session(DatabaseHelper::getSession());
     Statement updateStatment(session);
     updateStatment << "UPDATE articles SET";
     if(!newSlug.empty())
@@ -198,7 +198,7 @@ bool ArticleModel::updateArticle(std::string &slug, std::string &newSlug, std::s
 
 bool ArticleModel::deleteArticle(std::string &slug) {
   try {
-    Session session(Database::getPool()->get());
+    Session session(DatabaseHelper::getSession());
     session << "DELETE FROM articles WHERE slug = ?", use(slug), now;
     return true;
   }
@@ -212,7 +212,7 @@ std::string ArticleModel::getArticleIdFromSlug(std::string &slug) {
   Poco::Nullable<std::string> retrunArticleId;
   
   try {
-    Session session(Database::getPool()->get());
+    Session session(DatabaseHelper::getSession());
     session << "SELECT CAST(id AS char) FROM articles WHERE slug = ?", into(retrunArticleId), use(slug), now;
 
     return !retrunArticleId.isNull() ? retrunArticleId.value() : "";

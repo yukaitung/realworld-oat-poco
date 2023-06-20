@@ -1,5 +1,5 @@
 #include "Application.hpp"
-#include "helper/Database.hpp"
+#include "helper/DatabaseHelper.hpp"
 #include "helper/Jwt.hpp"
 #include "model/TagModel.hpp"
 #include "Config.h"
@@ -84,8 +84,7 @@ int main (int argc, const char * argv[])
     exit(1);
   }
   std::string connectionName = "MySQL";
-  std::string connectionString = "host=" + dbHost + ";port=" + dbPort + ";db=" + dbName + ";user=" + dbUser + ";password=" + dbPassword + ";compress=true;auto-reconnect=true";
-  Database::InitDatabase(connectionName, connectionString);
+  DatabaseHelper::initDatabase(connectionName, dbHost, dbPort, dbName, dbUser, dbPassword);
 
   std::string signerSecret = getEnvVar("REALWORLD_SIGNER_SECRET");
   if(signerSecret.empty()) {
