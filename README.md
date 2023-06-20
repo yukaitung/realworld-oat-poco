@@ -128,6 +128,13 @@ export REALWORLD_SIGNER_SECRET=some_random_words
 ./Realworld
 ```
 
+Below are the endpoints to evaluating the project.
+
+* http://localhost:8000/
+* http://localhost:8000/swagger/ui
+
+You can use the [Postman Collection](test/Conduit.postman_collection_uk.json) to test the project. Additionally, this project is integrated with Swagger UI. Navigate to [http://localhost:8000/swagger/ui](http://localhost:8000/swagger/ui) to try it on the browser.
+
 ### Test
 
 If you would like to run the unit test, first you should create another database. Then, set up environment variables as follows.
@@ -160,10 +167,6 @@ docker run -p 8000:8000 -e "REALWORLD_DB_HOST=<MySQL Server IP>" -e "REALWORLD_D
 ### GitLab CI/CD
 
 This project contains a GitLab CI/CD script. It automatically builds the executable and Docker image, runs the tests, and finally uploads the Docker image to docker.io. Refer to the [.gitlab-ci.yml](.gitlab-ci.yml) script for more details.
-
-### Test the program
-
-You can use the [Postman Collection](test/Conduit.postman_collection_uk.json) to test the project. Additionally, this project is integrated with Swagger UI. Navigate to [http://localhost:8000/swagger/ui](http://localhost:8000/swagger/ui) to try it on the browser.
 
 # 廣東話
 # ![RealWorld 示範應用程式](img/logo.png)
@@ -293,6 +296,13 @@ export REALWORLD_SIGNER_SECRET=some_random_words
 ./Realworld
 ```
 
+以下 Endpoints 可測試本項目
+
+* http://localhost:8000/
+* http://localhost:8000/swagger/ui
+
+你可以使用 [Postman Collection](test/Conduit.postman_collection_uk.json) 來測試，或者在瀏覽器進入 [http://localhost:8000/swagger/ui](http://localhost:8000/swagger/ui) 使用 Swagger UI 來測試。
+
 ### 執行測試
 
 如果你想執行測試，首先需要建立多一個 SQL 數據庫。然後設定 environment variables。
@@ -325,7 +335,3 @@ docker run -p 8000:8000 -e "REALWORLD_DB_HOST=<MySQL Server IP>" -e "REALWORLD_D
 ### GitLab CI/CD
 
 這個 script 會自動編譯項目執行檔和 Docker image、執行測試、將 Docker image 上傳至 docker.io 。參考檔案 [.gitlab-ci.yml](.gitlab-ci.yml)。
-
-### 測試程式
-
-你可以使用 [Postman Collection](test/Conduit.postman_collection_uk.json) 來測試，或者在瀏覽器進入 [http://localhost:8000/swagger/ui](http://localhost:8000/swagger/ui) 使用 Swagger UI 來測試。
