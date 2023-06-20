@@ -75,7 +75,7 @@ int main() {
   JwtHelper::setSignerSecret(signerSecret);
 
   // Init cache
-  TagModel::InitCache();
+  TagModel::initCache();
 
   oatpp::base::Environment::init();
 

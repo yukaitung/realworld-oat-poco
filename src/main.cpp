@@ -1,8 +1,8 @@
 #include "Application.hpp"
+#include "Config.h"
 #include "helper/DatabaseHelper.hpp"
 #include "helper/JwtHelper.hpp"
 #include "model/TagModel.hpp"
-#include "Config.h"
 
 #include "controller/ArticleController.hpp"
 #include "controller/ProfileController.hpp"
@@ -93,7 +93,7 @@ int main (int argc, const char * argv[])
   JwtHelper::setSignerSecret(signerSecret);
 
   // Init cache
-  TagModel::InitCache();
+  TagModel::initCache();
 
   oatpp::base::Environment::init();
   

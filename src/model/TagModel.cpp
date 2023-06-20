@@ -49,7 +49,7 @@ std::string TagCache::getNameFromId(const std::string &id) {
   return name;
 }
 
-void TagModel::InitCache() {
+void TagModel::initCache() {
   try {
     Session session(DatabaseHelper::getSession());
     Statement select(session);
@@ -117,11 +117,23 @@ bool TagModel::createTags(const oatpp::Vector<oatpp::String> &tags) {
   return true;
 }
 
-std::string TagModel::getTagIdFromName(const std::string &tag) {
-  return tagCache.getIdFromName(tag);
+oatpp::Object<TagJsonDto> TagModel::getTags() {
+  auto tags = TagJsonDto::createShared();
+  tags->tags = {};
+  tags->tags->resize(tagCache.getSize());
+
+  auto it = tagCache.getTagNameFromIdBegin();
+  int i = 0;
+  while (it != tagCache.getTagNameFromIdEnd())
+  {
+    std::string name = it->first;
+    tags->tags->at(i++) = name;
+    it++;
+  }
+  return tags;
 }
 
-oatpp::Vector<oatpp::String> TagModel::getTagsIdFromNames(const oatpp::Vector<oatpp::String> &tags) {
+oatpp::Vector<oatpp::String> TagModel::getTagIdFromName(const oatpp::Vector<oatpp::String> &tags) {
   oatpp::Vector<oatpp::String> id = oatpp::Vector<oatpp::String>::createShared();
   id->resize(tags->size());
   for(int i = 0; i < tags->size(); i++) {
@@ -131,7 +143,7 @@ oatpp::Vector<oatpp::String> TagModel::getTagsIdFromNames(const oatpp::Vector<oa
   return id;
 }
 
-oatpp::Vector<oatpp::String> TagModel::getTagsName(const std::vector<std::string> &tagsId) {
+oatpp::Vector<oatpp::String> TagModel::getTagNameFromId(const std::vector<std::string> &tagsId) {
   oatpp::Vector<oatpp::String> tagName = oatpp::Vector<oatpp::String>::createShared();
   tagName->resize(tagsId.size());
   for(int i = 0; i < tagsId.size(); i++) {
@@ -145,20 +157,4 @@ oatpp::Vector<oatpp::String> TagModel::getTagsName(const std::vector<std::string
   });
 
   return tagName;
-}
-
-oatpp::Object<TagJsonDto> TagModel::getTags() {
-  auto tags = TagJsonDto::createShared();
-  tags->tags = {};
-  tags->tags->resize(tagCache.getSize());
-
-  auto it = tagCache.getTagNameBegin();
-  int i = 0;
-  while (it != tagCache.getTagNameEnd())
-  {
-    std::string name = it->first;
-    tags->tags->at(i++) = name;
-    it++;
-  }
-  return tags;
 }

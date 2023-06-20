@@ -28,7 +28,7 @@ oatpp::Object<ArticleJsonDto> ArticleService::createArticle(std::string &id, con
     OATPP_ASSERT_HTTP(result, Status::CODE_500, "Internal Server Error.");
 
     // Generate JSON string
-    auto tagsId = tagModel.getTagsIdFromNames(tags);
+    auto tagsId = tagModel.getTagIdFromName(tags);
     for(int i = 0; i < tagsId->size(); i++) {
       tagsStr += tagsId->at(i);
       if(i < tagsId->size() - 1)
@@ -93,7 +93,7 @@ oatpp::Object<ArticleJsonDto> ArticleService::getArticle(std::string &id, std::s
   auto tagJson = std::get<ArticleModel::GetArticleEnum::TagsJsonStr>(articleResult);
   std::vector<std::string> tagsIdList = splitStr(tagJson[0], splitJsonArrRegex);
   tagsIdList.erase(tagsIdList.begin()); // First element is empty
-  auto tagNameList = tagModel.getTagsName(tagsIdList);
+  auto tagNameList = tagModel.getTagNameFromId(tagsIdList);
   article->tagList = tagNameList;
   
   auto response = ArticleJsonDto::createShared();
@@ -103,8 +103,12 @@ oatpp::Object<ArticleJsonDto> ArticleService::getArticle(std::string &id, std::s
 
 oatpp::Object<ArticlesJsonDto> ArticleService::getArticles(std::string &id, unsigned int limit, unsigned int offset, std::string &tag, std::string &author, std::string &favouritedBy, bool feed) {
   // Convert User input to SQL accepted format
-  if(!tag.empty()) // tag name -> tag id
-    tag = tagModel.getTagIdFromName(tag);
+  if(!tag.empty()) {// tag name -> tag id
+    oatpp::Vector<oatpp::String> tagList = oatpp::Vector<oatpp::String>::createShared();
+    tagList->push_back(tag);
+    auto tagResult = tagModel.getTagIdFromName(tagList);
+    tag = tagResult->size() > 0 ? tagResult->at(0) : "-1";
+  }
   if(!author.empty()) // author user name -> user Id
     author = userModel.getProfileFromUsername(author).second;
   if(!favouritedBy.empty())
@@ -133,7 +137,7 @@ oatpp::Object<ArticlesJsonDto> ArticleService::getArticles(std::string &id, unsi
     // Tag data
     std::vector<std::string> tagsIdList = splitStr(tagsJsonStrList[i], splitJsonArrRegex);
     tagsIdList.erase(tagsIdList.begin()); // First element is empty
-    articles->at(i)->tagList = tagModel.getTagsName(tagsIdList);
+    articles->at(i)->tagList = tagModel.getTagNameFromId(tagsIdList);
 
     // Favourite Count
     articles->at(i)->favouritesCount = favouriteData[articleIdList[i]].first;
@@ -180,7 +184,7 @@ oatpp::Object<ArticleJsonDto> ArticleService::updateArticle(std::string &id, std
     OATPP_ASSERT_HTTP(result, Status::CODE_500, "Internal Server Error.");
 
     // Generate JSON string
-    auto tagsId = tagModel.getTagsIdFromNames(tags);
+    auto tagsId = tagModel.getTagIdFromName(tags);
     for(int i = 0; i < tagsId->size(); i++) {
       tagsStr += tagsId->at(i);
       if(i < tagsId->size() - 1)
@@ -231,14 +235,14 @@ oatpp::Object<ArticleJsonDto> ArticleService::updateArticle(std::string &id, std
     auto tagJson = std::get<ArticleModel::GetArticleEnum::TagsJsonStr>(articleResult)[0];
     std::vector<std::string> tagsIdList = splitStr(tagJson, splitJsonArrRegex);
     tagsIdList.erase(tagsIdList.begin()); // First element is empty
-    auto tagNameList = tagModel.getTagsName(tagsIdList);
+    auto tagNameList = tagModel.getTagNameFromId(tagsIdList);
     article->tagList = tagNameList;
   }
   else {
     // Updated on tag, use old tag
     std::vector<std::string> tagsIdList = splitStr(tagsStr, splitJsonArrRegex);
     tagsIdList.erase(tagsIdList.begin()); // First element is empty
-    article->tagList = tagModel.getTagsName(tagsIdList);
+    article->tagList = tagModel.getTagNameFromId(tagsIdList);
   }
   
   auto response = ArticleJsonDto::createShared();
@@ -306,7 +310,7 @@ oatpp::Object<ArticleJsonDto> ArticleService::favouriteArticle(std::string &id, 
   auto tagJson = std::get<ArticleModel::GetArticleEnum::TagsJsonStr>(articleResult);
   std::vector<std::string> tagsIdList = splitStr(tagJson[0], splitJsonArrRegex);
   tagsIdList.erase(tagsIdList.begin()); // First element is empty
-  auto tagNameList = tagModel.getTagsName(tagsIdList);
+  auto tagNameList = tagModel.getTagNameFromId(tagsIdList);
   article->tagList = tagNameList;
 
   auto response = ArticleJsonDto::createShared();
@@ -343,7 +347,7 @@ oatpp::Object<ArticleJsonDto> ArticleService::unfavouriteArticle(std::string &id
   auto tagJson = std::get<ArticleModel::GetArticleEnum::TagsJsonStr>(articleResult);
   std::vector<std::string> tagsIdList = splitStr(tagJson[0], splitJsonArrRegex);
   tagsIdList.erase(tagsIdList.begin()); // First element is empty
-  auto tagNameList = tagModel.getTagsName(tagsIdList);
+  auto tagNameList = tagModel.getTagNameFromId(tagsIdList);
   article->tagList = tagNameList;
 
   auto response = ArticleJsonDto::createShared();
