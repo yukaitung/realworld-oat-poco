@@ -78,10 +78,11 @@ oatpp::Object<ArticleJsonDto> ArticleService::getArticle(std::string &id, std::s
   OATPP_ASSERT_HTTP(!authorId.empty(), Status::CODE_500, "Internal Server Error."); // Missing author id = error
 
   // Response data
-  auto favouriteData = articleHasFavouriteModel.getArticlefavouriteData(articleId, id);
-  OATPP_ASSERT_HTTP(favouriteData.first >= 0, Status::CODE_500, "Internal Server Error.");
-  article->favourited = favouriteData.second;
-  article->favouritesCount = favouriteData.first;
+  std::vector<std::string> articleIdList = {articleId};
+  auto favouriteData = articleHasFavouriteModel.getArticlefavouriteData(articleIdList, id);
+  OATPP_ASSERT_HTTP(favouriteData.size() > 0, Status::CODE_500, "Internal Server Error.");
+  article->favourited = favouriteData[articleId].second;
+  article->favouritesCount = favouriteData[articleId].first;
   auto author = userModel.getProfileFromId(authorId);
   if(!id.empty())
     author->following = userHasFollowerModel.userHasThisFollower(authorId, id);
@@ -116,7 +117,7 @@ oatpp::Object<ArticlesJsonDto> ArticleService::getArticles(std::string &id, unsi
 
   // Favourite
   std::vector<std::string> articleIdList = std::get<ArticleModel::GetArticleEnum::ArticleId>(articlesObj);
-  std::unordered_map<std::string, std::pair<unsigned int, bool>> favouriteData = articleHasFavouriteModel.getArticlesfavouriteData(articleIdList, id);
+  std::unordered_map<std::string, std::pair<unsigned int, bool>> favouriteData = articleHasFavouriteModel.getArticlefavouriteData(articleIdList, id);
 
   // Get authors profile and following
   std::vector<std::string> tagsJsonStrList = std::get<ArticleModel::GetArticleEnum::TagsJsonStr>(articlesObj);
@@ -214,10 +215,11 @@ oatpp::Object<ArticleJsonDto> ArticleService::updateArticle(std::string &id, std
   article->updatedAt = articleModel.timeTz(updateTime);
   
   // Favourite, profile
-  auto favouriteData = articleHasFavouriteModel.getArticlefavouriteData(articleId, id);
-  OATPP_ASSERT_HTTP(favouriteData.first >= 0, Status::CODE_500, "Internal Server Error.");
-  article->favourited = favouriteData.second;
-  article->favouritesCount = favouriteData.first;
+  std::vector<std::string> articleIdList = {articleId};
+  auto favouriteData = articleHasFavouriteModel.getArticlefavouriteData(articleIdList, id);
+  OATPP_ASSERT_HTTP(favouriteData.size() > 0, Status::CODE_500, "Internal Server Error.");
+  article->favourited = favouriteData[articleId].second;
+  article->favouritesCount = favouriteData[articleId].first;
   auto author = userModel.getProfileFromId(id);
   article->author = author;
 
@@ -285,8 +287,9 @@ oatpp::Object<ArticleJsonDto> ArticleService::favouriteArticle(std::string &id, 
   OATPP_ASSERT_HTTP(result, Status::CODE_500, "Internal Server Error.");
 
   // Get favourite data
-  auto favouriteData = articleHasFavouriteModel.getArticlefavouriteData(articleId, id);
-  OATPP_ASSERT_HTTP(favouriteData.first >= 0, Status::CODE_500, "Internal Server Error.");
+  std::vector<std::string> articleIdList = {articleId};
+  auto favouriteData = articleHasFavouriteModel.getArticlefavouriteData(articleIdList, id);
+  OATPP_ASSERT_HTTP(favouriteData.size() > 0, Status::CODE_500, "Internal Server Error.");
 
   // Response data
   std::string authorId = std::get<ArticleModel::GetArticleEnum::AuthorId>(articleObj);
@@ -294,7 +297,7 @@ oatpp::Object<ArticleJsonDto> ArticleService::favouriteArticle(std::string &id, 
   author->following = userHasFollowerModel.userHasThisFollower(authorId, id);
   
   article->favourited = true;
-  article->favouritesCount = favouriteData.first;
+  article->favouritesCount = favouriteData[articleId].first;
   article->author = author;
 
   // Tag data
@@ -324,8 +327,9 @@ oatpp::Object<ArticleJsonDto> ArticleService::unfavouriteArticle(std::string &id
   OATPP_ASSERT_HTTP(result, Status::CODE_500, "Internal Server Error.");
 
   // Get favourite data
-  auto favouriteData = articleHasFavouriteModel.getArticlefavouriteData(articleId, id);
-  OATPP_ASSERT_HTTP(favouriteData.first >= 0, Status::CODE_500, "Internal Server Error.");
+  std::vector<std::string> articleIdList = {articleId};
+  auto favouriteData = articleHasFavouriteModel.getArticlefavouriteData(articleIdList, id);
+  OATPP_ASSERT_HTTP(favouriteData.size() > 0, Status::CODE_500, "Internal Server Error.");
 
   // Response data
   std::string authorId = std::get<ArticleModel::GetArticleEnum::AuthorId>(articleObj);
@@ -333,7 +337,7 @@ oatpp::Object<ArticleJsonDto> ArticleService::unfavouriteArticle(std::string &id
   author->following = userHasFollowerModel.userHasThisFollower(authorId, id);
   
   article->favourited = false;
-  article->favouritesCount = favouriteData.first;
+  article->favouritesCount = favouriteData[articleId].first;
   article->author = author;
 
   // Tag data

@@ -50,22 +50,7 @@ try {
   }
 }
 
-std::pair<unsigned int, bool> ArticleHasFavouriteModel::getArticlefavouriteData(std::string &articleId, std::string &userId) {
-  Poco::Nullable<unsigned int> retrunFavouriteCount;
-  Poco::Nullable<unsigned int> retrunUserFavourite;
-
-  try {
-    Session session(DatabaseHelper::getSession());
-    session << "SELECT COUNT(*), COUNT(CASE WHEN user_id = ? THEN 1 END) FROM articles_has_favourites WHERE article_id = ?", into(retrunFavouriteCount), into(retrunUserFavourite), use(userId), use(articleId), now;
-    return {retrunFavouriteCount.value(), retrunUserFavourite.value() >= 1};
-  }
-  catch(Exception& exp) {
-    OATPP_LOGE("ArticleHasFavouriteModel", ":%s(): %s", __func__, exp.displayText().c_str());
-    return {-1, false};
-  } 
-}
-
-std::unordered_map<std::string, std::pair<unsigned int, bool>> ArticleHasFavouriteModel::getArticlesfavouriteData(std::vector<std::string> &articleId, std::string &userId) {
+std::unordered_map<std::string, std::pair<unsigned int, bool>> ArticleHasFavouriteModel::getArticlefavouriteData(std::vector<std::string> &articleId, std::string &userId) {
   if(articleId.empty())
     return {};
 
@@ -90,6 +75,10 @@ std::unordered_map<std::string, std::pair<unsigned int, bool>> ArticleHasFavouri
       unsigned int favouriteCount = rs.value(1, i);
       bool userFavourite = rs.value(2, i) >= 1;
       favourtieData.insert({id, {favouriteCount, userFavourite}});
+    }
+
+    if(favourtieData.empty()) { // No favourite record in database, append a dummy record
+      favourtieData.insert({articleId[0], {0, false}});
     }
 
     return favourtieData;
