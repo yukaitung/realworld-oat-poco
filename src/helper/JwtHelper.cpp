@@ -1,4 +1,4 @@
-#include "helper/Jwt.hpp"
+#include "helper/JwtHelper.hpp"
 
 #include "Config.h"
 
@@ -12,14 +12,14 @@ using Poco::JWT::Token;
 using Poco::JWT::Signer;
 using Poco::Exception;
 
-std::string Jwt::signerSecret = "";
+std::string JwtHelper::signerSecret = "";
 
-void Jwt::setSignerSecret(const std::string &secret) {
+void JwtHelper::setSignerSecret(const std::string &secret) {
   if(signerSecret.empty())
     signerSecret = secret;
 }
 
-std::string Jwt::issueJWT(const std::string &id) {
+std::string JwtHelper::issueJWT(const std::string &id) {
   Token token;
   token.setType("JWT");
   token.setSubject("REALWORLD");
@@ -36,7 +36,7 @@ std::string Jwt::issueJWT(const std::string &id) {
   return jwt;
 }
 
-std::string Jwt::validateJWT(const std::string &jwt) {
+std::string JwtHelper::validateJWT(const std::string &jwt) {
   Signer signer(signerSecret);
   std::string id = "";
 

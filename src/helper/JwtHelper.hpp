@@ -1,19 +1,22 @@
-#ifndef JWT_HPP
-#define JWT_HPP
+#ifndef JWTHELPER_HPP
+#define JWTHELPER_HPP
 
 #include <string>
 
-class Jwt {
+class JwtHelper {
   private:
     static std::string signerSecret;
 
   public:
-    Jwt() = delete;
+    JwtHelper() = delete;
 
+    /**
+    * This method is used to setup jwt signer secret
+    */
     static void setSignerSecret(const std::string &secret);
 
     /**
-    * This method is used to issue a JWT token.
+    * This method is used to issue a JWT token. The token is expired in 15 minutes
     * @param id The user id.
     * @return std::string This returns JWT token.
     */
@@ -22,9 +25,9 @@ class Jwt {
     /**
     * This method is used to validate a JWT token.
     * @param jwt The JWT token.
-    * @return std::string This returns user id.
+    * @return std::string This returns user id. Returns empty string if the token is invalid.
     */
     static std::string validateJWT(const std::string &jwt);
 };
 
-#endif // JWT_HPP
+#endif // JWTHELPER_HPP

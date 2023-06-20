@@ -1,5 +1,5 @@
 #include "helper/TokenAuthorization.hpp"
-#include "helper/Jwt.hpp"
+#include "helper/JwtHelper.hpp"
 
 #include "oatpp/web/protocol/http/Http.hpp"
 
@@ -24,7 +24,7 @@ std::shared_ptr<AuthorizationObject> TokenAuthorizationHandler::handleAuthorizat
 
 std::shared_ptr<AuthorizationObject> TokenAuthorizationHandler::authorize(const oatpp::String& token) {
   if(!token->empty()) {
-    std::string id = Jwt::validateJWT(token);
+    std::string id = JwtHelper::validateJWT(token);
     OATPP_ASSERT_HTTP(!id.empty(), Status::CODE_401, "The token is incorrect.");
     return std::make_shared<TokenAuthorizationObject>(id);
   }
@@ -44,7 +44,7 @@ std::shared_ptr<AuthorizationObject> OptionalTokenAuthorizationHandler::handleAu
 std::shared_ptr<AuthorizationObject> OptionalTokenAuthorizationHandler::authorize(const oatpp::String& token) {
   std::string id = "";
   if(!token->empty()) {
-    id = Jwt::validateJWT(token);
+    id = JwtHelper::validateJWT(token);
     OATPP_ASSERT_HTTP(!id.empty(), Status::CODE_401, "The token is incorrect.");
   }
   return std::make_shared<TokenAuthorizationObject>(id);

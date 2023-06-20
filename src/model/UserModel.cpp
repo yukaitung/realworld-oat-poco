@@ -1,5 +1,5 @@
 #include "model/UserModel.hpp"
-#include "helper/Jwt.hpp"
+#include "helper/JwtHelper.hpp"
 #include "helper/DatabaseHelper.hpp"
 
 #include "Poco/Data/Session.h"
@@ -63,7 +63,7 @@ oatpp::Object<UserDto> UserModel::createUser(std::string &email, std::string &us
     session << "SELECT CAST(last_insert_id() AS char)", into(retrunId), now;
 
     // Update token
-    std::string token = Jwt::issueJWT(retrunId.value());
+    std::string token = JwtHelper::issueJWT(retrunId.value());
     session << "UPDATE users SET token = ? WHERE (id = ?)", use(token), use(retrunId.value()), now;
 
     auto user = UserDto::createShared();
@@ -103,7 +103,7 @@ oatpp::Object<UserDto> UserModel::login(std::string &email, std::string &passwor
       }
 
       // Update token
-      std::string token = Jwt::issueJWT(retrunId.value());
+      std::string token = JwtHelper::issueJWT(retrunId.value());
       session << "UPDATE users SET token = ? WHERE (id = ?)", use(token), use(retrunId.value()), now;
 
       auto user = UserDto::createShared();
@@ -185,7 +185,7 @@ oatpp::Object<UserDto> UserModel::updateUser(std::string &id, std::string &email
     
     // Update token
     std::string token;
-    token = Jwt::issueJWT(id);
+    token = JwtHelper::issueJWT(id);
     updateStatment << " token = ? WHERE id = ?", use(token), use(id);
     updateStatment.execute();
 

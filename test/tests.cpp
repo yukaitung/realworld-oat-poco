@@ -1,5 +1,5 @@
 #include "Config.h"
-#include "helper/Jwt.hpp"
+#include "helper/JwtHelper.hpp"
 #include "helper/DatabaseHelper.hpp"
 #include "model/TagModel.hpp"
 
@@ -72,7 +72,7 @@ int main() {
   if(signerSecret.empty()) {
     signerSecret = "REALWORLD-OAT-POCO-123456";
   }
-  Jwt::setSignerSecret(signerSecret);
+  JwtHelper::setSignerSecret(signerSecret);
 
   // Init cache
   TagModel::InitCache();
