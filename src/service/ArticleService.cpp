@@ -1,4 +1,5 @@
 #include "service/ArticleService.hpp"
+#include "helper/CommonHelper.hpp"
 
 #include "Poco/Timestamp.h"
 #include "Poco/LocalDateTime.h"
@@ -107,7 +108,7 @@ oatpp::Object<ArticlesJsonDto> ArticleService::getArticles(std::string &id, unsi
     oatpp::Vector<oatpp::String> tagList = oatpp::Vector<oatpp::String>::createShared();
     tagList->push_back(tag);
     auto tagResult = tagModel.getTagIdFromName(tagList);
-    tag = tagResult->size() > 0 ? tagResult->at(0) : "-1";
+    tag = !tagResult->at(0)->empty() ? tagResult->at(0) : "-1";
   }
   if(!author.empty()) // author user name -> user Id
     author = userModel.getProfileFromUsername(author).second;
@@ -217,7 +218,7 @@ oatpp::Object<ArticleJsonDto> ArticleService::updateArticle(std::string &id, std
     article->description = description;
   if(!body.empty())
     article->body = body;
-  article->updatedAt = articleModel.timeTz(updateTime);
+  article->updatedAt = CommonHelper::timeTz(updateTime);
   
   // Favourite, Author, Following
   std::vector<std::string> articleIdList = {articleId};

@@ -1,5 +1,6 @@
 #include "model/ArticleModel.hpp"
 #include "helper/DatabaseHelper.hpp"
+#include "helper/CommonHelper.hpp"
 
 #include "Poco/Data/Session.h"
 #include "Poco/Data/RecordSet.h"
@@ -14,12 +15,6 @@ using Poco::Data::Statement;
 using Poco::Exception;
 using oatpp::web::protocol::http::Status;
 
-std::string ArticleModel::timeTz(std::string &time) {
-  std::string tz = time + ".000Z";
-  tz[10] = 'T';
-  return tz; 
-}
-
 oatpp::Object<ArticleDto> ArticleModel::createArticle(std::string &userId, std::string &slug, std::string &title, std::string &description, std::string &body, std::string &tagsStr, std::string &createTime) {
   try {
     // Insert article
@@ -31,7 +26,7 @@ oatpp::Object<ArticleDto> ArticleModel::createArticle(std::string &userId, std::
     article->title = title;
     article->description = description;
     article->body = body;
-    std::string tz = timeTz(createTime);
+    std::string tz = CommonHelper::timeTz(createTime);
     article->createdAt = tz;
     article->updatedAt = tz;
     article->favourited = false;
@@ -112,8 +107,8 @@ std::tuple<oatpp::Vector<oatpp::Object<ArticleDto>>, std::vector<std::string>, s
       article->favouritesCount = 0;
       std::string createdAtStr = rs.value(7, i).toString();
       std::string updatedAtStr = rs.value(8, i).toString();
-      article->createdAt = timeTz(createdAtStr);
-      article->updatedAt = timeTz(updatedAtStr);
+      article->createdAt = CommonHelper::timeTz(createdAtStr);
+      article->updatedAt = CommonHelper::timeTz(updatedAtStr);
       articles->at(i) = article;
 
       articleIds[i] = rs.value(0, i).toString();

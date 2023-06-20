@@ -26,6 +26,7 @@ endif()
 
 configure_file(src/Config.h.in ${PROJECT_SOURCE_DIR}/src/Config.h)
 add_library(${PROJECT_NAME}-lib
+  src/helper/CommonHelper.cpp
   src/helper/DatabaseHelper.cpp
   src/helper/JwtHelper.cpp
   src/helper/TokenAuthorization.cpp

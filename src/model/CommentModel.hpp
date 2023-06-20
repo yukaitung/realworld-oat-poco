@@ -10,8 +10,6 @@ class CommentModel {
   public:
     CommentModel() {};
     
-    std::string timeTz(std::string &time);
-
     /**
     * This method is to create a comment for an article.
     * @param userId The user id

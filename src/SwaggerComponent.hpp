@@ -39,7 +39,6 @@ public:
     return builder.build(); 
   }());
   
-  
   /**
    *  Swagger-Ui Resources
    */

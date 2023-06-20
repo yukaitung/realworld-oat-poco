@@ -1,4 +1,5 @@
 #include "model/CommentModel.hpp"
+#include "helper/CommonHelper.hpp"
 #include "helper/DatabaseHelper.hpp"
 
 #include "Poco/Data/Session.h"
@@ -14,12 +15,6 @@ using Poco::Data::Statement;
 using Poco::Exception;
 using oatpp::web::protocol::http::Status;
 
-std::string CommentModel::timeTz(std::string &time) {
-  std::string tz = time + ".000Z";
-  tz[10] = 'T';
-  return tz; 
-}
-
 oatpp::Object<CommentDto> CommentModel::createComment(std::string &userId, std::string &articleId, std::string &body, std::string &createTime) {
   try {
     // Insert comment
@@ -33,7 +28,7 @@ oatpp::Object<CommentDto> CommentModel::createComment(std::string &userId, std::
     auto comment = CommentDto::createShared();
     comment->id = retrunId.value();
     comment->body = body;
-    std::string tz = timeTz(createTime);
+    std::string tz = CommonHelper::timeTz(createTime);
     comment->createdAt = tz;
     comment->updatedAt = tz;
     return comment;
@@ -63,8 +58,8 @@ std::pair<oatpp::Vector<oatpp::Object<CommentDto>>, std::vector<std::string>> Co
       comment->body = rs.value(2, i).toString();
       std::string createdAt = rs.value(3, i).toString();
       std::string updatedAt = rs.value(4, i).toString();
-      comment->createdAt = timeTz(createdAt);
-      comment->updatedAt = timeTz(updatedAt);
+      comment->createdAt = CommonHelper::timeTz(createdAt);
+      comment->updatedAt = CommonHelper::timeTz(updatedAt);
       comments->at(i) = comment;
       authorIds[i] = rs.value(1, i).toString();
     }

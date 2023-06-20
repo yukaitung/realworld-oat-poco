@@ -11,7 +11,7 @@ class ArticleModel {
     enum GetArticleEnum {Article, ArticleId, AuthorId, TagsJsonStr};
     
     ArticleModel() {};
-    std::string timeTz(std::string &time);
+    
     /**
     * This method is to create an article into database.
     * @param userId The author user id of article.
