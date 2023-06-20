@@ -264,7 +264,7 @@ cmake --build . -j$(sysctl -n hw.ncpu) # macOS
 
 ### 執行程式
 
-首先需要建立 SQL 數據庫。以下指令會建立一個名為`Realworld`的數據庫。這些指令忽略了網絡安全，只適合進行測試。數據庫設計可參考檔案 [realworld.sql](sql/realworld.sql)。
+首先需要建立 SQL 數據庫。以下指令會建立一個名為 `Realworld` 的數據庫。這些指令忽略了網絡安全，只適合進行測試。數據庫設計可參考檔案 [realworld.sql](sql/realworld.sql)。
 
 ```bash
 sudo mysql -e "CREATE USER 'admin'@'127.0.0.1' IDENTIFIED BY '123456';"

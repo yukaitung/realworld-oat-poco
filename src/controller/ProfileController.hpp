@@ -25,6 +25,7 @@ public:
     setDefaultAuthorizationHandler(std::make_shared<TokenAuthorizationHandler>());
   }
 
+  ADD_CORS(followProfile)
   ENDPOINT_INFO(followProfile) {
     info->summary = "Follow a user";
     info->addResponse<Object<UserProfileJsonDto>>(Status::CODE_200, "application/json");
@@ -44,6 +45,7 @@ public:
     return createDtoResponse(Status::CODE_200, profileService.followProfile(authObject->id, usernameStr2));
   }
 
+  ADD_CORS(unfollowProfile)
   ENDPOINT_INFO(unfollowProfile) {
     info->summary = "Unfollow a user";
     info->addResponse<Object<UserProfileJsonDto>>(Status::CODE_200, "application/json");
@@ -84,6 +86,7 @@ public:
     return std::make_shared<ProfileControllerOptionalAuth>(objectMapper);
   }
 
+  ADD_CORS(getProfile)
   ENDPOINT_INFO(getProfile) {
     info->summary = "Get a user profile (Authorization is optional)";
     info->addResponse<Object<UserProfileJsonDto>>(Status::CODE_200, "application/json");

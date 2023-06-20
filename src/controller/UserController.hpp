@@ -29,6 +29,7 @@ public:
     return std::make_shared<UserController>(objectMapper);
   }
 
+  ADD_CORS(createUser)
   ENDPOINT_INFO(createUser) {
     info->summary = "Create new user";
     info->addConsumes<Object<UserRegJsonDto>>("application/json");
@@ -42,6 +43,7 @@ public:
     return createDtoResponse(Status::CODE_200, userService.createUser(dto));
   }
 
+  ADD_CORS(login)
   ENDPOINT_INFO(login) {
     info->summary = "Login";
     info->addResponse<Object<UserJsonDto>>(Status::CODE_200, "application/json");
@@ -55,6 +57,7 @@ public:
     return createDtoResponse(Status::CODE_200, userService.login(dto));
   }
 
+  ADD_CORS(getUser)
   ENDPOINT_INFO(getUser) {
     info->summary = "Get current user";
     info->addResponse<Object<UserJsonDto>>(Status::CODE_200, "application/json");
@@ -69,6 +72,7 @@ public:
     return createDtoResponse(Status::CODE_200, userService.getUser(authObject->id));
   }
 
+  ADD_CORS(updateUser)
   ENDPOINT_INFO(updateUser) {
     info->summary = "Update information for current user";
     info->addResponse<Object<UserJsonDto>>(Status::CODE_200, "application/json");

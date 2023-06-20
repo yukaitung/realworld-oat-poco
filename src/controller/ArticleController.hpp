@@ -31,6 +31,7 @@ public:
     return std::make_shared<ArticleController>(objectMapper);
   }
 
+  ADD_CORS(feedArticles)
   ENDPOINT_INFO(feedArticles) {
     info->summary = "Get multiple articles created by followed users, ordered by most recent first";
     info->addResponse<Object<ArticlesJsonDto>>(Status::CODE_200, "application/json");
@@ -55,6 +56,7 @@ public:
     return createDtoResponse(Status::CODE_200, articleService.getArticles(authObject->id, limit, offset, dummy, dummy, dummy, true));
   }
 
+  ADD_CORS(createArticle)
   ENDPOINT_INFO(createArticle) {
     info->summary = "Create new article";
     info->addResponse<Object<ArticleJsonDto>>(Status::CODE_200, "application/json");
@@ -69,6 +71,7 @@ public:
     return createDtoResponse(Status::CODE_200, articleService.createArticle(authObject->id, dto));
   }
 
+  ADD_CORS(updateArticle)
   ENDPOINT_INFO(updateArticle) {
     info->summary = "Update an article";
     info->addResponse<Object<ArticleJsonDto>>(Status::CODE_200, "application/json");
@@ -85,6 +88,7 @@ public:
     return createDtoResponse(Status::CODE_200, articleService.updateArticle(authObject->id, slugStr, dto));
   }
 
+  ADD_CORS(deleteArticle)
   ENDPOINT_INFO(deleteArticle) {
     info->summary = "Delete an article";
     info->addResponse<Object<ArticleJsonDto>>(Status::CODE_200, "application/json");
@@ -102,6 +106,7 @@ public:
     return createDtoResponse(Status::CODE_200, articleService.deleteArticle(authObject->id, slugStr));
   }
 
+  ADD_CORS(favouriteArticle)
   ENDPOINT_INFO(favouriteArticle) {
     info->summary = "Favourite an article";
     info->addResponse<Object<ArticleJsonDto>>(Status::CODE_200, "application/json");
@@ -118,6 +123,7 @@ public:
     return createDtoResponse(Status::CODE_200, articleService.favouriteArticle(authObject->id, slugStr));
   }
 
+  ADD_CORS(unfavouriteArticle)
   ENDPOINT_INFO(unfavouriteArticle) {
     info->summary = "Unfavourite an article";
     info->addResponse<Object<ArticleJsonDto>>(Status::CODE_200, "application/json");
@@ -134,6 +140,7 @@ public:
     return createDtoResponse(Status::CODE_200, articleService.unfavouriteArticle(authObject->id, slugStr));
   }
 
+  ADD_CORS(createComment)
   ENDPOINT_INFO(createComment) {
     info->summary = "Create a comment in the article";
     info->addResponse<Object<CommentJsonDto>>(Status::CODE_200, "application/json");
@@ -150,6 +157,7 @@ public:
     return createDtoResponse(Status::CODE_200, articleService.createComment(authObject->id, slugStr, dto));
   }
 
+  ADD_CORS(deleteComment)
   ENDPOINT_INFO(deleteComment) {
     info->summary = "Delete a comment in the article";
     info->addResponse<Object<CommentJsonDto>>(Status::CODE_200, "application/json");
@@ -167,6 +175,7 @@ public:
     return createDtoResponse(Status::CODE_200, articleService.deleteComment(authObject->id, slugStr, commentIdStr));
   }
 
+  ADD_CORS(getTags)
   ENDPOINT_INFO(getTags) {
     info->summary = "Get all tags";
     info->addResponse<Object<TagJsonDto>>(Status::CODE_200, "application/json");
@@ -195,6 +204,7 @@ public:
     return std::make_shared<ArticleControllerOptionalAuth>(objectMapper);
   }
 
+  ADD_CORS(getArticle)
   ENDPOINT_INFO(getArticle) {
     info->summary = "Get an article (Authorization is optional)";
     info->addResponse<Object<ArticleJsonDto>>(Status::CODE_200, "application/json");
@@ -211,6 +221,7 @@ public:
     return createDtoResponse(Status::CODE_200, articleService.getArticle(authObject->id, slugStr));
   }
 
+  ADD_CORS(getArticles)
   ENDPOINT_INFO(getArticles) {
     info->summary = "Get a list of articles (Authorization is optional)";
     info->addResponse<Object<ArticlesJsonDto>>(Status::CODE_200, "application/json");
@@ -243,6 +254,7 @@ public:
     return createDtoResponse(Status::CODE_200, articleService.getArticles(authObject->id, limit, offset, tag, author, favouritedBy));
   }
 
+  ADD_CORS(getComments)
   ENDPOINT_INFO(getComments) {
     info->summary = "Get comments for an article (Authorization is optional)";
     info->addResponse<Object<ArticleJsonDto>>(Status::CODE_200, "application/json");
