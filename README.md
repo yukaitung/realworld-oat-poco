@@ -20,7 +20,7 @@ For more information on how this works with other frontends/backends, head over 
 
 # Try To Use British English
 
-All API endpoints, parameters and source code, should use British English. Please change `favorite` into `favourite` when evaluating the project.
+All API endpoints, parameters and source code, should use British English. Please change `favorite` into `favourite` when evaluating the project. I have an the UK verson of the [Postman Collection](test/Conduit.postman_collection_uk.json).
 
 # How it works
 ### Software
@@ -32,29 +32,27 @@ Oat++:
 * Hosting a RESTful API
 * Authenticating a user
 * Validating user input
-* Running API tests
+* Running API unit tests
 * Integrating with Swagger UI
 
 POCO:
 
 * Generating and validating JWT Token
+* Encoding / decoding the [URI format](https://docs.pocoproject.org/current/Poco.URI.html#20774)
 * Connecting to MySQL server
-* Handling timezone
+* Handling of timezone by creating a timezone aware DateTime object
 
 ### MVCS Pattern
 
 This project follows the MVCS pattern [(Example)](https://github.com/oatpp/example-crud) [(What is MVCS)](https://stackoverflow.com/questions/5702391/mvcs-model-view-controller-service). Below is how the project interprets the MVCS.
 
-* The user sends a request
-* The Controller authenticates the user and selects the corresponding Service
-* The Service validates the data in the request, then selects the corresponding Model
-* The Model inserts, updates, or deletes data from MySQL, then returns the data to the Service
-* The Service may get more data from the Model, then returns the completed data to the Controller
-* The Controller returns the data to the user
+* The Controller is providing an endpoint and calling a corresponding Service.
+* The Service is retrieving data from one or more Models and processing the data.
+* The Model is actually operating CRUD data in the database.
 
 ### Unicode Support
 
-Most operating systems should support Unicode out-of-the-box (except on Microsoft Windows? Not sure). You can insert data using a Unicode-supported language. The below screenshot is inserting some Cantonese data in macOS. The slug is encoded into the URI.
+Most operating systems should support Unicode out-of-the-box (except on Microsoft Windows? Not sure). You can insert data using any Unicode-supported language. The below screenshot is inserting some Cantonese data in macOS. Note that the slug is encoded into the [URI format](https://docs.pocoproject.org/current/Poco.URI.html#20774).
 
 ![Unicode Test](img/utf8.png)
 
@@ -64,17 +62,29 @@ Most operating systems should support Unicode out-of-the-box (except on Microsof
 
 This project requires a C++ compiler, CMake 2.23, [Conan 2.0](https://conan.io/), MySQL, and pip. In macOS, [Homebrew](https://docs.brew.sh/Installation) can be an alternative to pip.
 
-### Build
+In Ubuntu, you can install the dependency by following command. Note that CMake is installed via pip because the version may be too old in Ubuntu.
 
-To build the project on Linux / macOS, navigate to the project folder.
+```bash
+sudo apt install -qy --no-install-recommends g++ make pip perl libmysqlclient-dev
+sudo pip install conan cmake
+sudo ln -s /usr/local/bin/cmake /usr/bin/cmake
+```
 
-If your Conan is freshly installed.
+In macOS, you should have Xcode Command Line Tools installed. Then you can install conan via Homebrew.
+
+```bash
+brew install conan
+```
+
+Then, run following command to [genetate profile for conan](https://docs.conan.io/2/reference/commands/profile.html)
 
 ```bash
 conan profile detect --force
 ```
 
-Then run the following commands, replace the `/usr/include/mysql` if your MySQL is installed in another directory.
+### Build
+
+To build the project on Linux / macOS, navigate to the project folder. Run the following commands, replace the `/usr/include/mysql` if your MySQL is installed in another directory.
 
 ```bash
 conan install . --output-folder=build --build=missing
@@ -86,29 +96,49 @@ cmake --build . -j$(sysctl -n hw.ncpu) # macOS
 
 ### Run
 
-You need to set up environment variables before executing the program. Then you should create the SQL schema, refer to [realworld.sql](sql/realworld.sql)
+First you should create the SQL schema. The comments below indicate the creation of the database name `Realworld`. Note that this is unsafe and intended only for testing purposes. Refer to [realworld.sql](sql/realworld.sql) fo deteiled schema.
 
 ```bash
-export REALWORLD_DB_HOST=<MySQL Server IP>
-export REALWORLD_DB_PORT=<MySQL Server Port>
-export REALWORLD_DB_NAME=<Database name>
-export REALWORLD_DB_USER=<MySQL Server Username>
-export REALWORLD_DB_PASSWORD=<MySQL Server Password>
-export REALWORLD_SIGNER_SECRET=<Some secret for JWT signer>
+sudo mysql -e "CREATE USER 'admin'@'127.0.0.1' IDENTIFIED BY '123456';"
+sudo mysql -e "GRANT ALL PRIVILEGES ON *.* TO 'admin'@'127.0.0.1';"
+sudo mysql -e "CREATE DATABASE Realworld;"
+sudo mysql RealworldTest < sql/realworld.sql
+```
+
+Then you need to set up environment variables before executing the program.
+
+| Variables Name    | Description |
+| ----------------- | ----------- |
+| REALWORLD_DB_HOST | MySQL Server IP Address |
+| REALWORLD_DB_PORT | MySQL Server Port |
+| REALWORLD_DB_NAME | Database Name |
+| REALWORLD_DB_USER | MySQL Server Username |
+| REALWORLD_DB_PASSWORD | MySQL Server Password |
+| REALWORLD_SIGNER_SECRET | JWT Singer Secret |
+
+Example:
+
+```bash
+export REALWORLD_DB_HOST=127.0.0.1
+export REALWORLD_DB_PORT=3306
+export REALWORLD_DB_NAME=Realworld
+export REALWORLD_DB_USER=admin
+export REALWORLD_DB_PASSWORD=123456
+export REALWORLD_SIGNER_SECRET=some_random_words
 ./Realworld
 ```
 
 ### Test
 
-If you would like to run the test, you should create the SQL schema as well, refer to [realworld.sql](sql/realworld.sql).
+If you would like to run the unit test, first you should create another database. Then, set up environment variables as follows.
 
 ```bash
-export REALWORLD_TEST_DB_HOST=<MySQL Server IP>
-export REALWORLD_TEST_DB_PORT=<MySQL Server Port>
-export REALWORLD_TEST_DB_NAME=<Database name>
-export REALWORLD_TEST_DB_USER=<MySQL Server Username>
-export REALWORLD_TEST_DB_PASSWORD=<MySQL Server Password>
-export REALWORLD_TEST_SIGNER_SECRET=<Some secret for JWT signer>
+export REALWORLD_TEST_DB_HOST=127.0.0.1
+export REALWORLD_TEST_DB_PORT=3306
+export REALWORLD_TEST_DB_NAME=RealworldTest
+export REALWORLD_TEST_DB_USER=admin
+export REALWORLD_TEST_DB_PASSWORD=123456
+export REALWORLD_TEST_SIGNER_SECRET=some_random_words
 ./Realworld-test
 ```
 
@@ -140,7 +170,7 @@ You can use the [Postman Collection](test/Conduit.postman_collection_uk.json) to
 
 ![GitLab Pipeline](https://gitlab.com/yukaitung/realworld-oat-poco/badges/main/pipeline.svg)
 
-[Coming from GitHub? Press here to redirect to GitLab Repository](https://gitlab.com/yukaitung/realworld-oat-poco)
+[來自 GitHub？ 按此轉至 GitLab Repository](https://gitlab.com/yukaitung/realworld-oat-poco)
 
 > ### C++、Oat++、POCO 現實應用原始碼 (CRUD、使用者驗證、MVCS pattern等) 符合 [RealWorld](https://github.com/gothinkster/realworld) 規格及 API。
 
@@ -156,7 +186,7 @@ You can use the [Postman Collection](test/Conduit.postman_collection_uk.json) to
 
 # 嘗試使用英式英文
 
-所有 API endpoints, 參數及原始碼都使用英式英文。測試本項目時請將`favorite`更改為`favourite`。
+所有 API endpoints, 參數及原始碼都使用英式英文。測試本項目時請將`favorite`更改為`favourite`。我為此特設英國版 [Postman Collection](test/Conduit.postman_collection_uk.json)。
 
 # 軟件運作方式
 ### 軟件
@@ -174,6 +204,7 @@ Oat++：
 POCO：
 
 * 生產及驗證 JWT Token
+* 編碼 / 解碼 [URI 編碼](https://docs.pocoproject.org/current/Poco.URI.html#20774)
 * 連接 MySQL 數據庫
 * 處理時差
 
@@ -181,16 +212,13 @@ POCO：
 
 本項目跟隨 MVCS pattern [(例子)](https://github.com/oatpp/example-crud) [(什麼是 MVCS)](https://stackoverflow.com/questions/5702391/mvcs-model-view-controller-service)。以下是本項目對 MVCS 的解釋。
 
-* 使用者傳送了一個 request
-* Controller 驗證使用者及轉發至有關 Service
-* Service 校驗使用者輸及選擇有關 Model
-* Model 新增、修改及刪除 MySQL 數據庫內的資料，然後將資料傳送至 Service
-* Service 可能再由 Model 提取資料，然後將完成的數據傳送至 Controller
-* Controller 然後將數據傳送至使用者
+* Controller 提供 endpoint 及選擇有關 Service
+* Service 由 Model 提取及處理數據
+* Model 在數據庫新增、更改、刪除數據
 
 ### 統一碼 (Unicode) 支援
 
-大部份作業系統都支援統一碼(不太肯定視窗作業系統是否支援)。你可以用統一碼支援的語言新增資料。以下截圖表示了以廣東話在 macOS 新增資料。圖中 Slug 轉換為 URI 編碼。
+大部份作業系統都支援統一碼(不太肯定視窗作業系統是否支援)。你可以用統一碼支援的語言新增資料。以下截圖表示了以廣東話在 macOS 新增資料。圖中 Slug 轉換為 [URI 編碼](https://docs.pocoproject.org/current/Poco.URI.html#20774)。
 
 ![Unicode Test](img/utf8.png)
 
@@ -200,17 +228,28 @@ POCO：
 
 本項目需要在電腦上安裝 C++ 編譯器, CMake 2.23, [Conan 2.0](https://conan.io/), MySQL, 及 pip。在 macOS 可使用 [Homebrew](https://docs.brew.sh/Installation) 取代 pip。
 
-### 編譯
+在 Ubuntu 作業系統，你可以執行以下指令安裝所有軟件。CMake 最好透過 pip 安裝因為 Ubuntu 中 CMake 版本可能太舊。
 
-要在 Linux / macOS 編譯項目，首先前往項目所在的資料夾內。
+```bash
+sudo apt install -qy --no-install-recommends g++ make pip perl libmysqlclient-dev
+sudo pip install conan cmake
+sudo ln -s /usr/local/bin/cmake /usr/bin/cmake
+```
 
-如果你剛安裝 Conan
+在 macOS 作業系統首先要安裝 Xcode Command Line Tools。然後可以使用 Homebrew 安裝 conan。
+
+```bash
+brew install conan
+```
+
+然後執行以下指令[建立 conan profile](https://docs.conan.io/2/reference/commands/profile.html)
 
 ```bash
 conan profile detect --force
 ```
+### 編譯
 
-然後執行以下指令，如果 MySQL 數據庫安裝在其他地方，請更改 `/usr/include/mysql`。
+要在 Linux / macOS 編譯項目，首先前往項目所在的資料夾內。執行以下指令，如果 MySQL 數據庫安裝在其他地方，請更改 `/usr/include/mysql`。
 
 ```bash
 conan install . --output-folder=build --build=missing
@@ -222,29 +261,49 @@ cmake --build . -j$(sysctl -n hw.ncpu) # macOS
 
 ### 執行程式
 
-在執行程式前，你需要設定一些 environment variables。然後建立 MySQL 數據庫，參考檔案 [realworld.sql](sql/realworld.sql)
+首先需要建立 SQL 數據庫。以下指令會建立一個名為`Realworld`的數據庫。這些指令忽略了網絡安全，只適合進行測試。數據庫設計可參考檔案 [realworld.sql](sql/realworld.sql)。
 
 ```bash
-export REALWORLD_DB_HOST=<MySQL Server IP>
-export REALWORLD_DB_PORT=<MySQL Server Port>
-export REALWORLD_DB_NAME=<Database name>
-export REALWORLD_DB_USER=<MySQL Server Username>
-export REALWORLD_DB_PASSWORD=<MySQL Server Password>
-export REALWORLD_SIGNER_SECRET=<Some secret for JWT signer>
+sudo mysql -e "CREATE USER 'admin'@'127.0.0.1' IDENTIFIED BY '123456';"
+sudo mysql -e "GRANT ALL PRIVILEGES ON *.* TO 'admin'@'127.0.0.1';"
+sudo mysql -e "CREATE DATABASE RealworldTest;"
+sudo mysql RealworldTest < sql/realworld.sql
+```
+
+然後你需要設定 environment variables 方可執行程式。
+
+| Variables Name    | Description |
+| ----------------- | ----------- |
+| REALWORLD_DB_HOST | MySQL 數據庫 IP 位址 |
+| REALWORLD_DB_PORT | MySQL 數據庫 Port |
+| REALWORLD_DB_NAME | 數據庫名稱 |
+| REALWORLD_DB_USER | MySQL 數據庫使用者名稱 |
+| REALWORLD_DB_PASSWORD | MySQL 數據庫密碼 |
+| REALWORLD_SIGNER_SECRET | JWT Singer 密碼 |
+
+指令例字：
+
+```bash
+export REALWORLD_DB_HOST=127.0.0.1
+export REALWORLD_DB_PORT=3306
+export REALWORLD_DB_NAME=Realworld
+export REALWORLD_DB_USER=admin
+export REALWORLD_DB_PASSWORD=123456
+export REALWORLD_SIGNER_SECRET=some_random_words
 ./Realworld
 ```
 
 ### 執行測試
 
-如果你想執行測試，首先建立 MySQL 數據庫，參考檔案 [realworld.sql](sql/realworld.sql)。
+如果你想執行測試，首先需要建立多一個 SQL 數據庫。然後設定 environment variables。
 
 ```bash
-export REALWORLD_TEST_DB_HOST=<MySQL Server IP>
-export REALWORLD_TEST_DB_PORT=<MySQL Server Port>
-export REALWORLD_TEST_DB_NAME=<Database name>
-export REALWORLD_TEST_DB_USER=<MySQL Server Username>
-export REALWORLD_TEST_DB_PASSWORD=<MySQL Server Password>
-export REALWORLD_TEST_SIGNER_SECRET=<Some secret for JWT signer>
+export REALWORLD_TEST_DB_HOST=127.0.0.1
+export REALWORLD_TEST_DB_PORT=3306
+export REALWORLD_TEST_DB_NAME=RealworldTest
+export REALWORLD_TEST_DB_USER=admin
+export REALWORLD_TEST_DB_PASSWORD=123456
+export REALWORLD_TEST_SIGNER_SECRET=<some_random_words
 ./Realworld-test
 ```
 
