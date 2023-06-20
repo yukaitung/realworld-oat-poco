@@ -10,14 +10,6 @@ class UserHasFollowerModel {
     UserHasFollowerModel() {};
 
     /**
-    * This method is to search a following record.
-    * @param userId The profile user id.
-    * @param followerId The follower user id.
-    * @return bool This return the result, true if the record exist.
-    */
-    bool userHasThisFollower(std::string &userId, std::string &followerId);
-
-    /**
     * This method is to add a following record.
     * @param userId The profile user id.
     * @param followerId The follower user id.
@@ -32,7 +24,14 @@ class UserHasFollowerModel {
     * @return bool This return the result.
     */
     bool userRemoveFollower(std::string &userId, std::string &followerId);
-    std::unordered_set<std::string> validUserIsFollowingFromList(std::string &followerId, std::vector<std::string> &userIds);
+
+    /**
+    * This method is to search all following record for a user.
+    * @param userId The profile user id.
+    * @param followingId The follower user id.
+    * @return std::unordered_set<std::string> This return a set that the user is following from the input
+    */
+    std::unordered_set<std::string> validUserFollowing(std::string &userId, std::vector<std::string> &followingId);
 };
 
 #endif // USERHASFOLLOWERMODEL_HPP

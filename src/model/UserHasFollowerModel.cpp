@@ -14,20 +14,6 @@ using Poco::Data::Statement;
 using Poco::Exception;
 using oatpp::web::protocol::http::Status;
 
-bool UserHasFollowerModel::userHasThisFollower(std::string &userId, std::string &followerId) {
-  Poco::Nullable<int> result;
-
-  try {
-    Session session(DatabaseHelper::getSession());
-    session << "SELECT COUNT(*) FROM users_has_followers WHERE user_id = ? AND follower_id = ?", into(result), use(userId), use(followerId), now;
-    return (result == 1);
-  }
-  catch(Exception& exp) {
-    OATPP_LOGE("UserHasFollowerModel", ":%s(): %s", __func__, exp.displayText().c_str());
-    return false;
-  }
-}
-
 bool UserHasFollowerModel::userNewFollower(std::string &userId, std::string &followerId) {
   try {
     Session session(DatabaseHelper::getSession());
@@ -52,8 +38,8 @@ bool UserHasFollowerModel::userRemoveFollower(std::string &userId, std::string &
   }
 }
 
-std::unordered_set<std::string> UserHasFollowerModel::validUserIsFollowingFromList(std::string &followerId, std::vector<std::string> &userIds) {
-  if(userIds.empty())
+std::unordered_set<std::string> UserHasFollowerModel::validUserFollowing(std::string &userId, std::vector<std::string> &followingId) {
+  if(followingId.empty())
     return {};
 
   std::unordered_set<std::string> userFollowingIds;
@@ -62,12 +48,12 @@ std::unordered_set<std::string> UserHasFollowerModel::validUserIsFollowingFromLi
     Session session(DatabaseHelper::getSession());
     Statement select(session);
     select << "SELECT user_id FROM users_has_followers WHERE user_id IN (";
-    for(int i = 0; i < userIds.size(); i++) {
-      select << "?", use(userIds[i]);
-      if(i < userIds.size() - 1)
+    for(int i = 0; i < followingId.size(); i++) {
+      select << "?", use(followingId[i]);
+      if(i < followingId.size() - 1)
         select << ",";
     }
-    select << ") AND follower_id = ?", use(followerId);
+    select << ") AND follower_id = ?", use(userId);
     select.execute();
     RecordSet rs(select);
     size_t rowCount = rs.totalRowCount();

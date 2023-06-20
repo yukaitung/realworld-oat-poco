@@ -86,7 +86,7 @@ oatpp::Object<ArticleJsonDto> ArticleService::getArticle(std::string &id, std::s
   article->favouritesCount = favouriteDataBegin.second;
   auto author = userModel.getProfileFromId(authorId[0]);
   if(!id.empty())
-    author->following = userHasFollowerModel.userHasThisFollower(authorId[0], id);
+    author->following = userHasFollowerModel.validUserFollowing(id, authorId).size() == 1;
   article->author = author;
 
   // Tag data
@@ -130,7 +130,7 @@ oatpp::Object<ArticlesJsonDto> ArticleService::getArticles(std::string &id, unsi
   std::unordered_map<std::string, oatpp::Object<UserProfileDto>> authorProfiles = userModel.getProfilesFromId(authorIdList);
   std::unordered_set<std::string> userFollingList;
   if(!id.empty()) {
-    userFollingList = userHasFollowerModel.validUserIsFollowingFromList(id, authorIdList);
+    userFollingList = userHasFollowerModel.validUserFollowing(id, authorIdList);
   }
   // Append data for each article
   for(int i = 0; i < articles->size(); i++) {
@@ -304,7 +304,7 @@ oatpp::Object<ArticleJsonDto> ArticleService::favouriteArticle(std::string &id, 
   article->favouritesCount = favouriteDataBegin.second;
   auto authorIds = std::get<ArticleModel::GetArticleEnum::AuthorId>(articleResult);
   article->author = userModel.getProfileFromId(authorIds[0]);
-  article->author->following = userHasFollowerModel.userHasThisFollower(authorIds[0], id);
+  article->author->following = userHasFollowerModel.validUserFollowing(id, authorIds).size() == 1;
   
   // Tag data
   auto tagJson = std::get<ArticleModel::GetArticleEnum::TagsJsonStr>(articleResult);
@@ -341,7 +341,7 @@ oatpp::Object<ArticleJsonDto> ArticleService::unfavouriteArticle(std::string &id
   article->favouritesCount = favouriteDataBegin.second;
   auto authorIds = std::get<ArticleModel::GetArticleEnum::AuthorId>(articleResult);
   article->author = userModel.getProfileFromId(authorIds[0]);
-  article->author->following = userHasFollowerModel.userHasThisFollower(authorIds[0], id);
+  article->author->following = userHasFollowerModel.validUserFollowing(id, authorIds).size() == 1;
 
   // Tag data
   auto tagJson = std::get<ArticleModel::GetArticleEnum::TagsJsonStr>(articleResult);
@@ -389,7 +389,7 @@ oatpp::Object<CommentsJsonDto> ArticleService::getComments(std::string &id, std:
   std::unordered_map<std::string, oatpp::Object<UserProfileDto>> authorProfiles = userModel.getProfilesFromId(authorIds);
   std::unordered_set<std::string> userFollingList;
   if(!id.empty()) {
-    userFollingList = userHasFollowerModel.validUserIsFollowingFromList(id, authorIds);
+    userFollingList = userHasFollowerModel.validUserFollowing(id, authorIds);
   }
   // Append data for each article
   for(int i = 0; i < comments->size(); i++) {

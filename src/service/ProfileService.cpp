@@ -8,7 +8,8 @@ oatpp::Object<UserProfileJsonDto> ProfileService::getProfile(std::string &id, st
   OATPP_ASSERT_HTTP(!profile.second.empty(), Status::CODE_404, "The profile could not be found.");
   if(!id.empty()) {
     // See if the user is following the profile
-    profile.first->following = userHasFollowerModel.userHasThisFollower(profile.second, id);
+    std::vector<std::string> following = {profile.second};
+    profile.first->following = userHasFollowerModel.validUserFollowing(id, following).size() == 1;
   }
 
   auto response = UserProfileJsonDto::createShared();
