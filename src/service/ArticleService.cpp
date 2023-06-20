@@ -6,26 +6,6 @@
 #include "Poco/Timezone.h"
 #include "Poco/URI.h"
 
-std::string &ArticleService::removeHeadSpace(std::string &s, const char *t) {
-  s.erase(0, s.find_first_not_of(t));
-  return s;
-}
-
-std::string &ArticleService::removeTailSpace(std::string &s, const char *t) {
-  s.erase(s.find_last_not_of(t) + 1);
-  return s;
-}
-
-std::string &ArticleService::removeBothSpace(std::string &s, const char *t){
-  return removeHeadSpace(removeTailSpace(s, t), t);
-}
-
-std::string ArticleService::replaceSpace(std::string &s) {
-  std::regex r("\\s");
-  s = std::regex_replace(s, r, "-");
-  return s;
-}
-
 std::vector<std::string> ArticleService::splitStr(const std::string &s, const std::regex &sep_regex) {
   std::sregex_token_iterator iter(s.begin(), s.end(), sep_regex, -1);
   std::sregex_token_iterator end;
@@ -34,7 +14,6 @@ std::vector<std::string> ArticleService::splitStr(const std::string &s, const st
 
 oatpp::Object<ArticleJsonDto> ArticleService::createArticle(std::string &id, const oatpp::Object<ArticleExchangeJsonDto> &dto) {
   std::string title = dto->article->title;
-  title = removeBothSpace(title);
   std::string description = dto->article->description;
   std::string body = dto->article->body;
   OATPP_ASSERT_HTTP(!title.empty(), Status::CODE_422, "The title is missing.");
@@ -187,7 +166,6 @@ oatpp::Object<ArticleJsonDto> ArticleService::updateArticle(std::string &id, std
   OATPP_ASSERT_HTTP(id.compare(authorId) == 0, Status::CODE_403, "The article is not belongs to the user.");
 
   std::string title = dto->article->title ? dto->article->title : "";
-  title = removeBothSpace(title);
   std::string description = dto->article->description ? dto->article->description : "";
   std::string body = dto->article->body ? dto->article->body : "";
 

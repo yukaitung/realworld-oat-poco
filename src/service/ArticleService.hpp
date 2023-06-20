@@ -22,14 +22,10 @@ private:
   TagModel tagModel;
   UserHasFollowerModel userHasFollowerModel;
   UserModel userModel;
+  
   const std::regex splitJsonArrRegex{R"__(\[\]|\[\s*|\s*\]|\s*,\s*)__"};
-
   typedef oatpp::web::protocol::http::Status Status;
 
-  std::string &removeHeadSpace(std::string &s, const char *t = " \t\n\r\f\v");
-  std::string &removeTailSpace(std::string &s, const char *t = " \t\n\r\f\v");
-  std::string &removeBothSpace(std::string &s, const char *t = " \t\n\r\f\v");
-  std::string replaceSpace(std::string &s);
   std::vector<std::string> splitStr(const std::string &s, const std::regex &sep_regex);
 
 public:
