@@ -44,49 +44,7 @@ oatpp::Object<ArticleDto> ArticleModel::createArticle(std::string &userId, std::
   }
 }
 
-std::tuple<oatpp::Object<ArticleDto>, std::string, std::string, std::string> ArticleModel::getArticle(std::string &slug) {
-  Poco::Nullable<std::string> retrunArticleId;
-  Poco::Nullable<std::string> retrunUserId;
-  Poco::Nullable<std::string> retrunSlug;
-  Poco::Nullable<std::string> retrunTitle;
-  Poco::Nullable<std::string> retrunDescription;
-  Poco::Nullable<std::string> retrunBody;
-  Poco::Nullable<std::string> retrunTagList;
-  Poco::Nullable<std::string> retrunCreatedAt;
-  Poco::Nullable<std::string> retrunUpdateddAt;
-  
-  try {
-    // Insert article
-    Session session(DatabaseHelper::getSession());
-    session << "SELECT CAST(id AS char), CAST(user_id AS char), slug, title, description, body, CAST(tag_list AS char), CAST(created_at AS char), CAST(updated_at AS char) FROM articles WHERE slug = ?", into(retrunArticleId), into(retrunUserId), into(retrunSlug), into(retrunTitle), into(retrunDescription), into(retrunBody), into(retrunTagList), into(retrunCreatedAt), into(retrunUpdateddAt), use(slug), now;
-    
-    auto article = ArticleDto::createShared();
-    if(!retrunSlug.isNull()) {
-      article->slug = retrunSlug.value();
-      if(!retrunTitle.isNull())
-        article->title = retrunTitle.value();
-      if(!retrunDescription.isNull())
-        article->description = retrunDescription.value();
-      if(!retrunBody.isNull())
-        article->body = retrunBody.value();
-      if(retrunTagList.isNull()) {
-        retrunTagList = "[]";
-      }
-      article->favourited = false;
-      article->favouritesCount = 0;
-      article->createdAt = timeTz(retrunCreatedAt);
-      article->updatedAt = timeTz(retrunUpdateddAt);
-    }
-    
-    return {article , !retrunArticleId.isNull() ? retrunArticleId.value() : "", !retrunUserId.isNull() ? retrunUserId.value() : "", !retrunTagList.isNull() ? retrunTagList.value() : ""};
-  }
-  catch(Exception& exp) {
-    OATPP_LOGE("ArticleModel", ":%s(): %s", __func__, exp.displayText().c_str());
-    return {nullptr , "", "", ""};
-  }
-}
-
-std::tuple<oatpp::Vector<oatpp::Object<ArticleDto>>, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>> ArticleModel::getArticles(unsigned int limit, unsigned int offset, std::string &tagId, std::string &authorId, std::string &favouritedBy, bool feed, std::string &userId) {
+std::tuple<oatpp::Vector<oatpp::Object<ArticleDto>>, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>> ArticleModel::getArticleFunction(std::string &slug, unsigned int limit, unsigned int offset, std::string &tagId, std::string &authorId, std::string &favouritedBy, bool feed, std::string &userId) {
   int conditionCount = 0;
   if(!tagId.empty())
     conditionCount++;
@@ -101,29 +59,34 @@ std::tuple<oatpp::Vector<oatpp::Object<ArticleDto>>, std::vector<std::string>, s
     Session session(DatabaseHelper::getSession());
     Statement select(session);
     select << "SELECT CAST(id AS char), CAST(articles.user_id AS char), slug, title, description, body, CAST(tag_list AS char), CAST(created_at AS char), CAST(updated_at AS char) FROM articles";
-    if(!favouritedBy.empty()) // favouritedBy requires join
+    if(!slug.empty()) {
+      select << " WHERE slug = ?", use(slug);
+    }
+    else {
+      if(!favouritedBy.empty()) // favouritedBy requires join
       select << " INNER JOIN articles_has_favourites ON articles.id = articles_has_favourites.article_id";
-    if(feed && !userId.empty()) // feed requires join
-      select << " INNER JOIN users_has_followers ON articles.user_id = users_has_followers.user_id";
-    if(conditionCount > 0)
-      select << " WHERE";
-    if(!tagId.empty()) {
-      select << " JSON_CONTAINS(tag_list, ?)", use(tagId);
-    }
-    if(!authorId.empty()) {
-      if(conditionCount > 1)
-        select << " AND";
-      select << " user_id = ?", use(authorId);
-    } 
-    if(!favouritedBy.empty()) {
-      if(conditionCount > 1)
-        select << " AND";
-      select << " articles_has_favourites.user_id = ?", use(favouritedBy);
-    }
-    if(feed && !userId.empty()) {
-      if(conditionCount > 1)
-        select << " AND";
-      select << " users_has_followers.follower_id = ?", use(userId);
+      if(feed && !userId.empty()) // feed requires join
+        select << " INNER JOIN users_has_followers ON articles.user_id = users_has_followers.user_id";
+      if(conditionCount > 0)
+        select << " WHERE";
+      if(!tagId.empty()) {
+        select << " JSON_CONTAINS(tag_list, ?)", use(tagId);
+      }
+      if(!authorId.empty()) {
+        if(conditionCount > 1)
+          select << " AND";
+        select << " user_id = ?", use(authorId);
+      } 
+      if(!favouritedBy.empty()) {
+        if(conditionCount > 1)
+          select << " AND";
+        select << " articles_has_favourites.user_id = ?", use(favouritedBy);
+      }
+      if(feed && !userId.empty()) {
+        if(conditionCount > 1)
+          select << " AND";
+        select << " users_has_followers.follower_id = ?", use(userId);
+      }
     }
     select << " ORDER BY created_at DESC LIMIT ?, ?", use(offset), use(limit);
     select.execute();
