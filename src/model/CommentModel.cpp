@@ -77,7 +77,7 @@ std::pair<oatpp::Vector<oatpp::Object<CommentDto>>, std::vector<std::string>> Co
   }
 }
 
-std::string CommentModel::getCommentAuthorId(std::string &commentId) {
+std::string CommentModel::getAuthorIdFromCommentId(std::string &commentId) {
   Poco::Nullable<std::string> retrunId;
 
   try {

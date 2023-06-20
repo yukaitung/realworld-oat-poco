@@ -405,7 +405,7 @@ oatpp::Object<CommentJsonDto> ArticleService::deleteComment(std::string &id, std
   OATPP_ASSERT_HTTP(!slug.empty(), Status::CODE_422, "The slug is missing.");
   OATPP_ASSERT_HTTP(!commentId.empty(), Status::CODE_422, "The comment id is missing.");
   
-  std::string authorId = commentModel.getCommentAuthorId(commentId);
+  std::string authorId = commentModel.getAuthorIdFromCommentId(commentId);
   OATPP_ASSERT_HTTP(!authorId.empty(), Status::CODE_404, "The comment could not be found.");
   OATPP_ASSERT_HTTP(authorId.compare(id) == 0, Status::CODE_403, "The comment is not belongs to the user.");
 
