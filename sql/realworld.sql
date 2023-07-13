@@ -26,7 +26,7 @@ CREATE TABLE `comments` (
   `body` text COLLATE utf8mb4_unicode_ci,
   `created_at` datetime(3) DEFAULT NULL,
   `updated_at` datetime(3) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
   KEY `article_id_index` (`article_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
