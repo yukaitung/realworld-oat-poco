@@ -4,7 +4,6 @@
 
 #include "Poco/JWT/Token.h"
 #include "Poco/JWT/Signer.h"
-#include "Poco/LocalDateTime.h"
 #include "Poco/Exception.h"
 #include "oatpp/core/base/Environment.hpp"
 
@@ -26,10 +25,10 @@ std::string JwtHelper::issueJWT(const std::string &id) {
   token.payload().set("id", id);
   
   // The expires in 15 minutes
-  Poco::LocalDateTime time;
-  token.setIssuedAt(time.timestamp());
-  time += Poco::Timespan(0, 0, 15, 0, 0);
-  token.setExpiration(time.timestamp());
+  Poco::Timestamp time;
+  token.setIssuedAt(time);
+  time += Poco::Timespan(0, 0, 30, 0, 0);
+  token.setExpiration(time);
 
   Signer signer(signerSecret);
   std::string jwt = signer.sign(token, Signer::ALGO_HS256);
@@ -42,9 +41,9 @@ std::string JwtHelper::validateJWT(const std::string &jwt) {
 
   try {
     Token token = signer.verify(jwt);
-    Poco::LocalDateTime now;
+    Poco::Timestamp now;
     Poco::Timestamp tokenExpireTime = token.getExpiration();
-    if(now.timestamp() > tokenExpireTime) {
+    if(now > tokenExpireTime) {
       return "";
     }
     Poco::Dynamic::Var returnId = token.payload().get("id");
