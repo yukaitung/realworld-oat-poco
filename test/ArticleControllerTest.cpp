@@ -309,10 +309,10 @@ void ArticleControllerTest::onRun() {
     for(int i = 0; i < TestData::article.size(); i++) {
       OATPP_LOGD("ArticleController", "Validate %d of %d articles", i + 1, TestData::article.size());
       OATPP_ASSERT(articlesResponseDto->articles->at(i)->slug != nullptr && !articlesResponseDto->articles->at(i)->slug->empty());
-      OATPP_ASSERT(articlesResponseDto->articles->at(i)->title != nullptr && articlesResponseDto->articles->at(i)->title->compare(TestData::article[i].title) == 0);
-      OATPP_ASSERT(articlesResponseDto->articles->at(i)->description != nullptr && articlesResponseDto->articles->at(i)->description->compare(TestData::article[i].description) == 0);
-      OATPP_ASSERT(articlesResponseDto->articles->at(i)->body != nullptr && articlesResponseDto->articles->at(i)->body->compare(TestData::article[i].body) == 0);
-      OATPP_ASSERT(articlesResponseDto->articles->at(i)->tagList != nullptr && articlesResponseDto->articles->at(i)->tagList->size() == TestData::article[i].tagId.size());
+      OATPP_ASSERT(articlesResponseDto->articles->at(i)->title != nullptr && articlesResponseDto->articles->at(i)->title->compare(TestData::article[TestData::article.size() - i - 1].title) == 0);
+      OATPP_ASSERT(articlesResponseDto->articles->at(i)->description != nullptr && articlesResponseDto->articles->at(i)->description->compare(TestData::article[TestData::article.size() - i - 1].description) == 0);
+      OATPP_ASSERT(articlesResponseDto->articles->at(i)->body != nullptr && articlesResponseDto->articles->at(i)->body->compare(TestData::article[TestData::article.size() - i - 1].body) == 0);
+      OATPP_ASSERT(articlesResponseDto->articles->at(i)->tagList != nullptr && articlesResponseDto->articles->at(i)->tagList->size() == TestData::article[TestData::article.size() - i - 1].tagId.size());
       OATPP_ASSERT(articlesResponseDto->articles->at(i)->createdAt != nullptr && !articlesResponseDto->articles->at(i)->createdAt->empty());
       OATPP_ASSERT(articlesResponseDto->articles->at(i)->updatedAt != nullptr && !articlesResponseDto->articles->at(i)->updatedAt->empty());
       OATPP_ASSERT(articlesResponseDto->articles->at(i)->favourited == false);

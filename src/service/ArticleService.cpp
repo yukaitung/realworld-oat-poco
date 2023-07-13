@@ -2,9 +2,7 @@
 #include "helper/CommonHelper.hpp"
 
 #include "Poco/Timestamp.h"
-#include "Poco/LocalDateTime.h"
 #include "Poco/DateTimeFormatter.h"
-#include "Poco/Timezone.h"
 #include "Poco/URI.h"
 
 std::vector<std::string> ArticleService::splitStr(const std::string &s, const std::regex &sep_regex) {
@@ -40,11 +38,11 @@ oatpp::Object<ArticleJsonDto> ArticleService::createArticle(std::string &id, con
   
   // Slug, Create Time
   // slug = title replacing space + user id + timestamp
-  Poco::LocalDateTime dateTime;
+  Poco::Timestamp dateTime;
   std::string slug = "";
   Poco::URI::encode(title, "", slug);
-  slug = slug + "-" + id + std::to_string(dateTime.timestamp().epochMicroseconds());
-  std::string createTime = Poco::DateTimeFormatter::format(dateTime.timestamp(), "%Y-%m-%d %H:%M:%S", Poco::Timezone::tzd());
+  slug = slug + "-" + id + std::to_string(dateTime.epochMicroseconds());
+  std::string createTime = Poco::DateTimeFormatter::format(dateTime, "%Y-%m-%d %H:%M:%S.%i");
 
   // Create article
   auto article = articleModel.createArticle(id, slug, title, description, body, tagsStr, createTime);
@@ -195,14 +193,14 @@ oatpp::Object<ArticleJsonDto> ArticleService::updateArticle(std::string &id, std
   }
   
   // New slug if title is changed
-  Poco::LocalDateTime dateTime;
+  Poco::Timestamp dateTime;
   std::string newSlug = "";
   if(!title.empty()) {
     newSlug = "";
     Poco::URI::encode(title, "", newSlug);
-    newSlug = newSlug + "-" + id + std::to_string(dateTime.timestamp().epochMicroseconds());
+    newSlug = newSlug + "-" + id + std::to_string(dateTime.epochMicroseconds());
   }
-  std::string updateTime = Poco::DateTimeFormatter::format(dateTime.timestamp(), "%Y-%m-%d %H:%M:%S", Poco::Timezone::tzd());
+  std::string updateTime = Poco::DateTimeFormatter::format(dateTime, "%Y-%m-%d %H:%M:%S.%i");
 
   if(!title.empty() || !description.empty() || !body.empty()) {
     bool result = articleModel.updateArticle(slug, newSlug, title, description, body, tagsStr, updateTime);
@@ -364,8 +362,8 @@ oatpp::Object<CommentJsonDto> ArticleService::createComment(std::string &id, std
   std::string articleId = articleModel.getArticleIdFromSlug(slug);
   OATPP_ASSERT_HTTP(!articleId.empty(), Status::CODE_404, "The article could not be found.");
 
-  Poco::LocalDateTime dateTime;
-  std::string createTime = Poco::DateTimeFormatter::format(dateTime.timestamp(), "%Y-%m-%d %H:%M:%S", Poco::Timezone::tzd());
+  Poco::Timestamp dateTime;
+  std::string createTime = Poco::DateTimeFormatter::format(dateTime, "%Y-%m-%d %H:%M:%S.%i");
   auto comment = commentModel.createComment(id, articleId, body, createTime);
   OATPP_ASSERT_HTTP(comment, Status::CODE_500, "Internal Server Error.");
 
