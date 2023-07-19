@@ -7,6 +7,7 @@
 #include "controller/ArticleController.hpp"
 #include "controller/ProfileController.hpp"
 #include "controller/UserController.hpp"
+#include "controller/FrontEndController.hpp"
 
 #include "oatpp-swagger/Controller.hpp"
 #include "oatpp/network/Server.hpp"
@@ -35,6 +36,7 @@ void run() {
   docEndpoints.append(router->addController(ArticleController::createShared())->getEndpoints());
   docEndpoints.append(router->addController(ArticleControllerOptionalAuth::createShared())->getEndpoints());
   router->addController(oatpp::swagger::Controller::createShared(docEndpoints));
+  docEndpoints.append(router->addController(FrontEndController::createShared())->getEndpoints()); // Don't link swagger
 
   /* Get connection handler component */
   OATPP_COMPONENT(std::shared_ptr<oatpp::network::ConnectionHandler>, connectionHandler);
