@@ -81,7 +81,8 @@ oatpp::Object<ArticleJsonDto> ArticleService::getArticle(std::string &id, std::s
   auto favouriteData = articleHasFavouriteModel.getArticlefavouriteData(articleId, id);
   OATPP_ASSERT_HTTP(favouriteData.size() > 0, Status::CODE_500, "Internal Server Error.");
   auto favouriteDataBegin = favouriteData.begin()->second;
-  article->favourited = favouriteDataBegin.first;
+  if(!id.empty())
+    article->favourited = favouriteDataBegin.first;
   article->favouritesCount = favouriteDataBegin.second;
   auto author = userModel.getProfileFromId(authorId[0]);
   if(!id.empty())
