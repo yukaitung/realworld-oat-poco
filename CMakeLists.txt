@@ -32,6 +32,7 @@ add_library(${PROJECT_NAME}-lib
   src/helper/TokenAuthorization.cpp
 
   src/service/ArticleService.cpp
+  src/service/FrontEndService.cpp
   src/service/ProfileService.cpp
   src/service/UserService.cpp
 
