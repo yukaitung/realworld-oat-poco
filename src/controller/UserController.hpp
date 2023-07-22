@@ -6,12 +6,16 @@
 
 #include "service/UserService.hpp"
 #include "helper/TokenAuthorization.hpp"
+#include "helper/CommonHelper.hpp"
 
 #include "oatpp/web/server/api/ApiController.hpp"
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 
-#include OATPP_CODEGEN_BEGIN(ApiController)
+#include "patch/oatpp/ApiController_define.hpp" // Replace OATPP_CODEGEN_BEGIN(ApiController)
+
+#include "helper/CommonHelper.hpp"
+
 
 /**
  * User REST controller.
@@ -19,17 +23,19 @@
 class UserController : public oatpp::web::server::api::ApiController {
 private:
   UserService userService;
+  std::string corsOrigin;
 
 public:
   UserController(const std::shared_ptr<ObjectMapper>& objectMapper) : oatpp::web::server::api::ApiController(objectMapper) {
     setDefaultAuthorizationHandler(std::make_shared<TokenAuthorizationHandler>());
+    corsOrigin = CommonHelper::getCorsOrigin();
   }
 
   static std::shared_ptr<UserController> createShared(OATPP_COMPONENT(std::shared_ptr<ObjectMapper>, objectMapper)) {
     return std::make_shared<UserController>(objectMapper);
   }
 
-  ADD_CORS(createUser)
+  ADD_CORS(createUser, UserController::corsOrigin)
   ENDPOINT_INFO(createUser) {
     info->summary = "Create new user";
     info->addConsumes<Object<UserRegJsonDto>>("application/json");
@@ -43,7 +49,7 @@ public:
     return createDtoResponse(Status::CODE_200, userService.createUser(dto));
   }
 
-  ADD_CORS(login)
+  ADD_CORS(login, UserController::corsOrigin)
   ENDPOINT_INFO(login) {
     info->summary = "Login";
     info->addResponse<Object<UserJsonDto>>(Status::CODE_200, "application/json");
@@ -57,7 +63,7 @@ public:
     return createDtoResponse(Status::CODE_200, userService.login(dto));
   }
 
-  ADD_CORS(getUser)
+  ADD_CORS(getUser, UserController::corsOrigin)
   ENDPOINT_INFO(getUser) {
     info->summary = "Get current user";
     info->addResponse<Object<UserJsonDto>>(Status::CODE_200, "application/json");
@@ -72,7 +78,7 @@ public:
     return createDtoResponse(Status::CODE_200, userService.getUser(authObject->id));
   }
 
-  ADD_CORS(updateUser)
+  ADD_CORS(updateUser, UserController::corsOrigin)
   ENDPOINT_INFO(updateUser) {
     info->summary = "Update information for current user";
     info->addResponse<Object<UserJsonDto>>(Status::CODE_200, "application/json");

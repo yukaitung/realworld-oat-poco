@@ -3,6 +3,7 @@
 
 #include "service/ArticleService.hpp"
 #include "helper/TokenAuthorization.hpp"
+#include "helper/CommonHelper.hpp"
 #include "dto/StatusDto.hpp"
 
 #include "oatpp/web/server/api/ApiController.hpp"
@@ -13,7 +14,7 @@
 
 #include <cstring>
 
-#include OATPP_CODEGEN_BEGIN(ApiController)
+#include "patch/oatpp/ApiController_define.hpp" // Replace OATPP_CODEGEN_BEGIN(ApiController)
 
 /**
  * Article REST controller.
@@ -21,17 +22,19 @@
 class ArticleController : public oatpp::web::server::api::ApiController {
 private:
   ArticleService articleService;
+  std::string corsOrigin;
 
 public:
   ArticleController(const std::shared_ptr<ObjectMapper>& objectMapper) : oatpp::web::server::api::ApiController(objectMapper) {
     setDefaultAuthorizationHandler(std::make_shared<TokenAuthorizationHandler>());
+    corsOrigin = CommonHelper::getCorsOrigin();
   }
 
   static std::shared_ptr<ArticleController> createShared(OATPP_COMPONENT(std::shared_ptr<ObjectMapper>, objectMapper)) {
     return std::make_shared<ArticleController>(objectMapper);
   }
 
-  ADD_CORS(feedArticles)
+  ADD_CORS(feedArticles, ArticleController::corsOrigin)
   ENDPOINT_INFO(feedArticles) {
     info->summary = "Get multiple articles created by followed users, ordered by most recent first";
     info->addResponse<Object<ArticlesJsonDto>>(Status::CODE_200, "application/json");
@@ -56,7 +59,7 @@ public:
     return createDtoResponse(Status::CODE_200, articleService.getArticles(authObject->id, limit, offset, dummy, dummy, dummy, true));
   }
 
-  ADD_CORS(createArticle)
+  ADD_CORS(createArticle, ArticleController::corsOrigin)
   ENDPOINT_INFO(createArticle) {
     info->summary = "Create new article";
     info->addResponse<Object<ArticleJsonDto>>(Status::CODE_200, "application/json");
@@ -71,7 +74,7 @@ public:
     return createDtoResponse(Status::CODE_200, articleService.createArticle(authObject->id, dto));
   }
 
-  ADD_CORS(updateArticle)
+  ADD_CORS(updateArticle, ArticleController::corsOrigin)
   ENDPOINT_INFO(updateArticle) {
     info->summary = "Update an article";
     info->addResponse<Object<ArticleJsonDto>>(Status::CODE_200, "application/json");
@@ -88,7 +91,7 @@ public:
     return createDtoResponse(Status::CODE_200, articleService.updateArticle(authObject->id, slugStr, dto));
   }
 
-  ADD_CORS(deleteArticle)
+  ADD_CORS(deleteArticle, ArticleController::corsOrigin)
   ENDPOINT_INFO(deleteArticle) {
     info->summary = "Delete an article";
     info->addResponse<Object<ArticleJsonDto>>(Status::CODE_200, "application/json");
@@ -106,7 +109,7 @@ public:
     return createDtoResponse(Status::CODE_200, articleService.deleteArticle(authObject->id, slugStr));
   }
 
-  ADD_CORS(favouriteArticle)
+  ADD_CORS(favouriteArticle, ArticleController::corsOrigin)
   ENDPOINT_INFO(favouriteArticle) {
     info->summary = "Favourite an article";
     info->addResponse<Object<ArticleJsonDto>>(Status::CODE_200, "application/json");
@@ -123,7 +126,7 @@ public:
     return createDtoResponse(Status::CODE_200, articleService.favouriteArticle(authObject->id, slugStr));
   }
 
-  ADD_CORS(unfavouriteArticle)
+  ADD_CORS(unfavouriteArticle, ArticleController::corsOrigin)
   ENDPOINT_INFO(unfavouriteArticle) {
     info->summary = "Unfavourite an article";
     info->addResponse<Object<ArticleJsonDto>>(Status::CODE_200, "application/json");
@@ -140,7 +143,7 @@ public:
     return createDtoResponse(Status::CODE_200, articleService.unfavouriteArticle(authObject->id, slugStr));
   }
 
-  ADD_CORS(createComment)
+  ADD_CORS(createComment, ArticleController::corsOrigin)
   ENDPOINT_INFO(createComment) {
     info->summary = "Create a comment in the article";
     info->addResponse<Object<CommentJsonDto>>(Status::CODE_200, "application/json");
@@ -157,7 +160,7 @@ public:
     return createDtoResponse(Status::CODE_200, articleService.createComment(authObject->id, slugStr, dto));
   }
 
-  ADD_CORS(deleteComment)
+  ADD_CORS(deleteComment, ArticleController::corsOrigin)
   ENDPOINT_INFO(deleteComment) {
     info->summary = "Delete a comment in the article";
     info->addResponse<Object<CommentJsonDto>>(Status::CODE_200, "application/json");
@@ -175,7 +178,7 @@ public:
     return createDtoResponse(Status::CODE_200, articleService.deleteComment(authObject->id, slugStr, commentIdStr));
   }
 
-  ADD_CORS(getTags)
+  ADD_CORS(getTags, ArticleController::corsOrigin)
   ENDPOINT_INFO(getTags) {
     info->summary = "Get all tags";
     info->addResponse<Object<TagJsonDto>>(Status::CODE_200, "application/json");
@@ -194,17 +197,19 @@ public:
 class ArticleControllerOptionalAuth : public oatpp::web::server::api::ApiController {
 private:
   ArticleService articleService;
+  std::string corsOrigin;
 
 public:
   ArticleControllerOptionalAuth(const std::shared_ptr<ObjectMapper>& objectMapper) : oatpp::web::server::api::ApiController(objectMapper) {
     setDefaultAuthorizationHandler(std::make_shared<OptionalTokenAuthorizationHandler>());
+    corsOrigin = CommonHelper::getCorsOrigin();
   }
 
   static std::shared_ptr<ArticleControllerOptionalAuth> createShared(OATPP_COMPONENT(std::shared_ptr<ObjectMapper>, objectMapper)) {
     return std::make_shared<ArticleControllerOptionalAuth>(objectMapper);
   }
 
-  ADD_CORS(getArticle)
+  ADD_CORS(getArticle, ArticleControllerOptionalAuth::corsOrigin)
   ENDPOINT_INFO(getArticle) {
     info->summary = "Get an article (Authorization is optional)";
     info->addResponse<Object<ArticleJsonDto>>(Status::CODE_200, "application/json");
@@ -221,7 +226,7 @@ public:
     return createDtoResponse(Status::CODE_200, articleService.getArticle(authObject->id, slugStr));
   }
 
-  ADD_CORS(getArticles)
+  ADD_CORS(getArticles, ArticleControllerOptionalAuth::corsOrigin)
   ENDPOINT_INFO(getArticles) {
     info->summary = "Get a list of articles (Authorization is optional)";
     info->addResponse<Object<ArticlesJsonDto>>(Status::CODE_200, "application/json");
@@ -254,7 +259,7 @@ public:
     return createDtoResponse(Status::CODE_200, articleService.getArticles(authObject->id, limit, offset, tag, author, favouritedBy));
   }
 
-  ADD_CORS(getComments)
+  ADD_CORS(getComments, ArticleControllerOptionalAuth::corsOrigin)
   ENDPOINT_INFO(getComments) {
     info->summary = "Get comments for an article (Authorization is optional)";
     info->addResponse<Object<ArticleJsonDto>>(Status::CODE_200, "application/json");

@@ -115,6 +115,7 @@ Then you need to set up environment variables before executing the program.
 | REALWORLD_DB_USER | MySQL Server Username |
 | REALWORLD_DB_PASSWORD | MySQL Server Password |
 | REALWORLD_SIGNER_SECRET | JWT Singer Secret |
+| REALWORLD_CORS_ORIGIN | CORS Access-Control-Allow-Origin |
 
 Example:
 
@@ -283,6 +284,7 @@ sudo mysql RealworldTest < sql/realworld.sql
 | REALWORLD_DB_USER | MySQL 數據庫使用者名稱 |
 | REALWORLD_DB_PASSWORD | MySQL 數據庫密碼 |
 | REALWORLD_SIGNER_SECRET | JWT Singer 密碼 |
+| REALWORLD_CORS_ORIGIN | CORS Access-Control-Allow-Origin |
 
 指令例字：
 

@@ -60,6 +60,8 @@ void TagModel::initCache() {
     for(int i = 0; i < rowCount; i++) {
       tagCache.createTag({rs.value(1, i).toString(), rs.value(0, i).toString()});
     }
+
+    OATPP_LOGD("TagModel", "Found %d tag(s) in database", tagCache.getSize());
   }
   catch(Exception& exp) {
     OATPP_LOGE("TagModel", ":%s(): %s", __func__, exp.displayText().c_str());

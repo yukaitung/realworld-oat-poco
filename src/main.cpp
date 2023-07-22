@@ -57,9 +57,7 @@ int main (int argc, const char * argv[])
   try {
     Poco::Crypto::initializeCrypto();
   }
-  catch(Poco::Exception& exp) {
-    OATPP_LOGE(REALWORLD_PROJECT_NAME, ":%s(): %s", __func__, exp.displayText().c_str());
-  }
+  catch(Poco::Exception& exp) {}
   
   // Setup Database
   std::string dbHost = getEnvVar("REALWORLD_DB_HOST");
@@ -88,16 +86,23 @@ int main (int argc, const char * argv[])
   std::string connectionName = "MySQL";
   DatabaseHelper::initDatabase(connectionName, dbHost, dbPort, dbName, dbUser, dbPassword);
 
+  // Setup JWT signer
   std::string signerSecret = getEnvVar("REALWORLD_SIGNER_SECRET");
   if(signerSecret.empty()) {
     signerSecret = "REALWORLD-OAT-POCO-123456";
   }
   JwtHelper::setSignerSecret(signerSecret);
 
-  // Init cache
-  TagModel::initCache();
+  // Get CORS origin
+  std::string corsOrigin = getEnvVar("REALWORLD_CORS_ORIGIN");
+  if(!corsOrigin.empty()) {
+    CommonHelper::setCorsOrigin(corsOrigin);
+  }
 
   oatpp::base::Environment::init();
+
+  // Init cache
+  TagModel::initCache();
   
   run();
   

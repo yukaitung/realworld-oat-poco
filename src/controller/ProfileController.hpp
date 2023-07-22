@@ -4,6 +4,7 @@
 
 #include "service/ProfileService.hpp"
 #include "helper/TokenAuthorization.hpp"
+#include "helper/CommonHelper.hpp"
 
 #include "oatpp/web/server/api/ApiController.hpp"
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
@@ -11,7 +12,7 @@
 
 #include "Poco/URI.h"
 
-#include OATPP_CODEGEN_BEGIN(ApiController)
+#include "patch/oatpp/ApiController_define.hpp" // Replace OATPP_CODEGEN_BEGIN(ApiController)
 
 /**
  * Profile REST controller.
@@ -19,13 +20,15 @@
 class ProfileController : public oatpp::web::server::api::ApiController {
 private:
   ProfileService profileService;
+  std::string corsOrigin;
 
 public:
   ProfileController(const std::shared_ptr<ObjectMapper>& objectMapper) : oatpp::web::server::api::ApiController(objectMapper) {
     setDefaultAuthorizationHandler(std::make_shared<TokenAuthorizationHandler>());
+    corsOrigin = CommonHelper::getCorsOrigin();
   }
 
-  ADD_CORS(followProfile)
+  ADD_CORS(followProfile, ProfileController::corsOrigin)
   ENDPOINT_INFO(followProfile) {
     info->summary = "Follow a user";
     info->addResponse<Object<UserProfileJsonDto>>(Status::CODE_200, "application/json");
@@ -45,7 +48,7 @@ public:
     return createDtoResponse(Status::CODE_200, profileService.followProfile(authObject->id, usernameStr2));
   }
 
-  ADD_CORS(unfollowProfile)
+  ADD_CORS(unfollowProfile, ProfileController::corsOrigin)
   ENDPOINT_INFO(unfollowProfile) {
     info->summary = "Unfollow a user";
     info->addResponse<Object<UserProfileJsonDto>>(Status::CODE_200, "application/json");
@@ -76,17 +79,19 @@ public:
 class ProfileControllerOptionalAuth : public oatpp::web::server::api::ApiController {
 private:
   ProfileService profileService;
+  std::string corsOrigin;
 
 public:
   ProfileControllerOptionalAuth(const std::shared_ptr<ObjectMapper>& objectMapper) : oatpp::web::server::api::ApiController(objectMapper) {
     setDefaultAuthorizationHandler(std::make_shared<OptionalTokenAuthorizationHandler>());
+    corsOrigin = CommonHelper::getCorsOrigin();
   }
 
   static std::shared_ptr<ProfileControllerOptionalAuth> createShared(OATPP_COMPONENT(std::shared_ptr<ObjectMapper>, objectMapper)) {
     return std::make_shared<ProfileControllerOptionalAuth>(objectMapper);
   }
 
-  ADD_CORS(getProfile)
+  ADD_CORS(getProfile, ProfileControllerOptionalAuth::corsOrigin)
   ENDPOINT_INFO(getProfile) {
     info->summary = "Get a user profile (Authorization is optional)";
     info->addResponse<Object<UserProfileJsonDto>>(Status::CODE_200, "application/json");
