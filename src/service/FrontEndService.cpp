@@ -1,6 +1,7 @@
 #include "service/FrontEndService.hpp"
 #include <stdio.h>
 #include <fstream>
+#include <filesystem>
 
 oatpp::String FrontEndService::loadFromFile(const char* fileName) {
   auto fullFilename = m_resDir + fileName;
@@ -46,11 +47,17 @@ FrontEndService::FrontEndService(const oatpp::String& resDir, bool streaming) {
 
 std::shared_ptr<FrontEndService> FrontEndService::loadResources(const oatpp::String& resDir) {
   auto res = std::make_shared<FrontEndService>(resDir);
-  res->cacheResource("index.html");
-  res->cacheResource("qtloader.js");
-  res->cacheResource("qtlogo.svg");
-  res->cacheResource("Realworld-Qt-Qml.js");
-  res->cacheResource("Realworld-Qt-Qml.wasm");
+
+  const std::filesystem::path fs{resDir};
+  if(!std::filesystem::exists(fs)) {
+    OATPP_LOGD("FrontendService", "Frontend resources not found.");
+    return res;
+  }
+  for (auto const& dir_entry : std::filesystem::directory_iterator{fs}) 
+  {
+    OATPP_LOGD("FrontendService", "Found and cache file %s", dir_entry.path().filename().c_str());
+    res->cacheResource(dir_entry.path().filename().c_str());
+  }
   return res;
 }
   
