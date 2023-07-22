@@ -1,11 +1,11 @@
 #ifndef ARTICLECONTROLLER_HPP
 #define ARTICLECONTROLLER_HPP
 
+#include "controller/ControllerBase.hpp"
 #include "service/ArticleService.hpp"
 #include "helper/TokenAuthorization.hpp"
 #include "dto/StatusDto.hpp"
 
-#include "oatpp/web/server/api/ApiController.hpp"
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 
@@ -18,12 +18,12 @@
 /**
  * Article REST controller.
  */
-class ArticleController : public oatpp::web::server::api::ApiController {
+class ArticleController : public ControllerBase {
 private:
   ArticleService articleService;
 
 public:
-  ArticleController(const std::shared_ptr<ObjectMapper>& objectMapper) : oatpp::web::server::api::ApiController(objectMapper) {
+  ArticleController(const std::shared_ptr<ObjectMapper>& objectMapper) : ControllerBase(objectMapper) {
     setDefaultAuthorizationHandler(std::make_shared<TokenAuthorizationHandler>());
   }
 
@@ -31,7 +31,6 @@ public:
     return std::make_shared<ArticleController>(objectMapper);
   }
 
-  ADD_CORS(feedArticles)
   ENDPOINT_INFO(feedArticles) {
     info->summary = "Get multiple articles created by followed users, ordered by most recent first";
     info->addResponse<Object<ArticlesJsonDto>>(Status::CODE_200, "application/json");
@@ -53,10 +52,9 @@ public:
       else if(strcmp(key, "offset") == 0)
         offset = std::stoul(value);
     }
-    return createDtoResponse(Status::CODE_200, articleService.getArticles(authObject->id, limit, offset, dummy, dummy, dummy, true));
+    return createCORSDtoResponse(Status::CODE_200, articleService.getArticles(authObject->id, limit, offset, dummy, dummy, dummy, true));
   }
 
-  ADD_CORS(createArticle)
   ENDPOINT_INFO(createArticle) {
     info->summary = "Create new article";
     info->addResponse<Object<ArticleJsonDto>>(Status::CODE_200, "application/json");
@@ -68,10 +66,9 @@ public:
   }
   ENDPOINT("POST", "/articles", createArticle, BODY_DTO(Object<ArticleExchangeJsonDto>, dto), AUTHORIZATION(std::shared_ptr<TokenAuthorizationObject>, authObject))
   {
-    return createDtoResponse(Status::CODE_200, articleService.createArticle(authObject->id, dto));
+    return createCORSDtoResponse(Status::CODE_200, articleService.createArticle(authObject->id, dto));
   }
 
-  ADD_CORS(updateArticle)
   ENDPOINT_INFO(updateArticle) {
     info->summary = "Update an article";
     info->addResponse<Object<ArticleJsonDto>>(Status::CODE_200, "application/json");
@@ -85,10 +82,9 @@ public:
   ENDPOINT("PUT", "/articles/{slug}", updateArticle, PATH(String, slug), BODY_DTO(Object<ArticleExchangeJsonDto>, dto), AUTHORIZATION(std::shared_ptr<TokenAuthorizationObject>, authObject))
   {
     std::string slugStr = slug.getValue("");
-    return createDtoResponse(Status::CODE_200, articleService.updateArticle(authObject->id, slugStr, dto));
+    return createCORSDtoResponse(Status::CODE_200, articleService.updateArticle(authObject->id, slugStr, dto));
   }
 
-  ADD_CORS(deleteArticle)
   ENDPOINT_INFO(deleteArticle) {
     info->summary = "Delete an article";
     info->addResponse<Object<ArticleJsonDto>>(Status::CODE_200, "application/json");
@@ -103,10 +99,9 @@ public:
   ENDPOINT("DELETE", "/articles/{slug}", deleteArticle, PATH(String, slug), AUTHORIZATION(std::shared_ptr<TokenAuthorizationObject>, authObject))
   {
     std::string slugStr = slug.getValue("");
-    return createDtoResponse(Status::CODE_200, articleService.deleteArticle(authObject->id, slugStr));
+    return createCORSDtoResponse(Status::CODE_200, articleService.deleteArticle(authObject->id, slugStr));
   }
 
-  ADD_CORS(favouriteArticle)
   ENDPOINT_INFO(favouriteArticle) {
     info->summary = "Favourite an article";
     info->addResponse<Object<ArticleJsonDto>>(Status::CODE_200, "application/json");
@@ -120,10 +115,9 @@ public:
   ENDPOINT("POST", "/articles/{slug}/favourite", favouriteArticle, PATH(String, slug), AUTHORIZATION(std::shared_ptr<TokenAuthorizationObject>, authObject))
   {
     std::string slugStr = slug.getValue("");
-    return createDtoResponse(Status::CODE_200, articleService.favouriteArticle(authObject->id, slugStr));
+    return createCORSDtoResponse(Status::CODE_200, articleService.favouriteArticle(authObject->id, slugStr));
   }
 
-  ADD_CORS(unfavouriteArticle)
   ENDPOINT_INFO(unfavouriteArticle) {
     info->summary = "Unfavourite an article";
     info->addResponse<Object<ArticleJsonDto>>(Status::CODE_200, "application/json");
@@ -137,10 +131,9 @@ public:
   ENDPOINT("DELETE", "/articles/{slug}/favourite", unfavouriteArticle, PATH(String, slug), AUTHORIZATION(std::shared_ptr<TokenAuthorizationObject>, authObject))
   {
     std::string slugStr = slug.getValue("");
-    return createDtoResponse(Status::CODE_200, articleService.unfavouriteArticle(authObject->id, slugStr));
+    return createCORSDtoResponse(Status::CODE_200, articleService.unfavouriteArticle(authObject->id, slugStr));
   }
 
-  ADD_CORS(createComment)
   ENDPOINT_INFO(createComment) {
     info->summary = "Create a comment in the article";
     info->addResponse<Object<CommentJsonDto>>(Status::CODE_200, "application/json");
@@ -154,10 +147,9 @@ public:
   ENDPOINT("POST", "/articles/{slug}/comments", createComment, PATH(String, slug), BODY_DTO(Object<CommentJsonDto>, dto), AUTHORIZATION(std::shared_ptr<TokenAuthorizationObject>, authObject))
   {
     std::string slugStr = slug.getValue("");
-    return createDtoResponse(Status::CODE_200, articleService.createComment(authObject->id, slugStr, dto));
+    return createCORSDtoResponse(Status::CODE_200, articleService.createComment(authObject->id, slugStr, dto));
   }
 
-  ADD_CORS(deleteComment)
   ENDPOINT_INFO(deleteComment) {
     info->summary = "Delete a comment in the article";
     info->addResponse<Object<CommentJsonDto>>(Status::CODE_200, "application/json");
@@ -172,10 +164,9 @@ public:
   {
     std::string slugStr = slug.getValue("");
     std::string commentIdStr = id.getValue("");
-    return createDtoResponse(Status::CODE_200, articleService.deleteComment(authObject->id, slugStr, commentIdStr));
+    return createCORSDtoResponse(Status::CODE_200, articleService.deleteComment(authObject->id, slugStr, commentIdStr));
   }
 
-  ADD_CORS(getTags)
   ENDPOINT_INFO(getTags) {
     info->summary = "Get all tags";
     info->addResponse<Object<TagJsonDto>>(Status::CODE_200, "application/json");
@@ -184,19 +175,19 @@ public:
   }
   ENDPOINT("GET", "/tags", getTags)
   {
-    return createDtoResponse(Status::CODE_200, articleService.getTags());
+    return createCORSDtoResponse(Status::CODE_200, articleService.getTags());
   }
 };
 
 /**
  * Article REST controller, the authentication is optional.
  */
-class ArticleControllerOptionalAuth : public oatpp::web::server::api::ApiController {
+class ArticleControllerOptionalAuth : public ControllerBase {
 private:
   ArticleService articleService;
 
 public:
-  ArticleControllerOptionalAuth(const std::shared_ptr<ObjectMapper>& objectMapper) : oatpp::web::server::api::ApiController(objectMapper) {
+  ArticleControllerOptionalAuth(const std::shared_ptr<ObjectMapper>& objectMapper) : ControllerBase(objectMapper) {
     setDefaultAuthorizationHandler(std::make_shared<OptionalTokenAuthorizationHandler>());
   }
 
@@ -204,7 +195,6 @@ public:
     return std::make_shared<ArticleControllerOptionalAuth>(objectMapper);
   }
 
-  ADD_CORS(getArticle)
   ENDPOINT_INFO(getArticle) {
     info->summary = "Get an article (Authorization is optional)";
     info->addResponse<Object<ArticleJsonDto>>(Status::CODE_200, "application/json");
@@ -218,10 +208,9 @@ public:
   ENDPOINT("GET", "/articles/{slug}", getArticle, PATH(String, slug), AUTHORIZATION(std::shared_ptr<TokenAuthorizationObject>, authObject))
   {
     std::string slugStr = slug.getValue("");
-    return createDtoResponse(Status::CODE_200, articleService.getArticle(authObject->id, slugStr));
+    return createCORSDtoResponse(Status::CODE_200, articleService.getArticle(authObject->id, slugStr));
   }
 
-  ADD_CORS(getArticles)
   ENDPOINT_INFO(getArticles) {
     info->summary = "Get a list of articles (Authorization is optional)";
     info->addResponse<Object<ArticlesJsonDto>>(Status::CODE_200, "application/json");
@@ -251,10 +240,9 @@ public:
       else if(strcmp(key, "offset") == 0)
         offset = std::stoul(value);
     }
-    return createDtoResponse(Status::CODE_200, articleService.getArticles(authObject->id, limit, offset, tag, author, favouritedBy));
+    return createCORSDtoResponse(Status::CODE_200, articleService.getArticles(authObject->id, limit, offset, tag, author, favouritedBy));
   }
 
-  ADD_CORS(getComments)
   ENDPOINT_INFO(getComments) {
     info->summary = "Get comments for an article (Authorization is optional)";
     info->addResponse<Object<ArticleJsonDto>>(Status::CODE_200, "application/json");
@@ -268,7 +256,7 @@ public:
   ENDPOINT("GET", "/articles/{slug}/comments", getComments, PATH(String, slug), AUTHORIZATION(std::shared_ptr<TokenAuthorizationObject>, authObject))
   {
     std::string slugStr = slug.getValue("");
-    return createDtoResponse(Status::CODE_200, articleService.getComments(authObject->id, slugStr));
+    return createCORSDtoResponse(Status::CODE_200, articleService.getComments(authObject->id, slugStr));
   }
 };
 
