@@ -17,6 +17,7 @@ For more information on how this works with other frontends/backends, head over 
 *   [GitLab Repository](https://gitlab.com/yukaitung/realworld-oat-poco)
 *   [GitHub Repository](https://github.com/yukaitung/realworld-oat-poco)
 *   [Project Docker Repository](https://hub.docker.com/r/yukaitung/realworld-oat-poco)
+*   [Frontend GitLab Repository](https://gitlab.com/yukaitung/realworld-qt-qml)
 
 # Try To Use British English
 
@@ -188,6 +189,7 @@ This project contains a GitLab CI/CD script. It automatically builds the executa
 *   [本項目的 GitLab Repository](https://gitlab.com/yukaitung/realworld-oat-poco)
 *   [本項目的 GitHub Repository](https://github.com/yukaitung/realworld-oat-poco)
 *   [本項目的 Docker Repository](https://hub.docker.com/r/yukaitung/realworld-oat-poco)
+*   [Frontend GitLab Repository](https://gitlab.com/yukaitung/realworld-qt-qml)
 
 # 嘗試使用英式英文
 
