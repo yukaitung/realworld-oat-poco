@@ -126,6 +126,7 @@ export REALWORLD_DB_NAME=Realworld
 export REALWORLD_DB_USER=admin
 export REALWORLD_DB_PASSWORD=123456
 export REALWORLD_SIGNER_SECRET=some_random_words
+cd bin # The executable is in the bin folder
 ./Realworld
 ```
 
@@ -295,6 +296,7 @@ export REALWORLD_DB_NAME=Realworld
 export REALWORLD_DB_USER=admin
 export REALWORLD_DB_PASSWORD=123456
 export REALWORLD_SIGNER_SECRET=some_random_words
+cd bin # The executable is in the bin folder
 ./Realworld
 ```
 
