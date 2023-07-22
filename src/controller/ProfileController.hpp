@@ -2,10 +2,10 @@
 #ifndef PROFILECONTROLLER_HPP
 #define PROFILECONTROLLER_HPP
 
-#include "controller/ControllerBase.hpp"
 #include "service/ProfileService.hpp"
 #include "helper/TokenAuthorization.hpp"
 
+#include "oatpp/web/server/api/ApiController.hpp"
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 
@@ -16,15 +16,16 @@
 /**
  * Profile REST controller.
  */
-class ProfileController : public ControllerBase {
+class ProfileController : public oatpp::web::server::api::ApiController {
 private:
   ProfileService profileService;
 
 public:
-  ProfileController(const std::shared_ptr<ObjectMapper>& objectMapper) : ControllerBase(objectMapper) {
+  ProfileController(const std::shared_ptr<ObjectMapper>& objectMapper) : oatpp::web::server::api::ApiController(objectMapper) {
     setDefaultAuthorizationHandler(std::make_shared<TokenAuthorizationHandler>());
   }
 
+  ADD_CORS(followProfile)
   ENDPOINT_INFO(followProfile) {
     info->summary = "Follow a user";
     info->addResponse<Object<UserProfileJsonDto>>(Status::CODE_200, "application/json");
@@ -41,9 +42,10 @@ public:
     std::string usernameStr1 = username.getValue("");
     std::string usernameStr2 = "";
     Poco::URI::decode(usernameStr1, usernameStr2);
-    return createCORSDtoResponse(Status::CODE_200, profileService.followProfile(authObject->id, usernameStr2));
+    return createDtoResponse(Status::CODE_200, profileService.followProfile(authObject->id, usernameStr2));
   }
 
+  ADD_CORS(unfollowProfile)
   ENDPOINT_INFO(unfollowProfile) {
     info->summary = "Unfollow a user";
     info->addResponse<Object<UserProfileJsonDto>>(Status::CODE_200, "application/json");
@@ -60,7 +62,7 @@ public:
     std::string usernameStr1 = username.getValue("");
     std::string usernameStr2 = "";
     Poco::URI::decode(usernameStr1, usernameStr2);
-    return createCORSDtoResponse(Status::CODE_200, profileService.unfollowProfile(authObject->id, usernameStr2));
+    return createDtoResponse(Status::CODE_200, profileService.unfollowProfile(authObject->id, usernameStr2));
   }
 
   static std::shared_ptr<ProfileController> createShared(OATPP_COMPONENT(std::shared_ptr<ObjectMapper>, objectMapper)) {
@@ -71,12 +73,12 @@ public:
 /**
  * Profile REST controller, the authentication is optional.
  */
-class ProfileControllerOptionalAuth : public ControllerBase {
+class ProfileControllerOptionalAuth : public oatpp::web::server::api::ApiController {
 private:
   ProfileService profileService;
 
 public:
-  ProfileControllerOptionalAuth(const std::shared_ptr<ObjectMapper>& objectMapper) : ControllerBase(objectMapper) {
+  ProfileControllerOptionalAuth(const std::shared_ptr<ObjectMapper>& objectMapper) : oatpp::web::server::api::ApiController(objectMapper) {
     setDefaultAuthorizationHandler(std::make_shared<OptionalTokenAuthorizationHandler>());
   }
 
@@ -84,6 +86,7 @@ public:
     return std::make_shared<ProfileControllerOptionalAuth>(objectMapper);
   }
 
+  ADD_CORS(getProfile)
   ENDPOINT_INFO(getProfile) {
     info->summary = "Get a user profile (Authorization is optional)";
     info->addResponse<Object<UserProfileJsonDto>>(Status::CODE_200, "application/json");
@@ -100,7 +103,7 @@ public:
     std::string usernameStr1 = username.getValue("");
     std::string usernameStr2 = "";
     Poco::URI::decode(usernameStr1, usernameStr2);
-    return createCORSDtoResponse(Status::CODE_200, profileService.getProfile(authObject->id, usernameStr2));
+    return createDtoResponse(Status::CODE_200, profileService.getProfile(authObject->id, usernameStr2));
   }
 };
 

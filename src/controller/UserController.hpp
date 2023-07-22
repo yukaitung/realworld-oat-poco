@@ -2,12 +2,12 @@
 #ifndef USERCONTROLLER_HPP
 #define USERCONTROLLER_HPP
 
-#include "controller/ControllerBase.hpp"
-
 #include "dto/StatusDto.hpp"
+
 #include "service/UserService.hpp"
 #include "helper/TokenAuthorization.hpp"
 
+#include "oatpp/web/server/api/ApiController.hpp"
 #include "oatpp/parser/json/mapping/ObjectMapper.hpp"
 #include "oatpp/core/macro/codegen.hpp"
 
@@ -16,12 +16,12 @@
 /**
  * User REST controller.
  */
-class UserController : public ControllerBase {
+class UserController : public oatpp::web::server::api::ApiController {
 private:
   UserService userService;
 
 public:
-  UserController(const std::shared_ptr<ObjectMapper>& objectMapper) : ControllerBase(objectMapper) {
+  UserController(const std::shared_ptr<ObjectMapper>& objectMapper) : oatpp::web::server::api::ApiController(objectMapper) {
     setDefaultAuthorizationHandler(std::make_shared<TokenAuthorizationHandler>());
   }
 
@@ -29,6 +29,7 @@ public:
     return std::make_shared<UserController>(objectMapper);
   }
 
+  ADD_CORS(createUser)
   ENDPOINT_INFO(createUser) {
     info->summary = "Create new user";
     info->addConsumes<Object<UserRegJsonDto>>("application/json");
@@ -39,9 +40,10 @@ public:
   }
   ENDPOINT("POST", "/users", createUser, BODY_DTO(Object<UserRegJsonDto>, dto))
   {
-    return createCORSDtoResponse(Status::CODE_200, userService.createUser(dto));
+    return createDtoResponse(Status::CODE_200, userService.createUser(dto));
   }
 
+  ADD_CORS(login)
   ENDPOINT_INFO(login) {
     info->summary = "Login";
     info->addResponse<Object<UserJsonDto>>(Status::CODE_200, "application/json");
@@ -52,9 +54,10 @@ public:
   }
   ENDPOINT("POST", "/users/login", login, BODY_DTO(Object<UserAuthJsonDto>, dto))
   {
-    return createCORSDtoResponse(Status::CODE_200, userService.login(dto));
+    return createDtoResponse(Status::CODE_200, userService.login(dto));
   }
 
+  ADD_CORS(getUser)
   ENDPOINT_INFO(getUser) {
     info->summary = "Get current user";
     info->addResponse<Object<UserJsonDto>>(Status::CODE_200, "application/json");
@@ -66,9 +69,10 @@ public:
   }
   ENDPOINT("GET", "/user", getUser, AUTHORIZATION(std::shared_ptr<TokenAuthorizationObject>, authObject))
   {
-    return createCORSDtoResponse(Status::CODE_200, userService.getUser(authObject->id));
+    return createDtoResponse(Status::CODE_200, userService.getUser(authObject->id));
   }
 
+  ADD_CORS(updateUser)
   ENDPOINT_INFO(updateUser) {
     info->summary = "Update information for current user";
     info->addResponse<Object<UserJsonDto>>(Status::CODE_200, "application/json");
@@ -80,7 +84,7 @@ public:
   }
   ENDPOINT("PUT", "/user", updateUser, BODY_DTO(Object<UserUpdateJsonDto>, dto), AUTHORIZATION(std::shared_ptr<TokenAuthorizationObject>, authObject))
   {
-    return createCORSDtoResponse(Status::CODE_200, userService.updateUser(authObject->id, dto));
+    return createDtoResponse(Status::CODE_200, userService.updateUser(authObject->id, dto));
   }
 };
 
