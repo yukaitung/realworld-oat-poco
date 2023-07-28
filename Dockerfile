@@ -26,6 +26,6 @@ RUN mkdir realworld
 WORKDIR /realworld
 COPY --from=build /realworld/build/bin .
 
-EXPOSE 8000 8000
+EXPOSE 8000
 
 ENTRYPOINT ["./Realworld"]
